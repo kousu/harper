@@ -376,7 +376,7 @@ use crate::{
         {ExprLinter, HtmlDescriptionLinter, Lint, Linter},
     },
     spell::Dictionary,
-    {Dialect, Document, Span, TokenStringExt},
+    {Dialect, Document, Language, Span, TokenStringExt},
 };
 
 pub use flat_config::FlatConfig;
@@ -594,6 +594,20 @@ impl LintGroup {
     pub fn with_lint_config(mut self, config: FlatConfig) -> Self {
         self.config = config;
         self
+    }
+
+    /// Create the curated group of rules for `language`.
+    ///
+    /// Only English has rules so far, so any other language gets an empty group.
+    pub fn new_curated_for_language(
+        dictionary: Arc<impl Dictionary + 'static>,
+        dialect: Dialect,
+        language: Language,
+    ) -> Self {
+        match language {
+            Language::English => Self::new_curated(dictionary, dialect),
+            Language::French => Self::empty(),
+        }
     }
 
     pub fn new_curated(dictionary: Arc<impl Dictionary + 'static>, dialect: Dialect) -> Self {
@@ -1185,7 +1199,7 @@ mod tests {
     use crate::linting::tests::{assert_no_lints, assert_suggestion_result};
     use crate::spell::{FstDictionary, MutableDictionary};
     use crate::weir::WeirLinter;
-    use crate::{Dialect, Document, linting::Linter};
+    use crate::{Dialect, Document, Language, linting::Linter};
 
     create_test_pool!(
         LintGroup,
@@ -1441,5 +1455,25 @@ mod tests {
             test_linter(),
             "IMO these kind of advice never matters.",
         );
+    }
+
+    #[test]
+    fn english_group_matches_new_curated() {
+        let dict = FstDictionary::curated();
+        let english =
+            LintGroup::new_curated_for_language(dict.clone(), Dialect::American, Language::English);
+        let curated = LintGroup::new_curated(dict, Dialect::American);
+        assert_eq!(english.config, curated.config);
+    }
+
+    #[test]
+    fn french_group_has_no_rules_yet() {
+        let mut group = LintGroup::new_curated_for_language(
+            FstDictionary::curated(),
+            Dialect::American,
+            Language::French,
+        );
+        let doc = Document::new_markdown_default_curated("Ceci est une phrase en franssais.");
+        assert!(group.lint(&doc).is_empty());
     }
 }
