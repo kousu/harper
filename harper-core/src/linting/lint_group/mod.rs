@@ -611,11 +611,14 @@ impl LintGroup {
         }
     }
 
-    /// The French rules: spell checking plus the Weir rules in `weir_rules_fr`.
+    /// The French rules: spell checking, the rules in `linting::fr`, and the Weir rules in
+    /// `weir_rules_fr`.
     fn new_curated_french(dictionary: Arc<impl Dictionary + 'static>, dialect: Dialect) -> Self {
         let mut out = Self::empty();
 
         out.add("SpellCheck", SpellCheck::new(dictionary, dialect));
+        out.add("FrenchElision", super::fr::Elision);
+        out.add("FrenchArticleGender", super::fr::ArticleGender);
         out.merge_from(weir_rules::french::lint_group());
         out.set_all_rules_to(Some(true));
 

@@ -125,6 +125,7 @@ mod for_free_of_charge;
 mod for_noun;
 mod for_same_reason;
 mod for_the_nth_time;
+pub mod fr;
 mod free_predicate;
 mod friend_of_me;
 mod full_to_the_brim;
