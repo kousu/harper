@@ -721,7 +721,34 @@ mod tests {
 #[cfg(all(test, feature = "fr"))]
 mod french_tests {
     use super::*;
+    use crate::linting::LintKind;
     use crate::spell::FstDictionary;
+
+    fn french_lints(text: &str) -> Vec<crate::linting::Lint> {
+        use crate::{FrenchDialect, LanguageFamily};
+
+        let dictionary = FstDictionary::curated_for(LanguageFamily::French);
+        let mut group = LintGroup::new_curated_for_language(
+            dictionary.clone(),
+            Language::French(FrenchDialect::France),
+        );
+        let doc = Document::new_with_language(text, LanguageFamily::French);
+
+        group.lint(&doc)
+    }
+
+    #[test]
+    fn french_group_accepts_correct_french() {
+        assert!(french_lints("Le chat mange la souris dans le jardin aujourd'hui.").is_empty());
+    }
+
+    #[test]
+    fn french_group_flags_misspelling() {
+        let lints = french_lints("Ceci est une phrase en franssais.");
+
+        assert_eq!(lints.len(), 1);
+        assert_eq!(lints[0].lint_kind, LintKind::Spelling);
+    }
 
     #[test]
     fn french_group_has_only_spell_check() {

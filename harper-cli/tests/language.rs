@@ -152,3 +152,24 @@ fn unknown_french_dialect_is_an_error() {
 fn french_needs_the_feature() {
     assert!(lint_error(&["--language", "fr"]).contains("This build has no French support."));
 }
+
+#[cfg(feature = "fr")]
+#[test]
+fn french_accepts_correct_text() {
+    assert_eq!(
+        lints(
+            &["--language", "fr"],
+            "Le chat mange la souris dans le jardin aujourd'hui."
+        ),
+        []
+    );
+}
+
+#[cfg(feature = "fr")]
+#[test]
+fn french_flags_misspelling() {
+    assert_eq!(
+        lints(&["--language", "fr"], "Je parle le franssais."),
+        [("SpellCheck".to_string(), "franssais".to_string())]
+    );
+}
