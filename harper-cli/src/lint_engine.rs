@@ -40,7 +40,7 @@ pub fn lint_one_input(
         ignore,
         only,
         keep_overlapping_lints,
-        dialect,
+        language,
         weirpack_inputs: _,
         color: _,
         format: _,
@@ -71,7 +71,7 @@ pub fn lint_one_input(
             }
         }
 
-        match single_input.load(markdown_options, &merged_dictionary) {
+        match single_input.load(markdown_options, &merged_dictionary, language.family()) {
             Err(err) => {
                 eprintln!("{}", err);
                 if matches!(report_mode, ReportStyle::Json) {
@@ -84,8 +84,9 @@ pub fn lint_one_input(
                 }
             }
             Ok((doc, source)) => {
-                // Create the Lint Group from which we will lint this input, using the combined dictionary and the specified dialect
-                let mut lint_group = LintGroup::new_curated(merged_dictionary.into(), *dialect);
+                // Create the Lint Group from which we will lint this input, using the combined dictionary and the specified language
+                let mut lint_group =
+                    LintGroup::new_curated_for_language(merged_dictionary.into(), *language);
 
                 for pack in weirpacks {
                     let pack_group = pack.to_lint_group()?;

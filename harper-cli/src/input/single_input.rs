@@ -9,7 +9,7 @@ use harper_comments::CommentParser;
 use harper_core::parsers::{Markdown, OrgMode, Parser};
 use harper_core::spell::Dictionary;
 use harper_core::{
-    Document,
+    Document, LanguageFamily,
     parsers::{MarkdownOptions, PlainEnglish},
 };
 use harper_ink::InkParser;
@@ -22,26 +22,32 @@ use super::InputTrait;
 /// multiple (file) sources.
 #[enum_dispatch]
 pub(crate) trait SingleInputTrait: InputTrait {
-    /// Loads the contained file/string into a conventional format. Returns a `Result` containing
-    /// a tuple of a `Document` and its corresponding source text as a string.
+    /// Loads the contained file/string, as text in `language`, into a conventional format.
+    /// Returns a `Result` containing a tuple of a `Document` and its corresponding source text as
+    /// a string.
     fn load(
         &self,
         markdown_options: MarkdownOptions,
         dictionary: &dyn Dictionary,
+        language: LanguageFamily,
     ) -> anyhow::Result<(Document, Cow<'_, str>)> {
-        self.load_with_parser(&self.get_parser(markdown_options), dictionary)
+        self.load_with_parser(&self.get_parser(markdown_options), dictionary, language)
     }
 
-    /// Loads the contained file/string into a conventional format using the provided
-    /// parser. Returns a `Result` containing a tuple of a `Document` and its corresponding source
-    /// text as a string.
+    /// Loads the contained file/string, as text in `language`, into a conventional format using
+    /// the provided parser. Returns a `Result` containing a tuple of a `Document` and its
+    /// corresponding source text as a string.
     fn load_with_parser(
         &self,
         parser: &dyn Parser,
         dictionary: &dyn Dictionary,
+        language: LanguageFamily,
     ) -> anyhow::Result<(Document, Cow<'_, str>)> {
         let text = self.get_content()?;
-        Ok((Document::new(&text, &parser, &dictionary), text))
+        let document = match language {
+            LanguageFamily::English => Document::new(&text, &parser, &dictionary),
+        };
+        Ok((document, text))
     }
 
     /// The parser that should be used to parse this input.

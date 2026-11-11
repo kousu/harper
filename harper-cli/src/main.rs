@@ -18,7 +18,8 @@ use serde::Serialize;
 use serde_json::Value;
 
 use harper_core::{
-    CharStringExt, DictWordMetadata, EnglishDialect, OrthFlags, Span, TokenKind, TokenStringExt,
+    CharStringExt, DictWordMetadata, EnglishDialect, Language, LanguageFamily, OrthFlags, Span,
+    TokenKind, TokenStringExt,
     linting::LintGroup,
     parsers::{IsolateEnglish, MarkdownOptions},
     spell::{CanonicalWordId, Dictionary, FstDictionary, MutableDictionary},
@@ -77,7 +78,8 @@ enum Args {
         /// Overlapping lints are removed by default. This option disables that behavior.
         #[arg(short = 'o', long)]
         keep_overlapping_lints: bool,
-        /// Specify the dialect. Common synonyms, abbreviations, and codes are supported.
+        /// Specify the dialect of the language. Common synonyms, abbreviations, and codes are
+        /// supported.
         #[arg(short, long, default_value = "us")]
         dialect: String,
         /// Path to the user dictionary.
@@ -271,8 +273,7 @@ fn main() -> anyhow::Result<()> {
             quiet,
             no_parallel,
         } => {
-            let dialect = EnglishDialect::try_from_name(&dialect_str)
-                .ok_or_else(|| anyhow!("Unknown dialect: {dialect_str}"))?;
+            let language = Language::try_from_names("en", Some(&dialect_str))?;
 
             lint(
                 markdown_options,
@@ -283,7 +284,7 @@ fn main() -> anyhow::Result<()> {
                     ignore,
                     only,
                     keep_overlapping_lints,
-                    dialect,
+                    language,
                     weirpack_inputs: weirpacks,
                     color,
                     format,
@@ -300,7 +301,11 @@ fn main() -> anyhow::Result<()> {
             let input = input.unwrap_or_read_from_stdin();
 
             // Load the file/text.
-            let (doc, _) = input.load(markdown_options, &curated_dictionary)?;
+            let (doc, _) = input.load(
+                markdown_options,
+                &curated_dictionary,
+                LanguageFamily::English,
+            )?;
 
             for token in doc.tokens() {
                 let json = serde_json::to_string(&token)?;
@@ -317,7 +322,11 @@ fn main() -> anyhow::Result<()> {
             let input = input.unwrap_or_read_from_stdin();
 
             // Load the file/text.
-            let (doc, source) = input.load(markdown_options, &curated_dictionary)?;
+            let (doc, source) = input.load(
+                markdown_options,
+                &curated_dictionary,
+                LanguageFamily::English,
+            )?;
 
             let primary_color = Color::Blue;
             let secondary_color = Color::Magenta;
@@ -375,7 +384,8 @@ fn main() -> anyhow::Result<()> {
             };
 
             // Load the file/text.
-            let (doc, source) = input.load_with_parser(&parser, &curated_dictionary)?;
+            let (doc, source) =
+                input.load_with_parser(&parser, &curated_dictionary, LanguageFamily::English)?;
 
             let input_identifier = input.get_identifier();
 
@@ -552,7 +562,11 @@ fn main() -> anyhow::Result<()> {
         }
         Args::MineWords { input } => {
             let input = input.unwrap_or_read_from_stdin();
-            let (doc, _source) = input.load(MarkdownOptions::default(), &curated_dictionary)?;
+            let (doc, _source) = input.load(
+                MarkdownOptions::default(),
+                &curated_dictionary,
+                LanguageFamily::English,
+            )?;
 
             let mut words = HashMap::new();
 
@@ -948,9 +962,11 @@ fn main() -> anyhow::Result<()> {
         }
         Args::NominalPhrases { input } => {
             // Get input from either file or direct text
-            let (doc, _) = input
-                .unwrap_or_read_from_stdin()
-                .load(MarkdownOptions::default(), &curated_dictionary)?;
+            let (doc, _) = input.unwrap_or_read_from_stdin().load(
+                MarkdownOptions::default(),
+                &curated_dictionary,
+                LanguageFamily::English,
+            )?;
 
             let phrases: Vec<_> = doc
                 .iter_nominal_phrases()

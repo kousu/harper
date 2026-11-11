@@ -15,7 +15,7 @@ use harper_core::{
     parsers::MarkdownOptions,
     spell::{Dictionary, MergedDictionary, MutableDictionary},
     weirpack::Weirpack,
-    {DictWordMetadata, Document, EnglishDialect},
+    {DictWordMetadata, Document, Language},
 };
 
 use crate::input::{
@@ -89,7 +89,7 @@ pub struct LintOptions {
     pub ignore: Option<Vec<String>>,
     pub only: Option<Vec<String>>,
     pub keep_overlapping_lints: bool,
-    pub dialect: EnglishDialect,
+    pub language: Language,
     pub weirpack_inputs: Vec<SingleInput>,
     pub color: bool,
     pub format: OutputFormat,
@@ -183,7 +183,7 @@ pub fn lint(
         count,
         ref mut ignore,
         ref mut only,
-        dialect,
+        language,
         ref weirpack_inputs,
         no_parallel,
         ..
@@ -346,7 +346,7 @@ pub fn lint(
         ReportStyle::Compact => {}
         _ => {
             final_report(
-                dialect,
+                language,
                 true,
                 all_lint_kinds,
                 all_rules,
@@ -379,7 +379,7 @@ pub struct FullInputInfo<'a> {
 }
 
 fn final_report(
-    dialect: EnglishDialect,
+    language: Language,
     batch_mode: bool,
     all_lint_kinds: HashMap<LintKind, usize>,
     all_rules: HashMap<String, usize>,
@@ -500,7 +500,10 @@ fn final_report(
             })
             .collect();
 
-        println!("All files Spelling::SpellCheck (For dialect: {})", dialect);
+        println!(
+            "All files Spelling::SpellCheck (For {})",
+            describe_language(language)
+        );
         print_formatted_items(spelling_vec, color);
     }
 }
@@ -579,4 +582,11 @@ pub fn print_formatted_items(
         first_on_line = false;
     }
     println!();
+}
+
+/// A short description of `language` for reports, like "English, American".
+fn describe_language(language: Language) -> String {
+    match language {
+        Language::English(dialect) => format!("English, {dialect}"),
+    }
 }
