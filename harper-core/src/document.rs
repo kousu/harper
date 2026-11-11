@@ -991,19 +991,12 @@ mod tests {
     #[cfg(feature = "french")]
     fn french_tags(text: &str) -> Vec<Option<harper_brill::UPOS>> {
         use crate::parsers::PlainFrench;
-        use crate::spell::MutableDictionary;
-        use crate::{DictWordMetadata, Language, Lrc};
-
-        let mut dictionary = MutableDictionary::new();
-        text.split(|c: char| !c.is_alphabetic() && c != '\'')
-            .filter(|w| !w.is_empty())
-            .flat_map(|w| match w.split_once('\'') {
-                Some((elided, rest)) => vec![format!("{elided}'"), rest.to_string()],
-                None => vec![w.to_string()],
-            })
-            .for_each(|w| dictionary.append_word_str(&w, DictWordMetadata::default()));
+        use crate::spell::FstDictionary;
+        use crate::{Language, Lrc};
 
         let source: Lrc<[char]> = text.chars().collect();
+        let dictionary = FstDictionary::curated_for(Language::French);
+
         Document::new_from_chars_in(source, &PlainFrench, &dictionary, Language::French)
             .tokens
             .iter()

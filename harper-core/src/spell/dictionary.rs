@@ -8,6 +8,12 @@ use crate::DictWordMetadata;
 pub static CURATED_DICT_STR: &str = include_str!("../../dictionary.dict");
 pub static ANNOTATIONS_STR: &str = include_str!("../../annotations.json");
 
+/// The French dictionary, generated from the Grammalecte lexicon by `dictionaries/fr/build.sh`.
+#[cfg(feature = "french")]
+pub static FRENCH_DICT_STR: &str = include_str!("../../dictionaries/fr/dictionary.dict");
+#[cfg(feature = "french")]
+pub static FRENCH_ANNOTATIONS_STR: &str = include_str!("../../dictionaries/fr/annotations.json");
+
 /// An in-memory database that contains everything necessary to parse and analyze English text.
 ///
 /// See also: [`super::FstDictionary`] and [`super::MutableDictionary`].
