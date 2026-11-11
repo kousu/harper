@@ -57,4 +57,6 @@ harness = false
 [features]
 default = ["thesaurus", "concurrent"]
 concurrent = ["dep:boxcar"]
+# Bundle the French tagger and chunker models.
+french = ["harper-brill/french"]
 thesaurus = ["dep:harper-thesaurus"]

@@ -2,7 +2,9 @@ use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::fmt::Display;
 
-use harper_brill::{Chunker, Tagger, brill_tagger, burn_chunker};
+use harper_brill::{Chunker, Tagger, UPOS, brill_tagger, burn_chunker};
+#[cfg(feature = "french")]
+use harper_brill::{french_brill_chunker, french_brill_tagger};
 use itertools::Itertools;
 
 use crate::expr::{Expr, ExprExt, FirstMatchOf, Repeating, SequenceExpr};
@@ -11,13 +13,33 @@ use crate::punctuation::Punctuation;
 use crate::spell::{Dictionary, FstDictionary};
 use crate::vec_ext::VecExt;
 use crate::{CharStringExt, FatStringToken, FatToken, Lrc, Token, TokenKind, TokenStringExt};
-use crate::{OrdinalSuffix, Span};
+use crate::{Language, OrdinalSuffix, Span};
 
 /// A document containing some amount of lexed and parsed English text.
 #[derive(Debug, Clone)]
 pub struct Document {
     source: Lrc<[char]>,
     tokens: Vec<Token>,
+}
+
+/// Tag each word of a sentence with its part of speech, and mark which words are in a noun phrase.
+fn tag_and_chunk(sentence: &[String], language: Language) -> (Vec<Option<UPOS>>, Vec<bool>) {
+    match language {
+        Language::English => {
+            let tags = brill_tagger().tag_sentence(sentence);
+            let np_flags = burn_chunker().chunk_sentence(sentence, &tags);
+            (tags, np_flags)
+        }
+        #[cfg(feature = "french")]
+        Language::French => {
+            let tags = french_brill_tagger().tag_sentence(sentence);
+            let np_flags = french_brill_chunker().chunk_sentence(sentence, &tags);
+            (tags, np_flags)
+        }
+        // Without the French models, words fall back to the tags their dictionary entry implies.
+        #[cfg(not(feature = "french"))]
+        Language::French => (vec![None; sentence.len()], vec![false; sentence.len()]),
+    }
 }
 
 impl Default for Document {
@@ -72,10 +94,24 @@ impl Document {
         parser: &impl Parser,
         dictionary: &impl Dictionary,
     ) -> Self {
+        Self::new_from_chars_in(source, parser, dictionary, Language::English)
+    }
+
+    /// Lexes and parses text in `language` to produce a document using a provided
+    /// parser and dictionary.
+    ///
+    /// The parser and dictionary should match `language` too, such as
+    /// [`crate::parsers::PlainFrench`] for French.
+    pub fn new_from_chars_in(
+        source: Lrc<[char]>,
+        parser: &impl Parser,
+        dictionary: &impl Dictionary,
+        language: Language,
+    ) -> Self {
         let tokens = parser.parse(&source);
 
         let mut document = Self { source, tokens };
-        document.parse(dictionary);
+        document.parse(dictionary, language);
 
         document
     }
@@ -172,11 +208,8 @@ impl Document {
     /// Re-parse important language constructs.
     ///
     /// Should be run after every change to the underlying [`Self::source`].
-    fn parse(&mut self, dictionary: &impl Dictionary) {
+    fn parse(&mut self, dictionary: &impl Dictionary, language: Language) {
         self.apply_fixups();
-
-        let chunker = burn_chunker();
-        let tagger = brill_tagger();
 
         for sent in self.tokens.iter_sentences_mut() {
             let token_strings: Vec<_> = sent
@@ -185,8 +218,7 @@ impl Document {
                 .map(|t| t.get_str(&self.source))
                 .collect();
 
-            let token_tags = tagger.tag_sentence(&token_strings);
-            let np_flags = chunker.chunk_sentence(&token_strings, &token_tags);
+            let (token_tags, np_flags) = tag_and_chunk(&token_strings, language);
 
             // Annotate DictWord metadata
             let word_sources: Vec<_> = sent
@@ -955,6 +987,68 @@ mod tests {
     use super::Document;
     use crate::TokenStringExt;
     use crate::{Span, parsers::MarkdownOptions};
+
+    #[cfg(feature = "french")]
+    fn french_tags(text: &str) -> Vec<Option<harper_brill::UPOS>> {
+        use crate::parsers::PlainFrench;
+        use crate::spell::MutableDictionary;
+        use crate::{DictWordMetadata, Language, Lrc};
+
+        let mut dictionary = MutableDictionary::new();
+        text.split(|c: char| !c.is_alphabetic() && c != '\'')
+            .filter(|w| !w.is_empty())
+            .flat_map(|w| match w.split_once('\'') {
+                Some((elided, rest)) => vec![format!("{elided}'"), rest.to_string()],
+                None => vec![w.to_string()],
+            })
+            .for_each(|w| dictionary.append_word_str(&w, DictWordMetadata::default()));
+
+        let source: Lrc<[char]> = text.chars().collect();
+        Document::new_from_chars_in(source, &PlainFrench, &dictionary, Language::French)
+            .tokens
+            .iter()
+            .filter_map(|t| t.kind.as_word().map(|m| m.as_ref().and_then(|m| m.pos_tag)))
+            .collect()
+    }
+
+    #[cfg(feature = "french")]
+    #[test]
+    fn tags_simple_french_sentence() {
+        use harper_brill::UPOS::*;
+
+        assert_eq!(
+            french_tags("Le chat mange la souris."),
+            [Some(DET), Some(NOUN), Some(VERB), Some(DET), Some(NOUN)]
+        );
+    }
+
+    #[cfg(feature = "french")]
+    #[test]
+    fn tags_french_elision() {
+        use harper_brill::UPOS::*;
+
+        assert_eq!(
+            french_tags("Il parle de l'homme."),
+            [Some(PRON), Some(VERB), Some(ADP), Some(DET), Some(NOUN)]
+        );
+    }
+
+    #[test]
+    fn english_constructor_matches_language_constructor() {
+        use crate::parsers::PlainEnglish;
+        use crate::spell::FstDictionary;
+        use crate::{Language, Lrc};
+
+        let text = "The cat eats the mouse.";
+        let source: Lrc<[char]> = text.chars().collect();
+        let dictionary = FstDictionary::curated();
+
+        let english = Document::new_from_chars(source.clone(), &PlainEnglish, &dictionary);
+        let in_english =
+            Document::new_from_chars_in(source, &PlainEnglish, &dictionary, Language::English);
+
+        assert_eq!(english.tokens, in_english.tokens);
+    }
 
     fn assert_condensed_contractions(text: &str, final_tok_count: usize) {
         let document = Document::new_plain_english_curated(text);

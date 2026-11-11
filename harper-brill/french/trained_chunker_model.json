@@ -1,0 +1,1873 @@
+{
+	"base": {
+		"counts": {
+			"INTJ": -70,
+			"DET": -20358,
+			"NUM": -6765,
+			"CCONJ": -9431,
+			"PUNCT": -39016,
+			"ADV": -12736,
+			"PROPN": 18219,
+			"PRON": 12502,
+			"AUX": -11564,
+			"ADJ": -8595,
+			"ADP": -56237,
+			"SCONJ": -2598,
+			"SYM": -617,
+			"VERB": -27477,
+			"NOUN": 22965
+		}
+	},
+	"patches": [
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 1,
+							"word": "des"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 3,
+							"is_tagged": "ADP"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 1,
+							"word": "d'"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 4,
+							"is_tagged": "ADP"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "cette"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 3,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "autre"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 0,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 3,
+							"word": "leurs"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": 2,
+							"word": "des"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "la"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 3,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "deux"
+						}
+					},
+					"b": {
+						"SandwichTaggedWith": {
+							"prev_word_tagged": "DET",
+							"post_word_tagged": "ADP"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "Le"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 4,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "des"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": 0,
+							"word": "Les"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "l'"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 5,
+							"is_tagged": "VERB"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "deux"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 3,
+							"is_tagged": "ADJ"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "La"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 4,
+							"is_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "ses"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 3,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "un"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": -2,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "des"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "DET"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "autres"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "la"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 5,
+							"is_tagged": "VERB"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "le"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "La"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 4,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "Son"
+						}
+					},
+					"b": {
+						"NounPhraseAt": {
+							"is_np": true,
+							"relative": 1
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "La"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "VERB"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "des"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "une"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 4,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "Le"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "DET"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "L'"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 3,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "ce"
+						}
+					},
+					"b": {
+						"NounPhraseAt": {
+							"is_np": true,
+							"relative": 1
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "des"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 0,
+							"is_tagged": "DET"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 1,
+							"word": "deux"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": -1,
+							"word": "La"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "leur"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 3,
+							"is_tagged": "VERB"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "des"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": 0,
+							"word": "Les"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 1,
+							"word": "des"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "PROPN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "des"
+						}
+					},
+					"b": {
+						"SandwichTaggedWith": {
+							"prev_word_tagged": "NOUN",
+							"post_word_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "autre"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": 0,
+							"word": "Les"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "L'"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 3,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 1,
+							"word": "des"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": -1,
+							"word": "l'"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "une"
+						}
+					},
+					"b": {
+						"SandwichTaggedWith": {
+							"prev_word_tagged": "NOUN",
+							"post_word_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "La"
+						}
+					},
+					"b": {
+						"SandwichTaggedWith": {
+							"prev_word_tagged": "NOUN",
+							"post_word_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "ce"
+						}
+					},
+					"b": {
+						"SandwichTaggedWith": {
+							"prev_word_tagged": "DET",
+							"post_word_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "partie"
+						}
+					},
+					"b": {
+						"SandwichTaggedWith": {
+							"prev_word_tagged": "DET",
+							"post_word_tagged": "VERB"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "d'"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 0,
+							"is_tagged": "DET"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "l'"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 4,
+							"is_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "les"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 0,
+							"is_tagged": "DET"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "un"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 2,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "Les"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": -2,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "une"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 2,
+							"is_tagged": "PRON"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 1,
+							"word": "plusieurs"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 5,
+							"is_tagged": "ADJ"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "un"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": -3,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "L'"
+						}
+					},
+					"b": {
+						"SandwichTaggedWith": {
+							"prev_word_tagged": "NOUN",
+							"post_word_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "un"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 3,
+							"is_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "Sa"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "DET"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "grâce"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 3,
+							"is_tagged": "ADP"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "une"
+						}
+					},
+					"b": {
+						"SandwichTaggedWith": {
+							"prev_word_tagged": "AUX",
+							"post_word_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "tout"
+						}
+					},
+					"b": {
+						"NounPhraseAt": {
+							"is_np": true,
+							"relative": 1
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"WordIsTaggedWith": {
+					"relative": 0,
+					"is_tagged": "PROPN"
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "les"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 0,
+							"is_tagged": "PRON"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "de"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 0,
+							"is_tagged": "NUM"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "chaque"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 5,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "du"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 0,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "la"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": 1,
+							"word": "d'"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 3,
+							"word": "deux"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 2,
+							"is_tagged": "ADJ"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "la"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": -1,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "des"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 1,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "ces"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "ADJ"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "raison"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 3,
+							"is_tagged": "ADP"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 1,
+							"word": "d'"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": -1,
+							"word": "L'"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "d'"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 0,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "fait"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "la"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": -2,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "son"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "l'"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "s'"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": 0,
+							"word": "Le"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "ses"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "DET"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"SandwichTaggedWith": {
+					"prev_word_tagged": "PUNCT",
+					"post_word_tagged": "ADP"
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "d'"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 2,
+							"is_tagged": "ADJ"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "notre"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "DET"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "la"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 2,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 1,
+							"word": "deux"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 2,
+							"is_tagged": "ADJ"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "la"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "cette"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 3,
+							"is_tagged": "SCONJ"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "ses"
+						}
+					},
+					"b": {
+						"SandwichTaggedWith": {
+							"prev_word_tagged": "DET",
+							"post_word_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 1,
+							"word": "son"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 0,
+							"is_tagged": "ADJ"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "du"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "NOUN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "son"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 3,
+							"is_tagged": "PROPN"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "des"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "des"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "NUM"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "l'"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": -2,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "ce"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "ADV"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"SandwichTaggedWith": {
+					"prev_word_tagged": "AUX",
+					"post_word_tagged": "NOUN"
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "tous"
+						}
+					},
+					"b": {
+						"NounPhraseAt": {
+							"is_np": true,
+							"relative": 2
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"WordIsTaggedWith": {
+					"relative": 0,
+					"is_tagged": "ADP"
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "la"
+						}
+					},
+					"b": {
+						"SandwichTaggedWith": {
+							"prev_word_tagged": "NOUN",
+							"post_word_tagged": "PUNCT"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "mon"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 1,
+							"is_tagged": "DET"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "Les"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": -2,
+							"word": "du"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 2,
+							"word": "plusieurs"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 4,
+							"is_tagged": "NUM"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -2,
+							"word": "son"
+						}
+					},
+					"b": {
+						"WordIs": {
+							"relative": -1,
+							"word": "des"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "du"
+						}
+					},
+					"b": {
+						"AnyWordIsTaggedWith": {
+							"max_relative": 2,
+							"is_tagged": "VERB"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -3,
+							"word": "un"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": -2,
+							"is_tagged": "ADV"
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": 0,
+							"word": "grande"
+						}
+					},
+					"b": {
+						"NounPhraseAt": {
+							"is_np": true,
+							"relative": -1
+						}
+					}
+				}
+			}
+		},
+		{
+			"from": true,
+			"criteria": {
+				"WordIsTaggedWith": {
+					"relative": 0,
+					"is_tagged": "ADV"
+				}
+			}
+		},
+		{
+			"from": false,
+			"criteria": {
+				"Combined": {
+					"a": {
+						"WordIs": {
+							"relative": -1,
+							"word": "une"
+						}
+					},
+					"b": {
+						"WordIsTaggedWith": {
+							"relative": 2,
+							"is_tagged": "AUX"
+						}
+					}
+				}
+			}
+		}
+	]
+}
