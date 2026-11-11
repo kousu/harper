@@ -18,8 +18,13 @@ to write `dictionary.dict`. `build.sh -h` lists its options.
 
 - Every inflected form in the lexicon (about 470,000), except the "X" sub-dictionary.
   Both traditional and 1990-reform spellings are accepted.
-- Part of speech, noun number, pronoun person and number, gender (`♂`, `♀`), and the
-  infinitive and participle verb forms.
+- Part of speech, noun number, pronoun person and number, and gender (`♂`, `♀`; both for
+  words like `élève`).
+- For verbs: infinitive and participles, tense and mood (`π` present, `ι` imperfect,
+  `σ` simple past, `φ` future, `κ` conditional, `ψ` present subjunctive,
+  `ξ` imperfect subjunctive, `ε` imperative), and person (`¹ ² ³` singular, `₁ ₂ ₃` plural).
+  A form's tenses and persons are merged, so `mange` is "present indicative, present
+  subjunctive or imperative" and "first, second or third person singular".
 - Forms in Grammalecte frequency class 6 or above are marked common, which ranks them
   higher among spelling suggestions.
 - Curly apostrophes are stored as straight ones (`l'`, `aujourd'hui`); Harper treats them the same.

@@ -319,6 +319,68 @@ mod tests {
         }
 
         #[test]
+        fn knows_gender() {
+            use crate::GenderFlags;
+
+            let dict = dict();
+
+            let gender = |w: &str| dict.get_word_metadata_str(w).unwrap().gender;
+            assert_eq!(gender("chat"), GenderFlags::MASCULINE);
+            assert_eq!(gender("maison"), GenderFlags::FEMININE);
+            assert_eq!(gender("élève"), GenderFlags::all());
+            assert_eq!(gender("une"), GenderFlags::FEMININE);
+            assert!(gender("grande").contains(GenderFlags::FEMININE));
+        }
+
+        #[test]
+        fn knows_verb_tense_and_person() {
+            use crate::{PersonNumberFlags as P, VerbTenseFlags as T};
+
+            let dict = dict();
+
+            let verb = |w: &str| dict.get_word_metadata_str(w).unwrap().verb.unwrap();
+
+            let mangeons = verb("mangeons");
+            assert!(mangeons.tenses.unwrap().contains(T::INDICATIVE_PRESENT));
+            assert_eq!(mangeons.persons, Some(P::FIRST_PLURAL));
+
+            let mangeait = verb("mangeait");
+            assert_eq!(mangeait.tenses, Some(T::INDICATIVE_IMPERFECT));
+            assert_eq!(mangeait.persons, Some(P::THIRD_SINGULAR));
+
+            let mangerai = verb("mangerai");
+            assert_eq!(mangerai.tenses, Some(T::INDICATIVE_FUTURE));
+            assert_eq!(mangerai.persons, Some(P::FIRST_SINGULAR));
+
+            let mange = verb("mange");
+            assert!(mange.tenses.unwrap().contains(T::SUBJUNCTIVE_PRESENT));
+            assert!(mange.persons.unwrap().contains(P::THIRD_SINGULAR));
+            assert!(!mange.persons.unwrap().contains(P::THIRD_PLURAL));
+
+            assert!(verb("mangeraient").tenses.unwrap().contains(T::CONDITIONAL));
+            assert!(
+                verb("mangeâmes")
+                    .tenses
+                    .unwrap()
+                    .contains(T::INDICATIVE_SIMPLE_PAST)
+            );
+            assert!(
+                verb("mangeasse")
+                    .tenses
+                    .unwrap()
+                    .contains(T::SUBJUNCTIVE_IMPERFECT)
+            );
+        }
+
+        #[test]
+        fn infinitives_have_no_person() {
+            let dict = dict();
+
+            let manger = dict.get_word_metadata_str("manger").unwrap();
+            assert_eq!(manger.verb.unwrap().persons, None);
+        }
+
+        #[test]
         fn knows_proper_nouns() {
             let dict = dict();
 
@@ -379,6 +441,18 @@ mod tests {
             );
             assert_eq!(suggestions.first().map(String::as_str), Some("français"));
         }
+    }
+
+    #[test]
+    fn english_words_have_gender() {
+        use crate::GenderFlags;
+
+        let dict = crate::lang::en::dictionary::dictionary();
+        let gender = |w: &str| dict.get_word_metadata_str(w).unwrap().gender;
+
+        assert_eq!(gender("gentleman"), GenderFlags::MASCULINE);
+        assert_eq!(gender("alumna"), GenderFlags::FEMININE);
+        assert_eq!(gender("table"), GenderFlags::empty());
     }
 
     fn test_dictionaries(words: &[&str]) -> (MutableDictionary, FstDictionary) {
