@@ -1,20 +1,21 @@
-//! French: its dialects and dictionary. Its data files sit next to this module.
+//! French: its dialects, dictionary, lexer and rules. Its data files sit next to this module.
 
 pub(crate) mod dialect;
 pub(crate) mod dictionary;
+pub(crate) mod lexing;
 
 use std::sync::Arc;
 
 use harper_brill::UPOS;
 
 use crate::lang::LanguageData;
-use crate::lexers::{Lexer, PlainText};
+use crate::lexers::{Lexer, PlainFrench};
 use crate::linting::{FlatConfig, LintGroup, StructuredConfig};
 use crate::spell::{FstDictionary, MutableDictionary, TrieDictionary};
 use crate::{Language, Lrc};
 
 /// French's data, for [`LanguageFamily::data`](crate::LanguageFamily::data). French is
-/// experimental: it has no lexer or tagger of its own yet.
+/// experimental: it has no tagger of its own yet.
 pub(crate) struct French;
 
 impl LanguageData for French {
@@ -30,9 +31,8 @@ impl LanguageData for French {
         dictionary::trie_dictionary()
     }
 
-    /// French uses [`PlainText`] until it has its own lexer.
     fn lexer(&self) -> Lrc<dyn Lexer> {
-        Lrc::new(PlainText)
+        Lrc::new(PlainFrench)
     }
 
     /// French has no tagger or chunker yet.

@@ -10,6 +10,8 @@ pub(crate) mod prose;
 
 #[cfg(feature = "en")]
 pub use crate::lexers::PlainEnglish;
+#[cfg(feature = "fr")]
+pub use crate::lexers::PlainFrench;
 pub use crate::lexers::PlainText;
 use blanket::blanket;
 pub use collapse_identifiers::CollapseIdentifiers;

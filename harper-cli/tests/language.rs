@@ -173,3 +173,65 @@ fn french_flags_misspelling() {
         [("SpellCheck".to_string(), "franssais".to_string())]
     );
 }
+
+#[cfg(feature = "fr")]
+#[test]
+fn french_accepts_elisions() {
+    assert_eq!(
+        lints(
+            &["--language", "fr"],
+            "J'aime l'école, jusqu'à ce qu'il pleuve. Si l’on veut, on peut."
+        ),
+        []
+    );
+}
+
+#[cfg(feature = "fr")]
+/// Lint `text` as a French file with the given extension and return each lint's matched text.
+fn french_file_lints(extension: &str, text: &str) -> Vec<String> {
+    let dir = std::env::temp_dir().join(format!("harper-cli-language-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join(format!("test.{extension}"));
+    std::fs::write(&path, text).unwrap();
+
+    lints(&["--language", "fr"], path.to_str().unwrap())
+        .into_iter()
+        .map(|(_, matched)| matched)
+        .collect()
+}
+
+#[cfg(feature = "fr")]
+#[test]
+fn french_markdown() {
+    assert_eq!(
+        french_file_lints(
+            "md",
+            "# L'école\n\nJ'aime l'*histoire* et le `kode`, pas la franssaise.\n"
+        ),
+        ["franssaise"]
+    );
+}
+
+#[cfg(feature = "fr")]
+#[test]
+fn french_org_mode() {
+    assert_eq!(
+        french_file_lints(
+            "org",
+            "* L'école\nJ'aime l'histoire, pas la franssaise.\n#+BEGIN_SRC\nkode\n#+END_SRC\n"
+        ),
+        ["franssaise"]
+    );
+}
+
+#[cfg(feature = "fr")]
+#[test]
+fn french_tex() {
+    assert_eq!(
+        french_file_lints(
+            "tex",
+            "\\section{L'école}\nJ'aime l'histoire, pas la franssaise. \\cite{kode}\n"
+        ),
+        ["franssaise"]
+    );
+}
