@@ -18,7 +18,7 @@ use harper_core::parsers::{
     CollapseIdentifiers, IsolateEnglish, Markdown, OrgMode, Parser, PlainEnglish,
 };
 use harper_core::spell::{Dictionary, FstDictionary, MergedDictionary, MutableDictionary};
-use harper_core::{DictWordMetadata, Document, EnglishDialect, IgnoredLints, Language};
+use harper_core::{DictWordMetadata, Document, IgnoredLints, Language};
 use harper_dictionary_wordlist::{load_dict, save_dict};
 use harper_git_commit::GitCommitParser;
 use harper_html::HtmlParser;
@@ -88,7 +88,7 @@ impl Backend {
             .await
             .context("Unable to get the file path.")?;
 
-        load_dict(path, Language::English(self.config.read().await.dialect))
+        load_dict(path, self.config.read().await.language)
             .await
             .map_err(|err| info!("{err}"))
             .or(Ok(MutableDictionary::new()))
@@ -152,7 +152,7 @@ impl Backend {
     async fn load_user_dictionary(&self) -> MutableDictionary {
         let config = self.config.read().await;
 
-        load_dict(&config.user_dict_path, Language::English(config.dialect))
+        load_dict(&config.user_dict_path, config.language)
             .await
             .map_err(|err| info!("{err}"))
             .unwrap_or(MutableDictionary::new())
@@ -168,13 +168,10 @@ impl Backend {
 
     async fn load_workspace_dictionary(&self) -> MutableDictionary {
         let config = self.config.read().await;
-        load_dict(
-            &config.workspace_dict_path,
-            Language::English(config.dialect),
-        )
-        .await
-        .map_err(|err| info!("{err}"))
-        .unwrap_or(MutableDictionary::new())
+        load_dict(&config.workspace_dict_path, config.language)
+            .await
+            .map_err(|err| info!("{err}"))
+            .unwrap_or(MutableDictionary::new())
     }
 
     async fn save_workspace_dictionary(&self, dict: impl Dictionary) -> Result<()> {
@@ -255,7 +252,7 @@ impl Backend {
             lint_config,
             markdown_options,
             isolate_english,
-            dialect,
+            language,
             max_file_length,
             exclude_patterns,
         ) = {
@@ -264,12 +261,11 @@ impl Backend {
                 config.lint_config.clone(),
                 config.markdown_options,
                 config.isolate_english,
-                config.dialect,
+                config.language,
                 config.max_file_length,
                 config.exclude_patterns.clone(),
             )
         };
-        let language = Language::English(dialect);
 
         let mut doc_lock = self.doc_state.lock().await;
 
@@ -326,9 +322,8 @@ impl Backend {
             uri: &'a Uri,
             doc_state: &'a mut DocumentState,
             lint_config: &FlatConfig,
-            dialect: EnglishDialect,
+            language: Language,
         ) -> Result<Box<dyn Parser>> {
-            let language = Language::English(dialect);
             if doc_state.ident_dict != new_dict {
                 info!("Constructing new linter because of modified ident dictionary.");
                 doc_state.ident_dict = new_dict.clone();
@@ -365,7 +360,7 @@ impl Backend {
                             uri,
                             doc_state,
                             &lint_config,
-                            dialect,
+                            language,
                         )
                         .await?,
                     )
@@ -396,7 +391,7 @@ impl Backend {
                             uri,
                             doc_state,
                             &lint_config,
-                            dialect,
+                            language,
                         )
                         .await?,
                     )
@@ -884,12 +879,10 @@ impl LanguageServer for Backend {
 
             for doc in doc_lock.values_mut() {
                 info!("Constructing new LintGroup for updated configuration.");
-                doc.linter = LintGroup::new_curated_for_language(
-                    doc.dict.clone(),
-                    Language::English(config_lock.dialect),
-                )
-                .with_lint_config(config_lock.lint_config.clone());
-                doc.language = Language::English(config_lock.dialect);
+                doc.linter =
+                    LintGroup::new_curated_for_language(doc.dict.clone(), config_lock.language)
+                        .with_lint_config(config_lock.lint_config.clone());
+                doc.language = config_lock.language;
             }
 
             doc_lock.keys().cloned().collect()
