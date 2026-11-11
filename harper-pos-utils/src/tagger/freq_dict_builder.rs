@@ -60,12 +60,12 @@ impl FreqDictBuilder {
     /// For error-handling purposes, this function should not be made accessible outside of training.
     #[cfg(feature = "training")]
     pub fn inc_from_conllu_file(&mut self, path: impl AsRef<Path>) {
-        use crate::conllu_utils::iter_sentences_in_conllu;
+        use crate::conllu_utils::{iter_sentences_in_conllu, surface_words};
 
         for sent in iter_sentences_in_conllu(path) {
-            for token in sent.tokens {
-                if let Some(upos) = token.upos.and_then(UPOS::from_conllu) {
-                    self.inc(&token.form, &upos)
+            for (form, upos) in surface_words(&sent) {
+                if let Some(upos) = upos {
+                    self.inc(&form, &upos)
                 }
             }
         }

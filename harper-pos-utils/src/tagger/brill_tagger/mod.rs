@@ -131,7 +131,7 @@ impl BrillTagger<FreqDict> {
     /// How many to select is given by the `candidate_selection_chance`. A higher chance means a
     /// longer training time.
     fn epoch(&mut self, training_files: &[impl AsRef<Path>], candidate_selection_chance: f32) {
-        use crate::conllu_utils::iter_sentences_in_conllu;
+        use crate::conllu_utils::{iter_sentences_in_conllu, surface_words};
         use rs_conllu::Sentence;
         use std::time::Instant;
 
@@ -150,8 +150,7 @@ impl BrillTagger<FreqDict> {
             let mut toks: Vec<String> = Vec::new();
             let mut tags = Vec::new();
 
-            for token in &sent.tokens {
-                let form = token.form.clone();
+            for (form, upos) in surface_words(sent) {
                 if let Some(last) = toks.last_mut() {
                     match form.as_str() {
                         "sn't" | "n't" | "'ll" | "'ve" | "'re" | "'d" | "'m" | "'s" => {
@@ -162,7 +161,7 @@ impl BrillTagger<FreqDict> {
                     }
                 }
                 toks.push(form);
-                tags.push(token.upos.and_then(UPOS::from_conllu));
+                tags.push(upos);
             }
 
             sentences_tagged.push((toks, tags));
