@@ -71,14 +71,35 @@ fn rust_string_literal(value: &str) -> String {
 
 fn main() {
     let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let weir_rule_dir = manifest_dir.join("./src/linting/weir_rules");
     let out_dir = Path::new(&env::var("OUT_DIR").unwrap()).to_path_buf();
-    let dest = out_dir.join("weir_rules_generated_list.rs");
 
-    let mut entries = fs::read_dir(&weir_rule_dir)
-        .unwrap()
-        .filter_map(Result::ok)
-        .collect::<Vec<_>>();
+    // Each language has its own folder of Weir rules.
+    for (folder, list_file, env_var) in [
+        (
+            "weir_rules",
+            "weir_rules_generated_list.rs",
+            "WEIR_RULE_LIST",
+        ),
+        (
+            "weir_rules_fr",
+            "weir_rules_fr_generated_list.rs",
+            "WEIR_RULE_LIST_FR",
+        ),
+    ] {
+        let dest = out_dir.join(list_file);
+        generate_weir_rule_list(&manifest_dir.join("src/linting").join(folder), &dest);
+        println!("cargo:rustc-env={env_var}={}", dest.display());
+    }
+
+    println!("cargo:rerun-if-changed=build.rs");
+}
+
+/// Write the list of Weir rules in `weir_rule_dir` to `dest`, as a `generate_boilerplate!` call.
+/// A missing folder gives an empty list.
+fn generate_weir_rule_list(weir_rule_dir: &Path, dest: &Path) {
+    let mut entries = fs::read_dir(weir_rule_dir)
+        .map(|dir| dir.filter_map(Result::ok).collect::<Vec<_>>())
+        .unwrap_or_default();
 
     entries.sort_by_key(|entry| entry.path());
 
@@ -94,7 +115,7 @@ fn main() {
 
         if file_type.is_dir() {
             let public_name = entry.file_name().to_string_lossy().to_string();
-            let children = collect_weir_files(&path, &path, &weir_rule_dir);
+            let children = collect_weir_files(&path, &path, weir_rule_dir);
 
             if !children.is_empty() {
                 grouped_rules.push(GroupedRule {
@@ -107,7 +128,7 @@ fn main() {
 
             standalone_rules.push(StandaloneRule {
                 name: rule_name_from_path(&path),
-                relative_path: path_as_weir_relative(&path, &weir_rule_dir),
+                relative_path: path_as_weir_relative(&path, weir_rule_dir),
             });
         }
     }
@@ -115,6 +136,10 @@ fn main() {
     let mut code = String::new();
 
     code.push_str("generate_boilerplate! {\n");
+    code.push_str(&format!(
+        "    dir: {},\n",
+        rust_string_literal(&weir_rule_dir.display().to_string())
+    ));
     code.push_str("    standalone: [\n");
     for rule in standalone_rules {
         code.push_str(&format!(
@@ -145,9 +170,5 @@ fn main() {
     code.push_str("    ],\n");
     code.push_str("}\n");
 
-    fs::write(&dest, code).unwrap();
-
-    println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rustc-env=WEIR_RULE_DIR={}", weir_rule_dir.display());
-    println!("cargo:rustc-env=WEIR_RULE_LIST={}", dest.display());
+    fs::write(dest, code).unwrap();
 }

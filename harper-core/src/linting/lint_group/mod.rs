@@ -598,7 +598,8 @@ impl LintGroup {
 
     /// Create the curated group of rules for `language`.
     ///
-    /// Only English has rules so far, so any other language gets an empty group.
+    /// `dictionary` should be for the same language, such as
+    /// `FstDictionary::curated_for(language)`.
     pub fn new_curated_for_language(
         dictionary: Arc<impl Dictionary + 'static>,
         dialect: Dialect,
@@ -606,8 +607,19 @@ impl LintGroup {
     ) -> Self {
         match language {
             Language::English => Self::new_curated(dictionary, dialect),
-            Language::French => Self::empty(),
+            Language::French => Self::new_curated_french(dictionary, dialect),
         }
+    }
+
+    /// The French rules: spell checking plus the Weir rules in `weir_rules_fr`.
+    fn new_curated_french(dictionary: Arc<impl Dictionary + 'static>, dialect: Dialect) -> Self {
+        let mut out = Self::empty();
+
+        out.add("SpellCheck", SpellCheck::new(dictionary, dialect));
+        out.merge_from(weir_rules::french::lint_group());
+        out.set_all_rules_to(Some(true));
+
+        out
     }
 
     pub fn new_curated(dictionary: Arc<impl Dictionary + 'static>, dialect: Dialect) -> Self {
@@ -1467,13 +1479,47 @@ mod tests {
     }
 
     #[test]
-    fn french_group_has_no_rules_yet() {
-        let mut group = LintGroup::new_curated_for_language(
+    fn french_group_has_no_english_rules() {
+        let group = LintGroup::new_curated_for_language(
             FstDictionary::curated(),
             Dialect::American,
             Language::French,
         );
-        let doc = Document::new_markdown_default_curated("Ceci est une phrase en franssais.");
-        assert!(group.lint(&doc).is_empty());
+
+        assert!(group.config.is_rule_enabled("SpellCheck"));
+        assert!(!group.config.has_rule("AnA"));
+        assert!(!group.config.has_rule("RepeatedWords"));
+    }
+
+    #[cfg(feature = "french")]
+    fn french_lints(text: &str) -> Vec<crate::linting::Lint> {
+        use crate::parsers::PlainFrench;
+        use crate::{Lrc, spell::FstDictionary};
+
+        let dictionary = FstDictionary::curated_for(Language::French);
+        let mut group = LintGroup::new_curated_for_language(
+            dictionary.clone(),
+            Dialect::American,
+            Language::French,
+        );
+        let source: Lrc<[char]> = text.chars().collect();
+        let doc = Document::new_from_chars_in(source, &PlainFrench, &dictionary, Language::French);
+
+        group.lint(&doc)
+    }
+
+    #[cfg(feature = "french")]
+    #[test]
+    fn french_group_accepts_correct_french() {
+        assert!(french_lints("Le chat mange la souris dans l'école aujourd'hui.").is_empty());
+    }
+
+    #[cfg(feature = "french")]
+    #[test]
+    fn french_group_flags_misspelling() {
+        let lints = french_lints("Ceci est une phrase en franssais.");
+
+        assert_eq!(lints.len(), 1);
+        assert_eq!(lints[0].lint_kind, LintKind::Spelling);
     }
 }

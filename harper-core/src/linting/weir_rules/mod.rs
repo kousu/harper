@@ -3,6 +3,7 @@ use crate::weir::WeirLinter;
 
 macro_rules! generate_boilerplate {
     (
+        dir: $dir:literal,
         standalone: [$(($standalone_name:literal, $standalone_path:literal)),* $(,)?],
         groups: [$(($group_name:literal, [$(($child_name:literal, $child_path:literal)),* $(,)?])),* $(,)?],
     ) => {
@@ -14,7 +15,7 @@ macro_rules! generate_boilerplate {
                 add_weir_linter(
                     &mut group,
                     $standalone_name,
-                    include_str!(concat!(env!("WEIR_RULE_DIR"), "/", $standalone_path)),
+                    include_str!(concat!($dir, "/", $standalone_path)),
                 );
             )*
 
@@ -29,7 +30,7 @@ macro_rules! generate_boilerplate {
                         add_weir_linter(
                             &mut grouped_rule,
                             $child_name,
-                            include_str!(concat!(env!("WEIR_RULE_DIR"), "/", $child_path)),
+                            include_str!(concat!($dir, "/", $child_path)),
                         );
                     )*
 
@@ -56,6 +57,8 @@ macro_rules! generate_boilerplate {
         }
 
         #[cfg(test)]
+        // A language with no rules yet leaves these unused.
+        #[allow(unused_imports)]
         mod tests {
             use paste::paste;
             use crate::weir::tests::assert_passes_all;
@@ -66,7 +69,7 @@ macro_rules! generate_boilerplate {
                     #[test]
                     fn [<run_tests_in_ $standalone_name:snake >](){
                         let mut linter = WeirLinter::new(
-                            include_str!(concat!(env!("WEIR_RULE_DIR"), "/", $standalone_path)),
+                            include_str!(concat!($dir, "/", $standalone_path)),
                         ).unwrap();
                         assert_passes_all(&mut linter);
                     }
@@ -80,7 +83,7 @@ macro_rules! generate_boilerplate {
                         $(
                             {
                                 let mut linter = WeirLinter::new(
-                                    include_str!(concat!(env!("WEIR_RULE_DIR"), "/", $child_path)),
+                                    include_str!(concat!($dir, "/", $child_path)),
                                 ).unwrap();
                                 assert_passes_all(&mut linter);
                             }
@@ -92,4 +95,19 @@ macro_rules! generate_boilerplate {
     };
 }
 
-include!(env!("WEIR_RULE_LIST"));
+/// Weir rules for English, from `weir_rules/`.
+mod english {
+    use super::{LintGroup, WeirLinter};
+
+    include!(env!("WEIR_RULE_LIST"));
+}
+
+/// Weir rules for French, from `weir_rules_fr/`.
+pub mod french {
+    #[allow(unused_imports)]
+    use super::{LintGroup, WeirLinter};
+
+    include!(env!("WEIR_RULE_LIST_FR"));
+}
+
+pub use english::lint_group;
