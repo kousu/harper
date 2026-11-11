@@ -1,5 +1,5 @@
-//! English: its dialects, word lists, expressions, patterns and rules. Its data files sit next
-//! to this module.
+//! English: its dialects, word lists, lexer, expressions, patterns and rules. Its data files sit
+//! next to this module.
 
 pub(crate) mod dialect;
 pub(crate) mod dictionary;
@@ -7,6 +7,7 @@ pub(crate) mod expr;
 pub(crate) mod indefinite_article;
 pub(crate) mod irregular_nouns;
 pub(crate) mod irregular_verbs;
+pub(crate) mod lexing;
 pub(crate) mod linting;
 pub(crate) mod patterns;
 pub(crate) mod regular_nouns;

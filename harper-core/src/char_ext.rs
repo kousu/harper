@@ -11,8 +11,8 @@ mod private {
 
 pub trait CharExt: private::Sealed {
     fn is_cjk(&self) -> bool;
-    /// Whether a character can be a component of an English word.
-    fn is_english_lingual(&self) -> bool;
+    /// Whether a character can be part of a word in a Latin-script language.
+    fn is_latin_letter(&self) -> bool;
     fn is_emoji(&self) -> bool;
     fn is_punctuation(&self) -> bool;
     /// Whether the character is an (English) vowel.
@@ -23,7 +23,7 @@ pub trait CharExt: private::Sealed {
 }
 
 impl CharExt for char {
-    fn is_english_lingual(&self) -> bool {
+    fn is_latin_letter(&self) -> bool {
         !self.is_whitespace()
             && !self.is_numeric()
             && !self.is_emoji()
@@ -108,7 +108,7 @@ mod tests {
     use super::CharExt;
 
     #[test]
-    fn cjk_is_not_english_lingual() {
-        assert!(!'世'.is_english_lingual())
+    fn cjk_is_not_a_latin_letter() {
+        assert!(!'世'.is_latin_letter())
     }
 }
