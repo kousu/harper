@@ -283,7 +283,7 @@ fn lex_spaces(source: &[char]) -> Option<FoundToken> {
     }
 }
 
-fn lex_punctuation(source: &[char]) -> Option<FoundToken> {
+pub(crate) fn lex_punctuation(source: &[char]) -> Option<FoundToken> {
     if let Some(found) = lex_quote(source) {
         return Some(found);
     }

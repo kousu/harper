@@ -743,11 +743,10 @@ mod french_tests {
     }
 
     #[test]
-    fn french_group_flags_misspelling() {
-        let lints = french_lints("Ceci est une phrase en franssais.");
-
-        assert_eq!(lints.len(), 1);
-        assert_eq!(lints[0].lint_kind, LintKind::Spelling);
+    fn french_group_accepts_elisions() {
+        assert!(french_lints("J'aime l'école, jusqu'à ce qu'il pleuve.").is_empty());
+        assert!(french_lints("J’aime l’école, jusqu’à ce qu’il pleuve.").is_empty());
+        assert!(french_lints("Si l'on veut, on peut.").is_empty());
     }
 
     #[test]
@@ -762,5 +761,21 @@ mod french_tests {
         assert!(group.config.is_rule_enabled("SpellCheck"));
         assert!(!group.config.has_rule("AnA"));
         assert!(!group.config.has_rule("RepeatedWords"));
+    }
+
+    #[test]
+    fn french_group_flags_misspelling_after_elision() {
+        let lints = french_lints("J'aime l'écolle.");
+
+        assert_eq!(lints.len(), 1);
+        assert_eq!(lints[0].lint_kind, LintKind::Spelling);
+    }
+
+    #[test]
+    fn french_group_flags_misspelling() {
+        let lints = french_lints("Ceci est une phrase en franssais.");
+
+        assert_eq!(lints.len(), 1);
+        assert_eq!(lints[0].lint_kind, LintKind::Spelling);
     }
 }
