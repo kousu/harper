@@ -42,6 +42,28 @@ BEGIN {
 	flag["ppre"] = "6"
 	flag["mas"] = "♂"
 	flag["fem"] = "♀"
+	flag["epi"] = "♂♀"
+
+	# Verb tenses and moods.
+	flag["ipre"] = "π"
+	flag["iimp"] = "ι"
+	flag["ipsi"] = "σ"
+	flag["ifut"] = "φ"
+	flag["cond"] = "κ"
+	flag["spre"] = "ψ"
+	flag["simp"] = "ξ"
+	flag["impe"] = "ε"
+
+	# Verb persons; superscript is singular, subscript is plural.
+	verb_person["1sg"] = "¹"
+	verb_person["1isg"] = "¹"
+	verb_person["1jsg"] = "¹"
+	verb_person["2sg"] = "²"
+	verb_person["3sg"] = "³"
+	verb_person["1pl"] = "₁"
+	verb_person["2pl"] = "₂"
+	verb_person["3pl"] = "₃"
+	verb_person["3pl!"] = "₃"
 }
 
 # Data lines start with a numeric id; everything before them is a header.
@@ -72,6 +94,7 @@ $1 !~ /^[0-9]+$/ || $11 ~ /^X/ { next }
 		if (is_pronoun && t == "1pe") flags[word] = flags[word] "1"
 		if (is_pronoun && t == "2pe") flags[word] = flags[word] "2"
 		if (is_pronoun && t == "3pe") flags[word] = flags[word] "3"
+		if (t in verb_person) flags[word] = flags[word] verb_person[t]
 	}
 
 	# Column 20 is a frequency class from 0 (rare) to 9 (very common).
