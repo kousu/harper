@@ -79,6 +79,17 @@ impl Document {
         Self::new_from_chars(source, parser, dictionary)
     }
 
+    /// Lexes and parses text in `language` to produce a document using a provided
+    /// parser and dictionary, both of which should match `language`.
+    pub fn new_in(
+        text: &str,
+        parser: &impl Parser,
+        dictionary: &impl Dictionary,
+        language: Language,
+    ) -> Self {
+        Self::new_from_chars_in(text.chars().collect(), parser, dictionary, language)
+    }
+
     /// Lexes and parses text to produce a document using a provided language
     /// parser and the included curated dictionary.
     pub fn new_curated(text: &str, parser: &impl Parser) -> Self {

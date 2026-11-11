@@ -2,16 +2,19 @@ use std::collections::VecDeque;
 
 use serde::{Deserialize, Serialize};
 
-use super::{Parser, PlainEnglish};
-use crate::{Span, Token, TokenKind, TokenStringExt, VecExt, offsets::build_byte_to_char_map};
+use super::{Parser, PlainEnglish, PlainFrench};
+use crate::{
+    Language, Span, Token, TokenKind, TokenStringExt, VecExt, offsets::build_byte_to_char_map,
+};
 
-/// A parser that wraps the [`PlainEnglish`] parser that allows one to parse
-/// CommonMark files.
+/// A parser that wraps the [`PlainEnglish`] parser (or [`PlainFrench`] for French text) that
+/// allows one to parse CommonMark files.
 ///
 /// Will ignore code blocks and tables.
 #[derive(Default, Clone, Debug, Copy)]
 pub struct Markdown {
     options: MarkdownOptions,
+    language: Language,
 }
 
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
@@ -32,7 +35,12 @@ impl Default for MarkdownOptions {
 
 impl Markdown {
     pub fn new(options: MarkdownOptions) -> Self {
-        Self { options }
+        Self::new_in(options, Language::English)
+    }
+
+    /// Parse Markdown whose text is in `language`.
+    pub fn new_in(options: MarkdownOptions, language: Language) -> Self {
+        Self { options, language }
     }
 
     /// Remove hidden Wikilink target text.
@@ -138,7 +146,10 @@ impl Parser for Markdown {
     /// This implementation is quite gross to look at, but it works.
     /// If any issues arise, it would likely help to refactor this out first.
     fn parse(&self, source: &[char]) -> Vec<Token> {
-        let english_parser = PlainEnglish;
+        let text_parser: &dyn Parser = match self.language {
+            Language::English => &PlainEnglish,
+            Language::French => &PlainFrench,
+        };
 
         let source_str: String = source.iter().collect();
         let md_parser = pulldown_cmark::Parser::new_ext(
@@ -254,7 +265,7 @@ impl Parser for Markdown {
                         }
                     }
 
-                    let mut new_tokens = english_parser.parse(&source[span_start..span_end]);
+                    let mut new_tokens = text_parser.parse(&source[span_start..span_end]);
 
                     new_tokens
                         .iter_mut()
@@ -297,6 +308,41 @@ mod tests {
     use super::super::StrParser;
     use super::Markdown;
     use crate::{Punctuation, TokenKind, TokenStringExt, parsers::markdown::MarkdownOptions};
+
+    fn words(parser: Markdown, source: &str) -> Vec<String> {
+        let chars: Vec<char> = source.chars().collect();
+        parser
+            .parse_str(source)
+            .iter()
+            .filter(|t| t.kind.is_word())
+            .map(|t| t.span.get_content_string(&chars))
+            .collect()
+    }
+
+    #[test]
+    fn french_markdown_splits_elisions() {
+        let french = Markdown::new_in(MarkdownOptions::default(), crate::Language::French);
+
+        assert_eq!(
+            words(french, "# Titre\n\nJ'aime *l'école*."),
+            ["Titre", "J'", "aime", "l'", "école"]
+        );
+    }
+
+    #[test]
+    fn french_markdown_skips_code() {
+        let french = Markdown::new_in(MarkdownOptions::default(), crate::Language::French);
+
+        assert_eq!(words(french, "Voici `l'code`."), ["Voici"]);
+    }
+
+    #[test]
+    fn english_markdown_keeps_apostrophe_words() {
+        assert_eq!(
+            words(Markdown::default(), "I'd like l'école."),
+            ["I'd", "like", "l'école"]
+        );
+    }
 
     #[test]
     fn survives_emojis() {
