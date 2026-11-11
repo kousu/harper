@@ -1006,13 +1006,13 @@
 		"♂": {
 			"#": "masculine property",
 			"metadata": {
-				"//": "not yet implemented"
+				"gender": "MASCULINE"
 			}
 		},
 		"♀": {
 			"#": "feminine property",
 			"metadata": {
-				"//": "not yet implemented"
+				"gender": "FEMININE"
 			}
 		},
 		"ª": {

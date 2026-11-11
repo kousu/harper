@@ -171,13 +171,13 @@
 		"♂": {
 			"#": "masculine property",
 			"metadata": {
-				"//": "not yet implemented"
+				"gender": "MASCULINE"
 			}
 		},
 		"♀": {
 			"#": "feminine property",
 			"metadata": {
-				"//": "not yet implemented"
+				"gender": "FEMININE"
 			}
 		},
 		"0": {
@@ -205,6 +205,118 @@
 			},
 			"rename_ok": true,
 			"propagate": true
+		},
+		"π": {
+			"#": "verb present indicative property",
+			"metadata": {
+				"verb": {
+					"tense": "INDICATIVE_PRESENT"
+				}
+			}
+		},
+		"ι": {
+			"#": "verb imperfect indicative property",
+			"metadata": {
+				"verb": {
+					"tense": "INDICATIVE_IMPERFECT"
+				}
+			}
+		},
+		"σ": {
+			"#": "verb simple past indicative property",
+			"metadata": {
+				"verb": {
+					"tense": "INDICATIVE_SIMPLE_PAST"
+				}
+			}
+		},
+		"φ": {
+			"#": "verb future indicative property",
+			"metadata": {
+				"verb": {
+					"tense": "INDICATIVE_FUTURE"
+				}
+			}
+		},
+		"κ": {
+			"#": "verb conditional property",
+			"metadata": {
+				"verb": {
+					"tense": "CONDITIONAL"
+				}
+			}
+		},
+		"ψ": {
+			"#": "verb present subjunctive property",
+			"metadata": {
+				"verb": {
+					"tense": "SUBJUNCTIVE_PRESENT"
+				}
+			}
+		},
+		"ξ": {
+			"#": "verb imperfect subjunctive property",
+			"metadata": {
+				"verb": {
+					"tense": "SUBJUNCTIVE_IMPERFECT"
+				}
+			}
+		},
+		"ε": {
+			"#": "verb imperative property",
+			"metadata": {
+				"verb": {
+					"tense": "IMPERATIVE"
+				}
+			}
+		},
+		"¹": {
+			"#": "verb first-person singular property",
+			"metadata": {
+				"verb": {
+					"person": "FIRST_SINGULAR"
+				}
+			}
+		},
+		"²": {
+			"#": "verb second-person singular property",
+			"metadata": {
+				"verb": {
+					"person": "SECOND_SINGULAR"
+				}
+			}
+		},
+		"³": {
+			"#": "verb third-person singular property",
+			"metadata": {
+				"verb": {
+					"person": "THIRD_SINGULAR"
+				}
+			}
+		},
+		"₁": {
+			"#": "verb first-person plural property",
+			"metadata": {
+				"verb": {
+					"person": "FIRST_PLURAL"
+				}
+			}
+		},
+		"₂": {
+			"#": "verb second-person plural property",
+			"metadata": {
+				"verb": {
+					"person": "SECOND_PLURAL"
+				}
+			}
+		},
+		"₃": {
+			"#": "verb third-person plural property",
+			"metadata": {
+				"verb": {
+					"person": "THIRD_PLURAL"
+				}
+			}
 		}
 	}
 }
