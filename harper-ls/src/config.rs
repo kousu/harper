@@ -3,10 +3,10 @@ use std::path::{Path, PathBuf};
 use anyhow::{Result, bail};
 use dirs::{config_dir, data_local_dir};
 use globset::{Glob, GlobSet};
-use harper_core::{EnglishDialect, linting::FlatConfig, parsers::MarkdownOptions};
+use harper_core::{EnglishDialect, Language, linting::FlatConfig, parsers::MarkdownOptions};
 use resolve_path::PathResolveExt;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "camelCase")]
@@ -74,7 +74,8 @@ pub struct Config {
     pub code_action_config: CodeActionConfig,
     pub isolate_english: bool,
     pub markdown_options: MarkdownOptions,
-    pub dialect: EnglishDialect,
+    /// The language of the documents. English, in the dialect from the `dialect` setting.
+    pub language: Language,
     /// Maximum length (in bytes) a file can have before it's skipped.
     /// Above this limit, the file will not be linted.
     pub max_file_length: usize,
@@ -85,6 +86,13 @@ pub struct Config {
 }
 
 impl Config {
+    /// The English dialect that words in the user's dictionaries are tagged with.
+    pub fn english_dialect(&self) -> EnglishDialect {
+        match self.language {
+            Language::English(dialect) => dialect,
+        }
+    }
+
     pub fn from_lsp_config(workspace_root: &Path, value: Value) -> Result<Self> {
         let mut base = Config::default();
 
@@ -164,8 +172,9 @@ impl Config {
             base.diagnostic_severity = serde_json::from_value(v.clone())?;
         }
 
-        if let Some(v) = value.get("dialect") {
-            base.dialect = serde_json::from_value(v.clone())?;
+        if let Some(dialect) = string_setting(value, "dialect")? {
+            let family = base.language.family().to_string();
+            base.language = Language::try_from_names(&family, Some(dialect))?;
         }
 
         if let Some(v) = value.get("codeActions") {
@@ -215,6 +224,15 @@ impl Config {
     }
 }
 
+/// The setting `key`, which must be a string if it is present.
+fn string_setting<'a>(settings: &'a Map<String, Value>, key: &str) -> Result<Option<&'a str>> {
+    match settings.get(key) {
+        None => Ok(None),
+        Some(Value::String(s)) => Ok(Some(s)),
+        Some(_) => bail!("{key} must be a string."),
+    }
+}
+
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -230,7 +248,7 @@ impl Default for Config {
             code_action_config: CodeActionConfig::default(),
             isolate_english: false,
             markdown_options: MarkdownOptions::default(),
-            dialect: EnglishDialect::American,
+            language: Language::English(EnglishDialect::American),
             max_file_length: 120_000,
             exclude_patterns: GlobSet::empty(),
             diagnostic_delay_ms: 0,
@@ -240,9 +258,60 @@ impl Default for Config {
 
 #[cfg(test)]
 mod tests {
+    use harper_core::{EnglishDialect, Language};
     use serde_json::json;
 
     use super::Config;
+
+    fn parse(settings: serde_json::Value) -> anyhow::Result<Config> {
+        Config::from_lsp_config(std::path::Path::new("."), json!({ "harper-ls": settings }))
+    }
+
+    #[test]
+    fn defaults_to_american_english() {
+        assert_eq!(
+            parse(json!({})).unwrap().language,
+            Language::English(EnglishDialect::American)
+        );
+    }
+
+    #[test]
+    fn dialect_alone_still_works() {
+        assert_eq!(
+            parse(json!({ "dialect": "British" })).unwrap().language,
+            Language::English(EnglishDialect::British)
+        );
+    }
+
+    #[test]
+    fn parses_dialect() {
+        let config = parse(json!({ "dialect": "Canadian" })).unwrap();
+
+        assert_eq!(config.language, Language::English(EnglishDialect::Canadian));
+        assert_eq!(config.english_dialect(), EnglishDialect::Canadian);
+    }
+
+    #[test]
+    fn accepts_codes_like_the_cli() {
+        assert_eq!(
+            parse(json!({ "dialect": "uk" })).unwrap().language,
+            Language::English(EnglishDialect::British)
+        );
+        assert_eq!(
+            parse(json!({ "dialect": "en-AU" })).unwrap().language,
+            Language::English(EnglishDialect::Australian)
+        );
+    }
+
+    #[test]
+    fn rejects_unknown_dialect() {
+        assert!(parse(json!({ "dialect": "Klingon" })).is_err());
+    }
+
+    #[test]
+    fn rejects_non_string_dialect() {
+        assert!(parse(json!({ "dialect": true })).is_err());
+    }
 
     #[test]
     fn parses_diagnostic_delay() {
