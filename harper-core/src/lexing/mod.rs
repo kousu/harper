@@ -1,10 +1,13 @@
 mod email_address;
+mod french;
 mod hostname;
 mod url;
 
 use hostname::lex_hostname_token;
 use ordered_float::OrderedFloat;
 use url::lex_url;
+
+pub use french::lex_french_token;
 
 use self::email_address::lex_email_address;
 use crate::char_ext::CharExt;
