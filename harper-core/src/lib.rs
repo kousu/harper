@@ -15,6 +15,7 @@ mod ignored_lints;
 mod indefinite_article;
 mod irregular_nouns;
 mod irregular_verbs;
+mod lang;
 pub mod language_detection;
 mod lexing;
 pub mod linting;
@@ -55,6 +56,8 @@ pub use ignored_lints::{IgnoredLints, LintContext};
 pub use indefinite_article::{InitialSound, starts_with_vowel};
 pub use irregular_nouns::IrregularNouns;
 pub use irregular_verbs::IrregularVerbs;
+pub use lang::{Language, LanguageFamily};
+
 /// The old name of [`EnglishDialect`].
 #[deprecated(note = "renamed to `EnglishDialect`")]
 pub type Dialect = EnglishDialect;
