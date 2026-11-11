@@ -49,9 +49,15 @@ impl Linter for Elision {
                 }
 
                 let word = lowercase(token.get_ch(source));
-                let next_word = lowercase(next.get_ch(source));
+                let next_text = lowercase(next.get_ch(source));
 
-                should_elide(&word, &next_word).then(|| {
+                // In a range like "de un à cinq", "un" is a number and usually isn't elided.
+                let after_next = next_word(tokens, i + 2).map(|t| lowercase(t.get_ch(source)));
+                if next_text == "un" && after_next.as_deref() == Some("à") {
+                    return None;
+                }
+
+                should_elide(&word, &next_text).then(|| {
                     // Cover the word and the space after it.
                     let span = Span::new(token.span.start, next.span.start);
                     let written = token.get_ch(source);
@@ -246,6 +252,22 @@ mod tests {
     #[test]
     fn allows_across_punctuation() {
         assert_allows("Je pense que, à mon avis, il vient.", Elision);
+    }
+
+    #[test]
+    fn allows_number_ranges() {
+        assert_allows("Les chaleurs durent de un à cinq jours.", Elision);
+        assert_allows("Comptez de un à dix.", Elision);
+    }
+
+    #[test]
+    fn elides_un_outside_ranges() {
+        assert_fixes("Le bruit de un moteur.", Elision, "Le bruit d'un moteur.");
+        assert_fixes(
+            "Il parle de un ami à moi.",
+            Elision,
+            "Il parle d'un ami à moi.",
+        );
     }
 
     #[test]

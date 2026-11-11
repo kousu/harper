@@ -107,6 +107,13 @@ $1 !~ /^[0-9]+$/ || $11 ~ /^X/ { next }
 }
 
 END {
+	# Harper's French lexer keeps "l'on" whole, as the UD treebank does, so it needs an
+	# entry of its own. It's the pronoun "on" with a euphonic "l'".
+	if ("on" in flags && !("l'on" in seen)) {
+		flags["l'on"] = flags["on"]
+		order[++count] = "l'on"
+	}
+
 	print count
 	for (i = 1; i <= count; i++) {
 		word = order[i]

@@ -1,6 +1,6 @@
 use harper_brill::UPOS;
 
-use super::{is_name_after, next_word};
+use super::{is_name_after, next_word, precedes_hyphen};
 use crate::linting::{Lint, LintKind, Linter, Suggestion};
 use crate::{DictWordMetadata, Document, GenderFlags, Token};
 
@@ -22,7 +22,10 @@ impl Linter for ArticleGender {
             .filter(|(_, token)| token.kind.is_word())
             .filter_map(|(i, article)| {
                 let noun = next_word(tokens, i)?;
-                if is_name_after(article.get_ch(source), noun.get_ch(source)) {
+                // In a compound like "méta-analyse", the first part's gender doesn't count.
+                if is_name_after(article.get_ch(source), noun.get_ch(source))
+                    || precedes_hyphen(tokens, i + 2)
+                {
                     return None;
                 }
 
@@ -215,6 +218,18 @@ mod tests {
     fn allows_names_acronyms_and_codes() {
         assert_allows("Il respecte la GPL et conduit la M3.", ArticleGender);
         assert_allows("Il visite le Louvre et la Bretagne.", ArticleGender);
+    }
+
+    #[test]
+    fn allows_hyphenated_compounds() {
+        assert_allows("Une méta-analyse indique un risque.", ArticleGender);
+        assert_allows("Il y a une auto-école et un porte-monnaie.", ArticleGender);
+    }
+
+    #[test]
+    fn checks_noun_before_hyphenated_pronoun() {
+        // The hyphen must come right after the noun to count.
+        assert_fixes("Une chien, mi-loup.", ArticleGender, "Un chien, mi-loup.");
     }
 
     #[test]

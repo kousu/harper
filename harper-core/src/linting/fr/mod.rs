@@ -28,6 +28,11 @@ fn is_name_after(before: &[char], word: &[char]) -> bool {
     has_digit || (starts_upper && !is_all_upper)
 }
 
+/// Whether the token after `index` is a hyphen, as in "méta-analyse".
+fn precedes_hyphen(tokens: &[Token], index: usize) -> bool {
+    tokens.get(index + 1).is_some_and(|t| t.kind.is_hyphen())
+}
+
 /// Whether the token before `index` is a hyphen, as in "ai-je" or "fais-le".
 fn follows_hyphen(tokens: &[Token], index: usize) -> bool {
     index
