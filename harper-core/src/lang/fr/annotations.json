@@ -1,0 +1,210 @@
+{
+	"affixes": {},
+	"properties": {
+		"N": {
+			"#": "noun property",
+			"metadata": {
+				"noun": {}
+			}
+		},
+		"O": {
+			"#": "proper noun property",
+			"propagate": true,
+			"metadata": {
+				"noun": {
+					"is_proper": true
+				}
+			}
+		},
+		"J": {
+			"#": "adjective property",
+			"metadata": {
+				"adjective": {}
+			}
+		},
+		"R": {
+			"#": "adverb property",
+			"metadata": {
+				"adverb": {}
+			}
+		},
+		"D": {
+			"#": "determiner property",
+			"metadata": {
+				"determiner": {}
+			}
+		},
+		"5": {
+			"#": "possessive determiner property",
+			"//": "mnemonic: 5 looks like an 's'",
+			"metadata": {
+				"determiner": {
+					"is_possessive": true
+				}
+			}
+		},
+		"M": {
+			"#": "demonstrative determiner property",
+			"metadata": {
+				"determiner": {
+					"is_demonstrative": true
+				}
+			}
+		},
+		"P": {
+			"#": "preposition property",
+			"metadata": {
+				"preposition": true
+			}
+		},
+		"C": {
+			"#": "conjunction property",
+			"metadata": {
+				"conjunction": {}
+			}
+		},
+		"I": {
+			"#": "pronoun property",
+			"metadata": {
+				"pronoun": {}
+			}
+		},
+		"s": {
+			"#": "subject case property",
+			"metadata": {
+				"pronoun": {
+					"is_subject": true
+				}
+			}
+		},
+		"o": {
+			"#": "object case property",
+			"metadata": {
+				"pronoun": {
+					"is_object": true
+				}
+			}
+		},
+		"a": {
+			"#": "personal pronoun property",
+			"//": "'personal' means 'grammatical person', not 'human'",
+			"metadata": {
+				"pronoun": {
+					"is_personal": true
+				}
+			}
+		},
+		"1": {
+			"#": "first-person property",
+			"metadata": {
+				"pronoun": {
+					"person": "First"
+				}
+			}
+		},
+		"2": {
+			"#": "second-person property",
+			"metadata": {
+				"pronoun": {
+					"person": "Second"
+				}
+			}
+		},
+		"3": {
+			"#": "third-person property",
+			"metadata": {
+				"pronoun": {
+					"person": "Third"
+				}
+			}
+		},
+		".": {
+			"#": "singular pronoun property",
+			"//": "mnemonic: one dot",
+			"metadata": {
+				"pronoun": {
+					"is_singular": true
+				}
+			}
+		},
+		":": {
+			"#": "plural pronoun property",
+			"//": "mnemonic: multiple dots",
+			"metadata": {
+				"pronoun": {
+					"is_plural": true
+				}
+			}
+		},
+		"V": {
+			"#": "verb property",
+			"metadata": {
+				"verb": {}
+			}
+		},
+		"b": {
+			"#": "verb lemma form property",
+			"//": "mnemonic: 'b' for 'base form'",
+			"metadata": {
+				"verb": {
+					"verb_form": "LEMMA"
+				}
+			}
+		},
+		"T": {
+			"#": "verb past participle form property",
+			"metadata": {
+				"verb": {
+					"verb_form": "PAST_PARTICIPLE"
+				}
+			}
+		},
+		"6": {
+			"#": "verb progressive form property",
+			"//": "mnemonic: '6' looks like 'g' in 'ing'",
+			"metadata": {
+				"verb": {
+					"verb_form": "PROGRESSIVE"
+				}
+			}
+		},
+		"♂": {
+			"#": "masculine property",
+			"metadata": {
+				"//": "not yet implemented"
+			}
+		},
+		"♀": {
+			"#": "feminine property",
+			"metadata": {
+				"//": "not yet implemented"
+			}
+		},
+		"0": {
+			"#": "singular noun property",
+			"//": "mnemonic: the closest digit to single '1' that's not used for grammatical person",
+			"metadata": {
+				"noun": {
+					"is_singular": true
+				}
+			}
+		},
+		"9": {
+			"#": "plural noun property",
+			"//": "mnemonic: the biggest, most plural digit",
+			"metadata": {
+				"noun": {
+					"is_plural": true
+				}
+			}
+		},
+		"~": {
+			"#": "common word property",
+			"metadata": {
+				"common": true
+			},
+			"rename_ok": true,
+			"propagate": true
+		}
+	}
+}
