@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{Result, bail};
 use dirs::{config_dir, data_local_dir};
 use globset::{Glob, GlobSet};
-use harper_core::{Dialect, linting::FlatConfig, parsers::MarkdownOptions};
+use harper_core::{Dialect, Language, linting::FlatConfig, parsers::MarkdownOptions};
 use resolve_path::PathResolveExt;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -75,6 +75,8 @@ pub struct Config {
     pub isolate_english: bool,
     pub markdown_options: MarkdownOptions,
     pub dialect: Dialect,
+    /// The language of the documents being checked.
+    pub language: Language,
     /// Maximum length (in bytes) a file can have before it's skipped.
     /// Above this limit, the file will not be linted.
     pub max_file_length: usize,
@@ -168,6 +170,14 @@ impl Config {
             base.dialect = serde_json::from_value(v.clone())?;
         }
 
+        if let Some(v) = value.get("language") {
+            base.language = serde_json::from_value(v.clone())?;
+
+            if base.language == Language::French && !cfg!(feature = "french") {
+                bail!("French needs harper-ls built with the `french` feature.");
+            }
+        }
+
         if let Some(v) = value.get("codeActions") {
             base.code_action_config = CodeActionConfig::from_lsp_config(v.clone())?;
         }
@@ -231,6 +241,7 @@ impl Default for Config {
             isolate_english: false,
             markdown_options: MarkdownOptions::default(),
             dialect: Dialect::American,
+            language: Language::English,
             max_file_length: 120_000,
             exclude_patterns: GlobSet::empty(),
             diagnostic_delay_ms: 0,
@@ -243,6 +254,35 @@ mod tests {
     use serde_json::json;
 
     use super::Config;
+
+    fn config_with(settings: serde_json::Value) -> anyhow::Result<Config> {
+        Config::from_lsp_config(std::path::Path::new("."), json!({ "harper-ls": settings }))
+    }
+
+    #[test]
+    fn language_defaults_to_english() {
+        let config = config_with(json!({})).unwrap();
+        assert_eq!(config.language, harper_core::Language::English);
+    }
+
+    #[test]
+    fn rejects_unknown_language() {
+        assert!(config_with(json!({ "language": "Klingon" })).is_err());
+    }
+
+    #[cfg(feature = "french")]
+    #[test]
+    fn parses_french() {
+        let config = config_with(json!({ "language": "French" })).unwrap();
+        assert_eq!(config.language, harper_core::Language::French);
+    }
+
+    #[cfg(not(feature = "french"))]
+    #[test]
+    fn french_needs_feature() {
+        let err = config_with(json!({ "language": "French" })).unwrap_err();
+        assert!(err.to_string().contains("`french` feature"));
+    }
 
     #[test]
     fn parses_diagnostic_delay() {

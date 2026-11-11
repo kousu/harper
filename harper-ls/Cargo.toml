@@ -38,3 +38,5 @@ harper-ink = { version = "3.0.0", path = "../harper-ink" }
 [features]
 default = []
 thesaurus = ["harper-core/thesaurus"]
+# Support `"language": "French"`. Adds the French dictionary and tagger models.
+french = ["harper-core/french"]

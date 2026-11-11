@@ -15,10 +15,10 @@ use harper_asciidoc::AsciidocParser;
 use harper_comments::CommentParser;
 use harper_core::linting::{FlatConfig, LintGroup};
 use harper_core::parsers::{
-    CollapseIdentifiers, IsolateEnglish, Markdown, OrgMode, Parser, PlainEnglish,
+    CollapseIdentifiers, IsolateEnglish, Markdown, OrgMode, Parser, PlainEnglish, PlainFrench,
 };
 use harper_core::spell::{Dictionary, FstDictionary, MergedDictionary, MutableDictionary};
-use harper_core::{Dialect, DictWordMetadata, Document, IgnoredLints};
+use harper_core::{Dialect, DictWordMetadata, Document, IgnoredLints, Language};
 use harper_dictionary_wordlist::{load_dict, save_dict};
 use harper_git_commit::GitCommitParser;
 use harper_html::HtmlParser;
@@ -203,7 +203,8 @@ impl Backend {
 
     async fn generate_global_dictionary(&self) -> Result<MergedDictionary> {
         let mut dict = MergedDictionary::new();
-        dict.add_dictionary(FstDictionary::curated());
+        let language = self.config.read().await.language;
+        dict.add_dictionary(FstDictionary::curated_for(language));
         let user_dict = self.load_user_dictionary().await;
         dict.add_dictionary(Arc::new(user_dict));
         let ws_dict = self.load_workspace_dictionary().await;
@@ -251,6 +252,7 @@ impl Backend {
             markdown_options,
             isolate_english,
             dialect,
+            language,
             max_file_length,
             exclude_patterns,
         ) = {
@@ -260,6 +262,7 @@ impl Backend {
                 config.markdown_options,
                 config.isolate_english,
                 config.dialect,
+                config.language,
                 config.max_file_length,
                 config.exclude_patterns.clone(),
             )
@@ -290,8 +293,7 @@ impl Backend {
 
             DocumentState {
                 ignored_lints,
-                linter: LintGroup::new_curated(dict.clone(), dialect)
-                    .with_lint_config(lint_config.clone()),
+                linter: curated_linter(dict.clone(), dialect, language, &lint_config),
                 language_id: language_id.map(|v| v.to_string()),
                 dict: dict.clone(),
                 uri: uri.clone(),
@@ -302,8 +304,7 @@ impl Backend {
         if doc_state.dict != dict {
             doc_state.dict = dict.clone();
             info!("Constructing new linter because of modified dictionary.");
-            doc_state.linter =
-                LintGroup::new_curated(dict.clone(), dialect).with_lint_config(lint_config.clone());
+            doc_state.linter = curated_linter(dict.clone(), dialect, language, &lint_config);
         }
 
         let Some(language_id) = &doc_state.language_id else {
@@ -317,8 +318,7 @@ impl Backend {
             parser: impl Parser + 'static,
             uri: &'a Uri,
             doc_state: &'a mut DocumentState,
-            lint_config: &FlatConfig,
-            dialect: Dialect,
+            make_linter: impl Fn(Arc<MergedDictionary>) -> LintGroup,
         ) -> Result<Box<dyn Parser>> {
             if doc_state.ident_dict != new_dict {
                 info!("Constructing new linter because of modified ident dictionary.");
@@ -328,8 +328,7 @@ impl Backend {
                 merged.add_dictionary(new_dict);
                 let merged = Arc::new(merged);
 
-                doc_state.linter = LintGroup::new_curated(merged.clone(), dialect)
-                    .with_lint_config(lint_config.clone());
+                doc_state.linter = make_linter(merged.clone());
                 doc_state.dict = merged.clone();
             }
 
@@ -353,8 +352,7 @@ impl Backend {
                             ts_parser,
                             uri,
                             doc_state,
-                            &lint_config,
-                            dialect,
+                            |dict| curated_linter(dict, dialect, language, &lint_config),
                         )
                         .await?,
                     )
@@ -378,27 +376,21 @@ impl Backend {
                     parser.create_ident_dict(&Arc::new(source), markdown_options)
                 {
                     Some(
-                        use_ident_dict(
-                            self,
-                            Arc::new(new_dict),
-                            parser,
-                            uri,
-                            doc_state,
-                            &lint_config,
-                            dialect,
-                        )
+                        use_ident_dict(self, Arc::new(new_dict), parser, uri, doc_state, |dict| {
+                            curated_linter(dict, dialect, language, &lint_config)
+                        })
                         .await?,
                     )
                 } else {
                     Some(Box::new(parser))
                 }
             }
-            "mail" => Some(Box::new(PlainEnglish)),
+            "mail" => Some(plain_text_parser(language)),
             "markdown" | "quarto" | "rmarkdown" | "rmd" => {
-                Some(Box::new(Markdown::new(markdown_options)))
+                Some(Box::new(Markdown::new_in(markdown_options, language)))
             }
             "org" => Some(Box::new(OrgMode)),
-            "plaintext" | "text" => Some(Box::new(PlainEnglish)),
+            "plaintext" | "text" => Some(plain_text_parser(language)),
             "python" => Some(Box::new(PythonParser::default())),
             "typst" => Some(Box::new(Typst)),
             "tex" | "plaintex" | "latex" => Some(Box::new(TeX::default())),
@@ -416,7 +408,7 @@ impl Backend {
 
                 // Don't lint on documents larger than the configured maximum length.
                 if text.len() <= max_file_length {
-                    doc_state.document = Document::new(text, &parser, &doc_state.dict);
+                    doc_state.document = Document::new_in(text, &parser, &doc_state.dict, language);
                 } else {
                     // Ensures that existing lints are cleared when we stop linting the file.
                     // Otherwise, prior lints will remain, and they will quickly fall out of sync
@@ -869,8 +861,12 @@ impl LanguageServer for Backend {
 
             for doc in doc_lock.values_mut() {
                 info!("Constructing new LintGroup for updated configuration.");
-                doc.linter = LintGroup::new_curated(doc.dict.clone(), config_lock.dialect)
-                    .with_lint_config(config_lock.lint_config.clone());
+                doc.linter = curated_linter(
+                    doc.dict.clone(),
+                    config_lock.dialect,
+                    config_lock.language,
+                    &config_lock.lint_config,
+                );
             }
 
             doc_lock.keys().cloned().collect()
@@ -918,5 +914,91 @@ impl LanguageServer for Backend {
         }
 
         Ok(())
+    }
+}
+
+/// The curated linter for `language`, with the user's rule settings applied.
+///
+/// English rules missing from `lint_config` take their curated defaults when linting. Other
+/// languages' rules are not in that curated config, so their defaults are filled in here.
+fn curated_linter(
+    dictionary: Arc<impl Dictionary + 'static>,
+    dialect: Dialect,
+    language: Language,
+    lint_config: &FlatConfig,
+) -> LintGroup {
+    let group = LintGroup::new_curated_for_language(dictionary, dialect, language);
+
+    let config = match language {
+        Language::English => lint_config.clone(),
+        _ => {
+            let mut config = group.config.clone();
+            config.merge_from(lint_config.clone());
+            config
+        }
+    };
+
+    group.with_lint_config(config)
+}
+
+/// The parser for plain text in `language`.
+fn plain_text_parser(language: Language) -> Box<dyn Parser> {
+    match language {
+        Language::English => Box::new(PlainEnglish),
+        Language::French => Box::new(PlainFrench),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use harper_core::linting::FlatConfig;
+    use harper_core::spell::FstDictionary;
+    use harper_core::{Dialect, Language};
+
+    use super::curated_linter;
+
+    #[test]
+    fn french_rules_stay_on_with_user_config() {
+        let mut user_config = FlatConfig::default();
+        user_config.set_rule_enabled("AnA", false);
+
+        let linter = curated_linter(
+            FstDictionary::curated(),
+            Dialect::American,
+            Language::French,
+            &user_config,
+        );
+
+        assert!(linter.config.is_rule_enabled("SpellCheck"));
+    }
+
+    #[test]
+    fn french_spell_check_can_be_turned_off() {
+        let mut user_config = FlatConfig::default();
+        user_config.set_rule_enabled("SpellCheck", false);
+
+        let linter = curated_linter(
+            FstDictionary::curated(),
+            Dialect::American,
+            Language::French,
+            &user_config,
+        );
+
+        assert!(!linter.config.is_rule_enabled("SpellCheck"));
+    }
+
+    #[test]
+    fn english_keeps_user_config_as_is() {
+        let mut user_config = FlatConfig::default();
+        user_config.set_rule_enabled("AnA", false);
+
+        let linter = curated_linter(
+            FstDictionary::curated(),
+            Dialect::American,
+            Language::English,
+            &user_config,
+        );
+
+        assert_eq!(linter.config, user_config);
     }
 }
