@@ -18,8 +18,8 @@ use serde::Serialize;
 use serde_json::Value;
 
 use harper_core::{
-    CharStringExt, DictWordMetadata, EnglishDialect, LanguageFamily, OrthFlags, Span, TokenKind,
-    TokenStringExt,
+    CharStringExt, DictWordMetadata, EnglishDialect, Language, LanguageFamily, OrthFlags, Span,
+    TokenKind, TokenStringExt,
     linting::LintGroup,
     parsers::{IsolateEnglish, MarkdownOptions},
     spell::{CanonicalWordId, Dictionary, FstDictionary, MutableDictionary},
@@ -78,7 +78,8 @@ enum Args {
         /// Overlapping lints are removed by default. This option disables that behavior.
         #[arg(short = 'o', long)]
         keep_overlapping_lints: bool,
-        /// Specify the dialect. Common synonyms, abbreviations, and codes are supported.
+        /// Specify the dialect of the language. Common synonyms, abbreviations, and codes are
+        /// supported.
         #[arg(short, long, default_value = "us")]
         dialect: String,
         /// Path to the user dictionary.
@@ -272,8 +273,7 @@ fn main() -> anyhow::Result<()> {
             quiet,
             no_parallel,
         } => {
-            let dialect = EnglishDialect::try_from_name(&dialect_str)
-                .ok_or_else(|| anyhow!("Unknown dialect: {dialect_str}"))?;
+            let language = Language::try_from_names("en", Some(&dialect_str))?;
 
             lint(
                 markdown_options,
@@ -284,7 +284,7 @@ fn main() -> anyhow::Result<()> {
                     ignore,
                     only,
                     keep_overlapping_lints,
-                    dialect,
+                    language,
                     weirpack_inputs: weirpacks,
                     color,
                     format,
