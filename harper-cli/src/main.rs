@@ -18,7 +18,7 @@ use serde::Serialize;
 use serde_json::Value;
 
 use harper_core::{
-    CharStringExt, Dialect, DictWordMetadata, OrthFlags, Span, TokenKind, TokenStringExt,
+    CharStringExt, Dialect, DictWordMetadata, Language, OrthFlags, Span, TokenKind, TokenStringExt,
     linting::LintGroup,
     parsers::{IsolateEnglish, MarkdownOptions},
     spell::{CanonicalWordId, Dictionary, FstDictionary, MutableDictionary},
@@ -80,6 +80,10 @@ enum Args {
         /// Specify the dialect. Common synonyms, abbreviations, and codes are supported.
         #[arg(short, long, default_value = "us")]
         dialect: String,
+        /// The language of the text: `en` or `fr`. French text is read as Markdown or plain
+        /// text, whatever the file type.
+        #[arg(long, default_value = "en")]
+        language: String,
         /// Path to the user dictionary.
         #[arg(short, long, default_value = config_dir().unwrap().join("harper-ls/dictionary.txt").into_os_string(), value_hint = ValueHint::FilePath)]
         user_dict_path: PathBuf,
@@ -264,6 +268,7 @@ fn main() -> anyhow::Result<()> {
             only,
             keep_overlapping_lints,
             dialect: dialect_str,
+            language: language_str,
             user_dict_path,
             file_dict_path,
             weirpacks,
@@ -273,10 +278,11 @@ fn main() -> anyhow::Result<()> {
         } => {
             let dialect = parse_dialect(&dialect_str)
                 .map_err(|e| anyhow!("Invalid dialect '{}': {}", dialect_str, e))?;
+            let language = parse_language(&language_str)?;
 
             lint(
                 markdown_options,
-                curated_dictionary,
+                FstDictionary::curated_for(language),
                 inputs,
                 LintOptions {
                     count,
@@ -284,6 +290,7 @@ fn main() -> anyhow::Result<()> {
                     only,
                     keep_overlapping_lints,
                     dialect,
+                    language,
                     weirpack_inputs: weirpacks,
                     color,
                     format,
@@ -1050,6 +1057,15 @@ fn parse_dialect(dialect: &str) -> anyhow::Result<Dialect> {
         "in" | "india" | "indian" | "bharat" | "en-in" | "en_in" => Ok(Dialect::Indian),
         "ca" | "canada" | "canadian" | "en-ca" | "en_ca" => Ok(Dialect::Canadian),
         _ => Err(anyhow!("Unknown dialect: {}", dialect)),
+    }
+}
+
+/// Parse a language name or code into a [`Language`].
+fn parse_language(language: &str) -> anyhow::Result<Language> {
+    match language.to_lowercase().as_str() {
+        "en" | "eng" | "english" => Ok(Language::English),
+        "fr" | "fra" | "fre" | "french" | "français" | "francais" => Ok(Language::French),
+        _ => Err(anyhow!("Unknown language: {language}")),
     }
 }
 

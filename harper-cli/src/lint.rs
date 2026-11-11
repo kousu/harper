@@ -11,7 +11,8 @@ use rayon::prelude::*;
 use serde::Serialize;
 
 use harper_core::{
-    linting::{FlatConfig, LintKind},
+    Language,
+    linting::{FlatConfig, LintGroup, LintKind},
     parsers::MarkdownOptions,
     spell::{Dictionary, MergedDictionary, MutableDictionary},
     weirpack::Weirpack,
@@ -90,6 +91,7 @@ pub struct LintOptions {
     pub only: Option<Vec<String>>,
     pub keep_overlapping_lints: bool,
     pub dialect: Dialect,
+    pub language: Language,
     pub weirpack_inputs: Vec<SingleInput>,
     pub color: bool,
     pub format: OutputFormat,
@@ -184,6 +186,7 @@ pub fn lint(
         ref mut ignore,
         ref mut only,
         dialect,
+        language,
         ref weirpack_inputs,
         no_parallel,
         ..
@@ -198,7 +201,17 @@ pub fn lint(
 
     // Filter out any rules from ignore/only lists that don't exist in the current config
     // Uses a cached config to avoid expensive linter initialization
-    let mut config = FlatConfig::new_curated();
+    let mut config = match language {
+        Language::English => FlatConfig::new_curated(),
+        _ => {
+            LintGroup::new_curated_for_language(
+                Arc::new(curated_dictionary.clone()),
+                dialect,
+                language,
+            )
+            .config
+        }
+    };
     for pack in &weirpacks {
         for rule in pack.rules.keys() {
             config.set_rule_enabled(rule, true);

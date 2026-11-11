@@ -9,7 +9,7 @@ use harper_comments::CommentParser;
 use harper_core::parsers::{Markdown, OrgMode, Parser};
 use harper_core::spell::Dictionary;
 use harper_core::{
-    Document,
+    Document, Language,
     parsers::{MarkdownOptions, PlainEnglish},
 };
 use harper_ink::InkParser;
@@ -30,6 +30,27 @@ pub(crate) trait SingleInputTrait: InputTrait {
         dictionary: &dyn Dictionary,
     ) -> anyhow::Result<(Document, Cow<'_, str>)> {
         self.load_with_parser(&self.get_parser(markdown_options), dictionary)
+    }
+
+    /// Like [`Self::load`], for text in `language`. Only English uses the parser for the input's
+    /// file type; other languages read every input as Markdown.
+    fn load_in(
+        &self,
+        markdown_options: MarkdownOptions,
+        dictionary: &dyn Dictionary,
+        language: Language,
+    ) -> anyhow::Result<(Document, Cow<'_, str>)> {
+        match language {
+            Language::English => self.load(markdown_options, dictionary),
+            _ => {
+                let text = self.get_content()?;
+                let parser = Markdown::new_in(markdown_options, language);
+                Ok((
+                    Document::new_in(&text, &parser, &dictionary, language),
+                    text,
+                ))
+            }
+        }
     }
 
     /// Loads the contained file/string into a conventional format using the provided
