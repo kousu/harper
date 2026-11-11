@@ -1,6 +1,7 @@
-//! French: its dialects.
+//! French: its dialects and dictionary. Its data files sit next to this module.
 
 pub(crate) mod dialect;
+pub(crate) mod dictionary;
 
 use std::sync::Arc;
 
@@ -13,21 +14,20 @@ use crate::spell::{FstDictionary, MutableDictionary, TrieDictionary};
 use crate::{Language, Lrc};
 
 /// French's data, for [`LanguageFamily::data`](crate::LanguageFamily::data). French is
-/// experimental: it has no dictionary, lexer or tagger of its own yet.
+/// experimental: it has no lexer or tagger of its own yet.
 pub(crate) struct French;
 
 impl LanguageData for French {
-    /// French has no dictionary yet, so it gets an empty one.
     fn dictionary(&self) -> Arc<FstDictionary> {
-        Arc::new(FstDictionary::new(Vec::new()))
+        dictionary::dictionary()
     }
 
     fn mutable_dictionary(&self) -> Arc<MutableDictionary> {
-        Arc::new(MutableDictionary::new())
+        dictionary::mutable_dictionary()
     }
 
     fn trie_dictionary(&self) -> Arc<TrieDictionary<Arc<FstDictionary>>> {
-        Arc::new(TrieDictionary::new(self.dictionary()))
+        dictionary::trie_dictionary()
     }
 
     /// French uses [`PlainText`] until it has its own lexer.

@@ -48,8 +48,6 @@ impl FstDictionary {
     }
 
     /// The curated dictionary for `language`.
-    ///
-    /// French has no dictionary yet, so it gets an empty one.
     pub fn curated_for(language: LanguageFamily) -> Arc<Self> {
         language.data().dictionary()
     }
@@ -265,6 +263,123 @@ mod tests {
     use crate::spell::{CanonicalWordId, Dictionary, MutableDictionary};
 
     use super::FstDictionary;
+
+    #[cfg(feature = "fr")]
+    mod french {
+        use super::super::FstDictionary;
+        use crate::LanguageFamily;
+        use crate::spell::Dictionary;
+
+        fn dict() -> std::sync::Arc<FstDictionary> {
+            FstDictionary::curated_for(LanguageFamily::French)
+        }
+
+        #[test]
+        fn knows_nouns_with_number() {
+            let dict = dict();
+
+            let chat = dict.get_word_metadata_str("chat").unwrap();
+            let noun = chat.noun.unwrap();
+            assert_eq!(noun.is_singular, Some(true));
+
+            let chats = dict.get_word_metadata_str("chats").unwrap();
+            assert_eq!(chats.noun.unwrap().is_plural, Some(true));
+        }
+
+        #[test]
+        fn knows_verbs() {
+            let dict = dict();
+
+            let mange = dict.get_word_metadata_str("mange").unwrap();
+            assert!(mange.verb.is_some());
+
+            let manger = dict.get_word_metadata_str("manger").unwrap();
+            assert!(manger.is_verb_lemma());
+        }
+
+        #[test]
+        fn knows_function_words() {
+            let dict = dict();
+
+            assert!(
+                dict.get_word_metadata_str("le")
+                    .unwrap()
+                    .determiner
+                    .is_some()
+            );
+            assert!(dict.get_word_metadata_str("de").unwrap().preposition);
+            assert!(
+                dict.get_word_metadata_str("et")
+                    .unwrap()
+                    .conjunction
+                    .is_some()
+            );
+            assert!(dict.get_word_metadata_str("il").unwrap().pronoun.is_some());
+            assert!(dict.get_word_metadata_str("très").unwrap().adverb.is_some());
+        }
+
+        #[test]
+        fn knows_proper_nouns() {
+            let dict = dict();
+
+            let paris = dict.get_word_metadata_str("Paris").unwrap();
+            assert_eq!(paris.noun.unwrap().is_proper, Some(true));
+        }
+
+        #[test]
+        fn knows_elided_words_with_either_apostrophe() {
+            let dict = dict();
+
+            assert!(dict.contains_word_str("l'"));
+            assert!(dict.contains_word_str("l’"));
+            assert!(dict.contains_word_str("aujourd'hui"));
+            assert!(dict.contains_word_str("aujourd’hui"));
+        }
+
+        #[test]
+        fn knows_l_on() {
+            let dict = dict();
+
+            assert!(dict.contains_word_str("l'on"));
+            assert!(dict.contains_word_str("l’on"));
+            assert!(
+                dict.get_word_metadata_str("l'on")
+                    .is_some_and(|m| m.is_pronoun())
+            );
+        }
+
+        #[test]
+        fn knows_accented_words() {
+            let dict = dict();
+
+            assert!(dict.contains_word_str("école"));
+            assert!(dict.contains_word_str("être"));
+            assert!(dict.contains_word_str("français"));
+        }
+
+        #[test]
+        fn rejects_misspellings() {
+            let dict = dict();
+
+            assert!(!dict.contains_word_str("franssais"));
+            assert!(!dict.contains_word_str("mangger"));
+        }
+
+        #[test]
+        fn suggests_corrections() {
+            let dict = dict();
+
+            // Same candidate limit as the spell-check rule.
+            let suggestions = crate::spell::suggest_correct_spelling_str_for(
+                "franssais",
+                200,
+                2,
+                &*dict,
+                crate::LanguageFamily::French,
+            );
+            assert_eq!(suggestions.first().map(String::as_str), Some("français"));
+        }
+    }
 
     fn test_dictionaries(words: &[&str]) -> (MutableDictionary, FstDictionary) {
         let mut mutable = MutableDictionary::new();
