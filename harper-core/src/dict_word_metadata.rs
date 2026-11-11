@@ -1123,14 +1123,14 @@ impl AffixData {
     Display,
     VariantArray,
 )]
-pub enum Dialect {
+pub enum EnglishDialect {
     American = 1 << 0,
     Canadian = 1 << 1,
     Australian = 1 << 2,
     British = 1 << 3,
     Indian = 1 << 4,
 }
-impl Dialect {
+impl EnglishDialect {
     /// Tries to guess the dialect used in the document by finding which dialect is used the most.
     /// Returns `None` if it fails to find a single dialect that is used the most.
     #[must_use]
@@ -1144,16 +1144,16 @@ impl Dialect {
     /// # Examples
     ///
     /// ```
-    /// use harper_core::Dialect;
+    /// use harper_core::EnglishDialect;
     ///
     /// let abbrs = ["US", "CA", "AU", "GB", "IN"];
-    /// let mut dialects = abbrs.iter().map(|abbr| Dialect::try_from_abbr(abbr));
+    /// let mut dialects = abbrs.iter().map(|abbr| EnglishDialect::try_from_abbr(abbr));
     ///
-    /// assert_eq!(Some(Dialect::American), dialects.next().unwrap()); // US
-    /// assert_eq!(Some(Dialect::Canadian), dialects.next().unwrap()); // CA
-    /// assert_eq!(Some(Dialect::Australian), dialects.next().unwrap()); // AU
-    /// assert_eq!(Some(Dialect::British), dialects.next().unwrap()); // GB
-    /// assert_eq!(Some(Dialect::Indian), dialects.next().unwrap()); // IN
+    /// assert_eq!(Some(EnglishDialect::American), dialects.next().unwrap()); // US
+    /// assert_eq!(Some(EnglishDialect::Canadian), dialects.next().unwrap()); // CA
+    /// assert_eq!(Some(EnglishDialect::Australian), dialects.next().unwrap()); // AU
+    /// assert_eq!(Some(EnglishDialect::British), dialects.next().unwrap()); // GB
+    /// assert_eq!(Some(EnglishDialect::Indian), dialects.next().unwrap()); // IN
     /// ```
     #[must_use]
     pub fn try_from_abbr(abbr: &str) -> Option<Self> {
@@ -1171,10 +1171,10 @@ impl Dialect {
         bcp47.strip_prefix("en-").and_then(Self::try_from_abbr)
     }
 }
-impl TryFrom<DialectFlags> for Dialect {
+impl TryFrom<DialectFlags> for EnglishDialect {
     type Error = ();
 
-    /// Attempts to convert `DialectFlags` to a single `Dialect`.
+    /// Attempts to convert `DialectFlags` to a single `EnglishDialect`.
     ///
     /// # Errors
     ///
@@ -1184,11 +1184,21 @@ impl TryFrom<DialectFlags> for Dialect {
         // Ensure only one dialect is enabled before converting.
         if dialect_flags.bits().count_ones() == 1 {
             match dialect_flags {
-                df if df.is_dialect_enabled_strict(Dialect::American) => Ok(Dialect::American),
-                df if df.is_dialect_enabled_strict(Dialect::Canadian) => Ok(Dialect::Canadian),
-                df if df.is_dialect_enabled_strict(Dialect::Australian) => Ok(Dialect::Australian),
-                df if df.is_dialect_enabled_strict(Dialect::British) => Ok(Dialect::British),
-                df if df.is_dialect_enabled_strict(Dialect::Indian) => Ok(Dialect::Indian),
+                df if df.is_dialect_enabled_strict(EnglishDialect::American) => {
+                    Ok(EnglishDialect::American)
+                }
+                df if df.is_dialect_enabled_strict(EnglishDialect::Canadian) => {
+                    Ok(EnglishDialect::Canadian)
+                }
+                df if df.is_dialect_enabled_strict(EnglishDialect::Australian) => {
+                    Ok(EnglishDialect::Australian)
+                }
+                df if df.is_dialect_enabled_strict(EnglishDialect::British) => {
+                    Ok(EnglishDialect::British)
+                }
+                df if df.is_dialect_enabled_strict(EnglishDialect::Indian) => {
+                    Ok(EnglishDialect::Indian)
+                }
                 _ => Err(()),
             }
         } else {
@@ -1210,18 +1220,18 @@ bitflags::bitflags! {
     #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, PartialOrd, Eq, Hash)]
     #[serde(transparent)]
     pub struct DialectFlags: DialectFlagsUnderlyingType {
-        const AMERICAN = Dialect::American as DialectFlagsUnderlyingType;
-        const CANADIAN = Dialect::Canadian as DialectFlagsUnderlyingType;
-        const AUSTRALIAN = Dialect::Australian as DialectFlagsUnderlyingType;
-        const BRITISH = Dialect::British as DialectFlagsUnderlyingType;
-        const INDIAN = Dialect::Indian as DialectFlagsUnderlyingType;
+        const AMERICAN = EnglishDialect::American as DialectFlagsUnderlyingType;
+        const CANADIAN = EnglishDialect::Canadian as DialectFlagsUnderlyingType;
+        const AUSTRALIAN = EnglishDialect::Australian as DialectFlagsUnderlyingType;
+        const BRITISH = EnglishDialect::British as DialectFlagsUnderlyingType;
+        const INDIAN = EnglishDialect::Indian as DialectFlagsUnderlyingType;
     }
 }
 impl DialectFlags {
     /// Checks if the provided dialect is enabled.
     /// If no dialect is explicitly enabled, it is assumed that all dialects are enabled.
     #[must_use]
-    pub fn is_dialect_enabled(self, dialect: Dialect) -> bool {
+    pub fn is_dialect_enabled(self, dialect: EnglishDialect) -> bool {
         self.is_empty() || self.intersects(Self::from_dialect(dialect))
     }
 
@@ -1230,11 +1240,11 @@ impl DialectFlags {
     /// Unlike `is_dialect_enabled`, this will return false when no dialects are explicitly
     /// enabled.
     #[must_use]
-    pub fn is_dialect_enabled_strict(self, dialect: Dialect) -> bool {
+    pub fn is_dialect_enabled_strict(self, dialect: EnglishDialect) -> bool {
         self.intersects(Self::from_dialect(dialect))
     }
 
-    /// Constructs a `DialectFlags` from the provided `Dialect`, with only that dialect being
+    /// Constructs a `DialectFlags` from the provided `EnglishDialect`, with only that dialect being
     /// enabled.
     ///
     /// # Panics
@@ -1242,7 +1252,7 @@ impl DialectFlags {
     /// This will panic if `dialect` represents a dialect that is not defined in
     /// `DialectFlags`.
     #[must_use]
-    pub fn from_dialect(dialect: Dialect) -> Self {
+    pub fn from_dialect(dialect: EnglishDialect) -> Self {
         let Some(out) = Self::from_bits(dialect as DialectFlagsUnderlyingType) else {
             panic!("The '{dialect}' dialect isn't defined in DialectFlags!");
         };
@@ -1257,11 +1267,12 @@ impl DialectFlags {
     #[must_use]
     pub fn get_most_used_dialects_from_document(document: &Document) -> Self {
         // Initialize counters.
-        let mut dialect_counters: [(Dialect, usize); Dialect::COUNT] = Dialect::VARIANTS
-            .iter()
-            .map(|d| (*d, 0))
-            .collect_array()
-            .unwrap();
+        let mut dialect_counters: [(EnglishDialect, usize); EnglishDialect::COUNT] =
+            EnglishDialect::VARIANTS
+                .iter()
+                .map(|d| (*d, 0))
+                .collect_array()
+                .unwrap();
 
         // Count word dialects.
         document.iter_words().for_each(|w| {
@@ -1314,7 +1325,7 @@ pub mod tests {
     }
 
     mod dialect {
-        use super::super::{Dialect, DialectFlags};
+        use super::super::{DialectFlags, EnglishDialect};
         use crate::Document;
 
         #[test]
@@ -1322,8 +1333,8 @@ pub mod tests {
             let document = Document::new_plain_english_curated("Aluminium was used.");
             let df = DialectFlags::get_most_used_dialects_from_document(&document);
             assert!(
-                df.is_dialect_enabled_strict(Dialect::British)
-                    && !df.is_dialect_enabled_strict(Dialect::American)
+                df.is_dialect_enabled_strict(EnglishDialect::British)
+                    && !df.is_dialect_enabled_strict(EnglishDialect::American)
             );
         }
 
@@ -1332,8 +1343,8 @@ pub mod tests {
             let document = Document::new_plain_english_curated("Aluminum was used.");
             let df = DialectFlags::get_most_used_dialects_from_document(&document);
             assert!(
-                df.is_dialect_enabled_strict(Dialect::American)
-                    && !df.is_dialect_enabled_strict(Dialect::British)
+                df.is_dialect_enabled_strict(EnglishDialect::American)
+                    && !df.is_dialect_enabled_strict(EnglishDialect::British)
             );
         }
     }

@@ -171,8 +171,8 @@ Read the [Desktop contributor documentation](packages/web/src/routes/docs/contri
 ### IPC And App State
 
 - Tauri app state lives in `harper-desktop/src-tauri/src/config.rs`.
-- `Config` currently stores `mutable_dictionary: MutableDictionary`, `dialect: Dialect`, `ignored_lints: IgnoredLints`, `lint_config: FlatConfig`, and `integrations: Vec<Integration>`.
-- `Config::new()` uses `MutableDictionary::new()`, `Dialect::American`, `IgnoredLints::new()`, `FlatConfig::new_curated()`, and curated default integrations.
+- `Config` currently stores `mutable_dictionary: MutableDictionary`, `dialect: EnglishDialect`, `ignored_lints: IgnoredLints`, `lint_config: FlatConfig`, and `integrations: Vec<Integration>`.
+- `Config::new()` uses `MutableDictionary::new()`, `EnglishDialect::American`, `IgnoredLints::new()`, `FlatConfig::new_curated()`, and curated default integrations.
 - Config is persisted under the system config directory in a `harper-desktop` folder. Main settings are serialized to `config.json`; the mutable dictionary is stored separately as `dictionary.txt`.
 - `Config::load_from_system()` loads the serialized config and then hydrates the mutable dictionary with the selected dialect.
 - The Tauri app owns shared config as `Arc<Mutex<Config>>`.

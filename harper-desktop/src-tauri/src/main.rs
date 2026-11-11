@@ -15,7 +15,7 @@ use crate::config::{Config, Integration, OnboardingState};
 use crate::debounce::{DebounceState, DebounceStatus};
 use clap::Parser;
 use harper_core::{
-    Dialect, DictWordMetadata, Document, IgnoredLints,
+    DictWordMetadata, Document, EnglishDialect, IgnoredLints,
     linting::{Lint, LintGroup},
     spell::MutableDictionary,
 };
@@ -545,7 +545,7 @@ fn apply_highlighter_config(
     config: Config,
     ignored_lints: &Rc<RefCell<IgnoredLints>>,
     user_dictionary: &Rc<RefCell<MutableDictionary>>,
-    dialect: &Rc<RefCell<Dialect>>,
+    dialect: &Rc<RefCell<EnglishDialect>>,
     integrations: &Arc<StdMutex<IntegrationState>>,
     debounce_ms: &Rc<RefCell<u64>>,
     linter: &Rc<RefCell<LintGroup>>,
