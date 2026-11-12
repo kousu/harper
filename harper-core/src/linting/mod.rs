@@ -5,6 +5,8 @@
 #[cfg(feature = "en")]
 pub(crate) use crate::lang::en::linting as en;
 pub(crate) mod expr_linter;
+#[cfg(feature = "fr")]
+pub use crate::lang::fr::linting as fr;
 mod initialism_linter;
 mod lint;
 mod lint_group;
