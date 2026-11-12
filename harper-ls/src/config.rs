@@ -86,13 +86,6 @@ pub struct Config {
 }
 
 impl Config {
-    /// The English dialect that words in the user's dictionaries are tagged with.
-    pub fn english_dialect(&self) -> EnglishDialect {
-        match self.language {
-            Language::English(dialect) => dialect,
-        }
-    }
-
     pub fn from_lsp_config(workspace_root: &Path, value: Value) -> Result<Self> {
         let mut base = Config::default();
 
@@ -288,7 +281,6 @@ mod tests {
         let config = parse(json!({ "dialect": "Canadian" })).unwrap();
 
         assert_eq!(config.language, Language::English(EnglishDialect::Canadian));
-        assert_eq!(config.english_dialect(), EnglishDialect::Canadian);
     }
 
     #[test]

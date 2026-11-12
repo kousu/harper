@@ -729,7 +729,6 @@ use vicious_loop::{ViciousCircle, ViciousCircleOrCycle, ViciousCycle};
 use crate::linting::spell_check::SpellCheck;
 use dashes::Dashes;
 // The shared linting framework, which the rules reach through `super::`.
-use crate::EnglishDialect;
 #[cfg(test)]
 use crate::linting::tests;
 use crate::linting::{
@@ -737,6 +736,7 @@ use crate::linting::{
     MapPhraseSetLinter, Suggestion, expr_linter, merge_linters,
 };
 use crate::spell::Dictionary;
+use crate::{EnglishDialect, Language};
 
 /// Add the curated English rules to `out`.
 pub(crate) fn add_curated_rules(
@@ -1177,7 +1177,10 @@ pub(crate) fn add_curated_rules(
     out.add("PluralDecades", PluralDecades::default());
 
     // Uses Dictionary and EnglishDialect
-    out.add("SpellCheck", SpellCheck::new(dictionary.clone(), dialect));
+    out.add(
+        "SpellCheck",
+        SpellCheck::new(dictionary.clone(), Language::English(dialect)),
+    );
 
     // Uses Dictionary, and Sentence rather than Chunk
     out.add(

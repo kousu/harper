@@ -88,7 +88,7 @@ impl Backend {
             .await
             .context("Unable to get the file path.")?;
 
-        load_dict(path, self.config.read().await.english_dialect())
+        load_dict(path, self.config.read().await.language)
             .await
             .map_err(|err| info!("{err}"))
             .or(Ok(MutableDictionary::new()))
@@ -152,7 +152,7 @@ impl Backend {
     async fn load_user_dictionary(&self) -> MutableDictionary {
         let config = self.config.read().await;
 
-        load_dict(&config.user_dict_path, config.english_dialect())
+        load_dict(&config.user_dict_path, config.language)
             .await
             .map_err(|err| info!("{err}"))
             .unwrap_or(MutableDictionary::new())
@@ -168,7 +168,7 @@ impl Backend {
 
     async fn load_workspace_dictionary(&self) -> MutableDictionary {
         let config = self.config.read().await;
-        load_dict(&config.workspace_dict_path, config.english_dialect())
+        load_dict(&config.workspace_dict_path, config.language)
             .await
             .map_err(|err| info!("{err}"))
             .unwrap_or(MutableDictionary::new())

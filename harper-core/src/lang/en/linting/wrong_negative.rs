@@ -153,7 +153,10 @@ mod tests {
         // Add both linters
         lint_group.add(
             "SpellCheck",
-            spell_check::SpellCheck::new(dict.clone(), EnglishDialect::American),
+            spell_check::SpellCheck::new(
+                dict.clone(),
+                crate::Language::English(EnglishDialect::American),
+            ),
         );
         lint_group.add_chunk_expr_linter("WrongNegative", WrongNegative::new(dict));
 

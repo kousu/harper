@@ -46,8 +46,8 @@ pub use case::{Case, CaseIterExt};
 pub use char_string::{CharString, CharStringExt};
 pub use currency::Currency;
 pub use dict_word_metadata::{
-    AdverbData, ConjunctionData, Degree, DeterminerData, DialectFlags, DictWordMetadata,
-    EnglishDialect, NounData, PronounData, VerbData, VerbForm, VerbFormFlags,
+    AdverbData, ConjunctionData, Degree, DeterminerData, DictWordMetadata, EnglishDialect,
+    EnglishDialectFlags, NounData, PronounData, VerbData, VerbForm, VerbFormFlags, WordDialects,
 };
 pub use dict_word_metadata_orthography::{OrthFlags, Orthography};
 pub use document::Document;
@@ -61,6 +61,10 @@ pub use lang::{Language, LanguageFamily, LanguageNameError};
 /// The old name of [`EnglishDialect`].
 #[deprecated(note = "renamed to `EnglishDialect`")]
 pub type Dialect = EnglishDialect;
+
+/// The old name of [`EnglishDialectFlags`].
+#[deprecated(note = "renamed to `EnglishDialectFlags`")]
+pub type DialectFlags = EnglishDialectFlags;
 use linting::Lint;
 pub use mask::{Mask, Masker, RegexMasker};
 pub use number::{Number, OrdinalSuffix};

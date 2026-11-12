@@ -10,7 +10,7 @@ use strum_macros::{Display, EnumCount, EnumIter, EnumString, VariantArray};
 use std::convert::TryFrom;
 
 use crate::dict_word_metadata_orthography::OrthFlags;
-use crate::{Document, TokenKind, TokenStringExt};
+use crate::{Document, Language, TokenKind, TokenStringExt};
 
 pub mod derived_from;
 use derived_from::DerivedFrom;
@@ -37,11 +37,11 @@ pub struct DictWordMetadata {
     pub swear: Option<bool>,
     /// Whether the word is an abbreviation of any kind.
     pub abbreviation: Option<bool>,
-    /// The dialects this word belongs to.
+    /// The language of this word and the dialects of it the word belongs to.
     /// If no dialects are defined, it can be assumed that the word is
-    /// valid in all dialects of English.
-    #[serde(default = "default_default")]
-    pub dialects: DialectFlags,
+    /// valid in all dialects of its language.
+    #[serde(default)]
+    pub dialects: Option<WordDialects>,
     /// Orthographic information: letter case, spaces, hyphens, etc.
     #[serde(default = "OrthFlags::empty")]
     pub orth_info: OrthFlags,
@@ -855,7 +855,10 @@ impl DictWordMetadata {
         self.determiner = merge!(self.determiner, other.determiner);
         self.affix = merge!(self.affix, other.affix);
         self.preposition |= other.preposition;
-        self.dialects |= other.dialects;
+        self.dialects = match (self.dialects, other.dialects) {
+            (Some(a), Some(b)) => Some(a.union(b)),
+            (a, b) => a.or(b),
+        };
         self.orth_info |= other.orth_info;
         self.swear = self.swear.or(other.swear);
         self.abbreviation = self.abbreviation.or(other.abbreviation);
@@ -1102,11 +1105,11 @@ impl AffixData {
     }
 }
 
-/// A regional dialect.
+/// A regional dialect of English.
 ///
 /// Note: these have bit-shifted values so that they can ergonomically integrate with
-/// `DialectFlags`. Each value here must have a unique bit index inside
-/// `DialectsUnderlyingType`.
+/// [`EnglishDialectFlags`]. Each value here must have a unique bit index inside
+/// `EnglishDialectFlagsUnderlyingType`.
 #[derive(
     Debug,
     Clone,
@@ -1135,7 +1138,10 @@ impl EnglishDialect {
     /// Returns `None` if it fails to find a single dialect that is used the most.
     #[must_use]
     pub fn try_guess_from_document(document: &Document) -> Option<Self> {
-        Self::try_from(DialectFlags::get_most_used_dialects_from_document(document)).ok()
+        Self::try_from(EnglishDialectFlags::get_most_used_dialects_from_document(
+            document,
+        ))
+        .ok()
     }
 
     /// Tries to get a dialect from its abbreviation. Returns `None` if the abbreviation is not
@@ -1197,16 +1203,16 @@ impl EnglishDialect {
         }
     }
 }
-impl TryFrom<DialectFlags> for EnglishDialect {
+impl TryFrom<EnglishDialectFlags> for EnglishDialect {
     type Error = ();
 
-    /// Attempts to convert `DialectFlags` to a single `EnglishDialect`.
+    /// Attempts to convert `EnglishDialectFlags` to a single `EnglishDialect`.
     ///
     /// # Errors
     ///
     /// Will return `Err` if more than one dialect is enabled or if an undefined dialect is
     /// enabled.
-    fn try_from(dialect_flags: DialectFlags) -> Result<Self, Self::Error> {
+    fn try_from(dialect_flags: EnglishDialectFlags) -> Result<Self, Self::Error> {
         // Ensure only one dialect is enabled before converting.
         if dialect_flags.bits().count_ones() == 1 {
             match dialect_flags {
@@ -1234,26 +1240,26 @@ impl TryFrom<DialectFlags> for EnglishDialect {
     }
 }
 
-// The underlying type used for DialectFlags.
+// The underlying type used for EnglishDialectFlags.
 // At the time of writing, this is currently a `u8`. If we want to define more than 8 dialects in
 // the future, we will need to switch this to a larger type.
-type DialectFlagsUnderlyingType = u8;
+type EnglishDialectFlagsUnderlyingType = u8;
 
 bitflags::bitflags! {
-    /// A collection of bit flags used to represent enabled dialects.
+    /// A set of English dialects, as bit flags.
     ///
     /// This is generally used to allow a word (or similar) to be tagged with multiple dialects.
     #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, PartialOrd, Eq, Hash)]
     #[serde(transparent)]
-    pub struct DialectFlags: DialectFlagsUnderlyingType {
-        const AMERICAN = EnglishDialect::American as DialectFlagsUnderlyingType;
-        const CANADIAN = EnglishDialect::Canadian as DialectFlagsUnderlyingType;
-        const AUSTRALIAN = EnglishDialect::Australian as DialectFlagsUnderlyingType;
-        const BRITISH = EnglishDialect::British as DialectFlagsUnderlyingType;
-        const INDIAN = EnglishDialect::Indian as DialectFlagsUnderlyingType;
+    pub struct EnglishDialectFlags: EnglishDialectFlagsUnderlyingType {
+        const AMERICAN = EnglishDialect::American as EnglishDialectFlagsUnderlyingType;
+        const CANADIAN = EnglishDialect::Canadian as EnglishDialectFlagsUnderlyingType;
+        const AUSTRALIAN = EnglishDialect::Australian as EnglishDialectFlagsUnderlyingType;
+        const BRITISH = EnglishDialect::British as EnglishDialectFlagsUnderlyingType;
+        const INDIAN = EnglishDialect::Indian as EnglishDialectFlagsUnderlyingType;
     }
 }
-impl DialectFlags {
+impl EnglishDialectFlags {
     /// Checks if the provided dialect is enabled.
     /// If no dialect is explicitly enabled, it is assumed that all dialects are enabled.
     #[must_use]
@@ -1270,17 +1276,17 @@ impl DialectFlags {
         self.intersects(Self::from_dialect(dialect))
     }
 
-    /// Constructs a `DialectFlags` from the provided `EnglishDialect`, with only that dialect being
+    /// Constructs an `EnglishDialectFlags` from the provided `EnglishDialect`, with only that dialect being
     /// enabled.
     ///
     /// # Panics
     ///
     /// This will panic if `dialect` represents a dialect that is not defined in
-    /// `DialectFlags`.
+    /// `EnglishDialectFlags`.
     #[must_use]
     pub fn from_dialect(dialect: EnglishDialect) -> Self {
-        let Some(out) = Self::from_bits(dialect as DialectFlagsUnderlyingType) else {
-            panic!("The '{dialect}' dialect isn't defined in DialectFlags!");
+        let Some(out) = Self::from_bits(dialect as EnglishDialectFlagsUnderlyingType) else {
+            panic!("The '{dialect}' dialect isn't defined in EnglishDialectFlags!");
         };
         out
     }
@@ -1288,7 +1294,7 @@ impl DialectFlags {
     /// Gets the most commonly used dialect(s) in the document.
     ///
     /// If multiple dialects are used equally often, they will all be enabled in the returned
-    /// `DialectFlags`. On the other hand, if there is a single dialect that is used the most, it
+    /// `EnglishDialectFlags`. On the other hand, if there is a single dialect that is used the most, it
     /// will be the only one enabled.
     #[must_use]
     pub fn get_most_used_dialects_from_document(document: &Document) -> Self {
@@ -1306,7 +1312,7 @@ impl DialectFlags {
                 // If the token is a word, iterate though the dialects in `dialect_counters` and
                 // increment those counters where the word has the respective dialect enabled.
                 dialect_counters.iter_mut().for_each(|(dialect, count)| {
-                    if lexeme_metadata.dialects.is_dialect_enabled(*dialect) {
+                    if lexeme_metadata.allows_language(Language::English(*dialect)) {
                         *count += 1;
                     }
                 });
@@ -1319,21 +1325,92 @@ impl DialectFlags {
             .map(|(_, count)| count)
             .max()
             .unwrap();
-        // Get and convert the collection of most used dialects into a `DialectFlags`.
+        // Get and convert the collection of most used dialects into an `EnglishDialectFlags`.
         dialect_counters
             .into_iter()
             .filter(|(_, count)| count == max_counter)
-            .fold(DialectFlags::empty(), |acc, dialect| {
-                // Fold most used dialects into `DialectFlags` via bitwise or.
+            .fold(EnglishDialectFlags::empty(), |acc, dialect| {
+                // Fold most used dialects into `EnglishDialectFlags` via bitwise or.
                 acc | Self::from_dialect(dialect.0)
             })
     }
 }
-impl Default for DialectFlags {
+impl Default for EnglishDialectFlags {
     /// A default value with no dialects explicitly enabled.
     /// Implicitly, this state corresponds to all dialects being enabled.
     fn default() -> Self {
         Self::empty()
+    }
+}
+
+/// The language a word belongs to, with the dialects of that language it belongs to.
+///
+/// Each language has its own set of dialect flags. An empty set means every dialect of the
+/// language.
+///
+/// It serializes as its flags alone, like `"AMERICAN | BRITISH"`, as dictionary annotations
+/// write it. Each language's flag names are distinct, so they say which language it is.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, PartialOrd, Eq, Hash)]
+#[serde(untagged)]
+#[non_exhaustive]
+pub enum WordDialects {
+    English(EnglishDialectFlags),
+}
+
+impl WordDialects {
+    /// Whether a word with these dialects belongs to `language`: it is a word of that language,
+    /// and either in `language`'s dialect or in no particular dialect.
+    #[must_use]
+    pub fn allows(self, language: Language) -> bool {
+        match (self, language) {
+            (Self::English(flags), Language::English(dialect)) => flags.is_dialect_enabled(dialect),
+        }
+    }
+
+    /// The dialects in either `self` or `other`. If they are of different languages, `self` wins.
+    #[must_use]
+    pub fn union(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::English(a), Self::English(b)) => Self::English(a | b),
+        }
+    }
+
+    /// The English dialects, if this is an English word.
+    #[must_use]
+    pub fn english(self) -> Option<EnglishDialectFlags> {
+        match self {
+            Self::English(flags) => Some(flags),
+        }
+    }
+}
+
+impl From<EnglishDialectFlags> for WordDialects {
+    fn from(flags: EnglishDialectFlags) -> Self {
+        Self::English(flags)
+    }
+}
+
+impl From<EnglishDialect> for WordDialects {
+    fn from(dialect: EnglishDialect) -> Self {
+        Self::English(EnglishDialectFlags::from_dialect(dialect))
+    }
+}
+
+/// A word of `language`, in its dialect only.
+impl From<Language> for WordDialects {
+    fn from(language: Language) -> Self {
+        match language {
+            Language::English(dialect) => dialect.into(),
+        }
+    }
+}
+
+impl DictWordMetadata {
+    /// Whether this word belongs to `language`: see [`WordDialects::allows`]. A word with no
+    /// dialects belongs to every language and dialect, as words did before they had a language.
+    #[must_use]
+    pub fn allows_language(&self, language: Language) -> bool {
+        self.dialects.is_none_or(|d| d.allows(language))
     }
 }
 
@@ -1350,14 +1427,101 @@ pub mod tests {
             .into_owned()
     }
 
+    mod word_dialects {
+        use super::super::{EnglishDialect, EnglishDialectFlags, WordDialects};
+        use crate::{DictWordMetadata, Language};
+
+        #[test]
+        fn reads_annotation_strings() {
+            let dialects: WordDialects = serde_json::from_str(r#""AMERICAN | BRITISH""#).unwrap();
+
+            assert_eq!(
+                dialects,
+                WordDialects::English(EnglishDialectFlags::AMERICAN | EnglishDialectFlags::BRITISH)
+            );
+            assert_eq!(
+                serde_json::to_string(&dialects).unwrap(),
+                r#""AMERICAN | BRITISH""#
+            );
+        }
+
+        #[test]
+        fn metadata_without_dialects_reads_as_none() {
+            let metadata: DictWordMetadata = serde_json::from_str("{}").unwrap();
+            assert_eq!(metadata.dialects, None);
+
+            let metadata: DictWordMetadata =
+                serde_json::from_str(r#"{ "dialects": "CANADIAN" }"#).unwrap();
+            assert_eq!(metadata.dialects, Some(EnglishDialect::Canadian.into()));
+        }
+
+        #[test]
+        fn allows_its_dialects_only() {
+            let dialects = WordDialects::from(EnglishDialect::British);
+
+            assert!(dialects.allows(Language::English(EnglishDialect::British)));
+            assert!(!dialects.allows(Language::English(EnglishDialect::American)));
+            assert!(
+                WordDialects::English(EnglishDialectFlags::empty())
+                    .allows(Language::English(EnglishDialect::Indian))
+            );
+        }
+
+        #[test]
+        fn word_without_dialects_allows_every_language() {
+            let metadata = DictWordMetadata::default();
+
+            assert!(metadata.allows_language(Language::English(EnglishDialect::Australian)));
+        }
+
+        #[test]
+        fn union_of_english_dialects() {
+            let a = WordDialects::from(EnglishDialect::Australian);
+            let b = WordDialects::from(EnglishDialect::Canadian);
+
+            assert_eq!(
+                a.union(b),
+                WordDialects::English(
+                    EnglishDialectFlags::AUSTRALIAN | EnglishDialectFlags::CANADIAN
+                )
+            );
+        }
+
+        #[test]
+        fn merging_metadata_unions_dialects() {
+            let mut a = DictWordMetadata {
+                dialects: Some(EnglishDialect::American.into()),
+                ..Default::default()
+            };
+            a.merge(&DictWordMetadata {
+                dialects: Some(EnglishDialect::Indian.into()),
+                ..Default::default()
+            });
+            assert_eq!(
+                a.dialects,
+                Some(WordDialects::English(
+                    EnglishDialectFlags::AMERICAN | EnglishDialectFlags::INDIAN
+                ))
+            );
+
+            a.merge(&DictWordMetadata::default());
+            assert_eq!(
+                a.dialects
+                    .and_then(WordDialects::english)
+                    .map(|d| d.bits().count_ones()),
+                Some(2)
+            );
+        }
+    }
+
     mod dialect {
-        use super::super::{DialectFlags, EnglishDialect};
+        use super::super::{EnglishDialect, EnglishDialectFlags};
         use crate::Document;
 
         #[test]
         fn guess_british_dialect() {
             let document = Document::new_plain_english_curated("Aluminium was used.");
-            let df = DialectFlags::get_most_used_dialects_from_document(&document);
+            let df = EnglishDialectFlags::get_most_used_dialects_from_document(&document);
             assert!(
                 df.is_dialect_enabled_strict(EnglishDialect::British)
                     && !df.is_dialect_enabled_strict(EnglishDialect::American)
@@ -1367,7 +1531,7 @@ pub mod tests {
         #[test]
         fn guess_american_dialect() {
             let document = Document::new_plain_english_curated("Aluminum was used.");
-            let df = DialectFlags::get_most_used_dialects_from_document(&document);
+            let df = EnglishDialectFlags::get_most_used_dialects_from_document(&document);
             assert!(
                 df.is_dialect_enabled_strict(EnglishDialect::American)
                     && !df.is_dialect_enabled_strict(EnglishDialect::British)
