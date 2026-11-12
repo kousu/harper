@@ -115,7 +115,6 @@ mod tests {
     use crate::linting::fr::tests::{assert_allows, assert_fixes};
 
     #[test]
-    #[ignore = "needs the French tagger"]
     fn fixes_feminine_article_on_masculine_noun() {
         assert_fixes("La chat dort.", ArticleGender, "Le chat dort.");
     }
@@ -140,14 +139,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "needs the French tagger"]
     fn keeps_capitalization() {
         assert_fixes("LE MAISON", ArticleGender, "LA MAISON");
         assert_fixes("Une chien aboie.", ArticleGender, "Un chien aboie.");
     }
 
     #[test]
-    #[ignore = "needs the French tagger"]
     fn fixes_several_in_one_sentence() {
         assert_fixes(
             "La chat et le maison sont dans une jardin.",
@@ -181,7 +178,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "needs the French tagger"]
     fn checks_un_une_before_noun_verb_homographs() {
         assert_fixes("Il fait un visite.", ArticleGender, "Il fait une visite.");
     }
@@ -231,7 +227,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "needs the French tagger"]
     fn checks_noun_before_hyphenated_pronoun() {
         // The hyphen must come right after the noun to count.
         assert_fixes("Une chien, mi-loup.", ArticleGender, "Un chien, mi-loup.");

@@ -1697,3 +1697,38 @@ This is a final paragraph with a weird "quote and a not-weird "quote".
         )
     }
 }
+
+#[cfg(all(test, feature = "fr"))]
+mod french_tests {
+    use super::*;
+
+    fn french_tags(text: &str) -> Vec<Option<harper_brill::UPOS>> {
+        use crate::LanguageFamily;
+
+        Document::new_with_language(text, LanguageFamily::French)
+            .tokens
+            .iter()
+            .filter_map(|t| t.kind.as_word().map(|m| m.as_ref().and_then(|m| m.pos_tag)))
+            .collect()
+    }
+
+    #[test]
+    fn tags_simple_french_sentence() {
+        use harper_brill::UPOS::*;
+
+        assert_eq!(
+            french_tags("Le chat mange la souris."),
+            [Some(DET), Some(NOUN), Some(VERB), Some(DET), Some(NOUN)]
+        );
+    }
+
+    #[test]
+    fn tags_french_elision() {
+        use harper_brill::UPOS::*;
+
+        assert_eq!(
+            french_tags("Il parle de l'homme."),
+            [Some(PRON), Some(VERB), Some(ADP), Some(DET), Some(NOUN)]
+        );
+    }
+}

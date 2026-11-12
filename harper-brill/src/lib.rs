@@ -1,3 +1,6 @@
+#[cfg(feature = "fr")]
+use std::sync::{Arc, LazyLock};
+
 #[cfg(feature = "en")]
 pub use harper_pos_utils::BurnChunkerCpu;
 pub use harper_pos_utils::{
@@ -66,4 +69,32 @@ mod en {
     pub fn burn_chunker() -> Rc<CachedChunker<BurnChunkerCpu>> {
         (BURN_CHUNKER).with(|c| c.clone())
     }
+}
+
+#[cfg(feature = "fr")]
+const FRENCH_BRILL_TAGGER_SOURCE: &str = include_str!("lang/fr/trained_tagger_model.json");
+
+#[cfg(feature = "fr")]
+static FRENCH_BRILL_TAGGER: LazyLock<Arc<BrillTagger<FreqDict>>> =
+    LazyLock::new(|| Arc::new(serde_json::from_str(FRENCH_BRILL_TAGGER_SOURCE).unwrap()));
+
+/// Get a copy of the shared French [`BrillTagger`], trained on the Universal Dependencies
+/// French-GSD treebank (CC BY-SA 4.0). See `lang/fr/README.md`.
+#[cfg(feature = "fr")]
+pub fn french_brill_tagger() -> Arc<BrillTagger<FreqDict>> {
+    (*FRENCH_BRILL_TAGGER).clone()
+}
+
+#[cfg(feature = "fr")]
+const FRENCH_BRILL_CHUNKER_SOURCE: &str = include_str!("lang/fr/trained_chunker_model.json");
+
+#[cfg(feature = "fr")]
+static FRENCH_BRILL_CHUNKER: LazyLock<Arc<BrillChunker>> =
+    LazyLock::new(|| Arc::new(serde_json::from_str(FRENCH_BRILL_CHUNKER_SOURCE).unwrap()));
+
+/// Get a copy of the shared French [`BrillChunker`], trained on the same treebank as
+/// [`french_brill_tagger`].
+#[cfg(feature = "fr")]
+pub fn french_brill_chunker() -> Arc<BrillChunker> {
+    (*FRENCH_BRILL_CHUNKER).clone()
 }
