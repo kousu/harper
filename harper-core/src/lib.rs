@@ -57,7 +57,7 @@ pub use lang::en::{
     regular_nouns::{get_plurals, get_singulars},
     title_case::{make_title_case, make_title_case_str},
 };
-pub use lang::{Language, LanguageFamily};
+pub use lang::{Language, LanguageFamily, LanguageNameError};
 
 /// The old name of [`EnglishDialect`].
 #[cfg(feature = "en")]
