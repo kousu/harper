@@ -6,7 +6,7 @@ pub use harper_pos_utils::{
     BrillChunker, BrillTagger, BurnChunkerCpu, CachedChunker, Chunker, FreqDict, Tagger, UPOS,
 };
 
-const BRILL_TAGGER_SOURCE: &str = include_str!("../trained_tagger_model.json");
+const BRILL_TAGGER_SOURCE: &str = include_str!("lang/en/trained_tagger_model.json");
 
 static BRILL_TAGGER: LazyLock<Arc<BrillTagger<FreqDict>>> =
     LazyLock::new(|| Arc::new(uncached_brill_tagger()));
@@ -21,7 +21,7 @@ pub fn brill_tagger() -> Arc<BrillTagger<FreqDict>> {
     (*BRILL_TAGGER).clone()
 }
 
-const BRILL_CHUNKER_SOURCE: &str = include_str!("../trained_chunker_model.json");
+const BRILL_CHUNKER_SOURCE: &str = include_str!("lang/en/trained_chunker_model.json");
 
 static BRILL_CHUNKER: LazyLock<Arc<BrillChunker>> =
     LazyLock::new(|| Arc::new(uncached_brill_chunker()));
@@ -36,8 +36,8 @@ pub fn brill_chunker() -> Arc<BrillChunker> {
     (*BRILL_CHUNKER).clone()
 }
 
-const BURN_CHUNKER_VOCAB: &[u8; 627993] = include_bytes!("../finished_chunker/vocab.json");
-const BURN_CHUNKER_BIN: &[u8; 806312] = include_bytes!("../finished_chunker/model.mpk");
+const BURN_CHUNKER_VOCAB: &[u8; 627993] = include_bytes!("lang/en/burn_chunker/vocab.json");
+const BURN_CHUNKER_BIN: &[u8; 806312] = include_bytes!("lang/en/burn_chunker/model.mpk");
 
 thread_local! {
     static BURN_CHUNKER: Rc<CachedChunker<BurnChunkerCpu>> =  Rc::new(uncached_burn_chunker());

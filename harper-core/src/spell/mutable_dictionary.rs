@@ -442,7 +442,7 @@ mod tests {
 
     #[test]
     fn are_merged_attrs_same_as_spread_attrs() {
-        let curated_attr_list = include_str!("../../annotations.json");
+        let curated_attr_list = include_str!("../lang/en/annotations.json");
 
         let merged = MutableDictionary::from_rune_files("1\nblork/DGS", curated_attr_list).unwrap();
         let spread =

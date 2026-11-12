@@ -566,7 +566,7 @@ spans file:
 alias add-noun := addnoun
 addnoun noun:
   #!/usr/bin/env bash
-  DICT_FILE=./harper-core/dictionary.dict
+  DICT_FILE=./harper-core/src/lang/en/dictionary.dict
 
   cat $DICT_FILE | grep "^{{noun}}/"
 
@@ -625,7 +625,7 @@ get-forms +words:
 sample-forms count:
   #!/usr/bin/env bash
   set -eo pipefail
-  DICT_FILE=./harper-core/dictionary.dict
+  DICT_FILE=./harper-core/src/lang/en/dictionary.dict
   # USER_DICT_FILE="$HOME/.config/harper-ls/dictionary.txt"
 
   if [ "{{count}}" -eq 0 ]; then
@@ -724,7 +724,7 @@ alias list-annotations := print-annotations
 alias show-annotations := print-annotations
 print-annotations:
   #! /usr/bin/env node
-  const affixesData = require('{{justfile_directory()}}/harper-core/annotations.json');
+  const affixesData = require('{{justfile_directory()}}/harper-core/src/lang/en/annotations.json');
   const allEntries = {
     ...affixesData.affixes || {},
     ...affixesData.properties || {}
@@ -771,7 +771,7 @@ newest-dict-changes *numCommits:
 
   const { exec } = require('child_process');
 
-  const DICT_FILE = 'harper-core/dictionary.dict';
+  const DICT_FILE = 'harper-core/src/lang/en/dictionary.dict';
 
   const [RST, BOLD, DIM, ITAL, NORM] = [0, 1, 2, 3, 22].map(c => `\x1b[${c}m`);
   const [RED, GRN, YLW, BLU, MGN, CYN, WHT] = [1, 2, 3, 4, 5, 6, 7].map(c => `\x1b[${30+c}m`);
@@ -811,7 +811,7 @@ newest-dict-changes *numCommits:
     console.log(`${MGN}${BOLD}GET DIFF${NORM}: ${diffCommand}${RST}`);
 
     // Execute the diff command with a large buffer to avoid failing to handle large diffs such as:
-    // git diff --word-diff --no-color --unified=0 0761702 baeb08e -- harper-core/dictionary.dict
+    // git diff --word-diff --no-color --unified=0 0761702 baeb08e -- harper-core/src/lang/en/dictionary.dict
     exec(diffCommand, { maxBuffer: 2048 * 1024 }, (diffError, diffString, diffStderr) => {
       if (diffError) {
         console.error(`Error executing diff command: ${diffError.message}`);
@@ -822,8 +822,8 @@ newest-dict-changes *numCommits:
       if (showDiff) console.log(`DIFFSTART\n${diffString}\nDIFFEND`);
 
       // uncomment first line to use in justfile, comment out second line to use standalone
-      const affixes = require('{{justfile_directory()}}/harper-core/annotations.json').affixes;
-      // const affixes = require('./harper-core/annotations.json').affixes;
+      const affixes = require('{{justfile_directory()}}/harper-core/src/lang/en/annotations.json').affixes;
+      // const affixes = require('./harper-core/src/lang/en/annotations.json').affixes;
 
       diffString.split("\n").forEach(line => {
         const match = line.match(/^(?:\[-(.*?)-\])?(?:\{\+(.*?)\+\})?$/);
@@ -877,7 +877,7 @@ get-nps text:
 # Suggest annotations for a potential new property annotation
 suggest-annotation input:
   #! /usr/bin/env node
-  const affixesData = require('{{justfile_directory()}}/harper-core/annotations.json');
+  const affixesData = require('{{justfile_directory()}}/harper-core/src/lang/en/annotations.json');
   const allEntries = {
     ...affixesData.affixes || {},
     ...affixesData.properties || {}

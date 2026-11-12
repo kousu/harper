@@ -470,7 +470,8 @@ fn main() -> anyhow::Result<()> {
 
                 let (word, annot) = line_to_parts(line);
 
-                let curated_word_list = include_str!("../../harper-core/dictionary.dict");
+                let curated_word_list =
+                    include_str!("../../harper-core/src/lang/en/dictionary.dict");
                 let dict_lines = curated_word_list.split('\n');
 
                 let mut entry_in_dict = None;
@@ -522,7 +523,7 @@ fn main() -> anyhow::Result<()> {
                     let rune_words = format!("1\n{line}");
                     let dict = MutableDictionary::from_rune_files(
                         &rune_words,
-                        include_str!("../../harper-core/annotations.json"),
+                        include_str!("../../harper-core/src/lang/en/annotations.json"),
                     )?;
 
                     println!("New, from you:");
