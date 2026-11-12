@@ -148,7 +148,7 @@ impl Document {
     /// Like [`Self::new_basic_tokenize`], lexing `text` as plain prose in `language`. For building
     /// expressions from curated phrases.
     pub(crate) fn new_basic_tokenize_for(text: &str, language: LanguageFamily) -> Self {
-        Self::new_basic_tokenize(text, &language.data().prose_parser(), language)
+        Self::new_basic_tokenize(text, &&*language.lexer(), language)
     }
 
     #[cfg(feature = "en")]

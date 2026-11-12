@@ -23,9 +23,10 @@ use std::sync::{Arc, OnceLock};
 use harper_brill::{Chunker, Tagger, UPOS, brill_tagger, burn_chunker};
 
 use crate::EnglishDialect;
+use crate::Lrc;
 use crate::lang::LanguageData;
+use crate::lexers::{Lexer, PlainEnglish};
 use crate::linting::{FlatConfig, StructuredConfig};
-use crate::parsers::{Parser, PlainEnglish};
 use crate::spell::{FstDictionary, MutableDictionary, TrieDictionary};
 
 /// English's data, for [`LanguageFamily::data`](crate::LanguageFamily::data).
@@ -44,8 +45,8 @@ impl LanguageData for English {
         dictionary::trie_dictionary()
     }
 
-    fn prose_parser(&self) -> &'static dyn Parser {
-        &PlainEnglish
+    fn lexer(&self) -> Lrc<dyn Lexer> {
+        Lrc::new(PlainEnglish)
     }
 
     fn tag_and_chunk(&self, sentence: &[String]) -> (Vec<Option<UPOS>>, Vec<bool>) {
