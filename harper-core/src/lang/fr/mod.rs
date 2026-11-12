@@ -8,7 +8,7 @@ pub(crate) mod ordinal;
 
 use std::sync::Arc;
 
-use harper_brill::UPOS;
+use harper_brill::{Chunker, Tagger, UPOS, french_brill_chunker, french_brill_tagger};
 
 use crate::lang::LanguageData;
 use crate::lexers::{Lexer, PlainFrench};
@@ -16,8 +16,7 @@ use crate::linting::{FlatConfig, LintGroup, StructuredConfig};
 use crate::spell::{FstDictionary, MutableDictionary, TrieDictionary};
 use crate::{Language, Lrc};
 
-/// French's data, for [`LanguageFamily::data`](crate::LanguageFamily::data). French is
-/// experimental: it has no tagger of its own yet.
+/// French's data, for [`LanguageFamily::data`](crate::LanguageFamily::data).
 pub(crate) struct French;
 
 impl LanguageData for French {
@@ -37,9 +36,10 @@ impl LanguageData for French {
         Lrc::new(PlainFrench)
     }
 
-    /// French has no tagger or chunker yet.
     fn tag_and_chunk(&self, sentence: &[String]) -> (Vec<Option<UPOS>>, Vec<bool>) {
-        (vec![None; sentence.len()], vec![false; sentence.len()])
+        let tags = french_brill_tagger().tag_sentence(sentence);
+        let np_flags = french_brill_chunker().chunk_sentence(sentence, &tags);
+        (tags, np_flags)
     }
 
     fn default_config(&self) -> StructuredConfig {

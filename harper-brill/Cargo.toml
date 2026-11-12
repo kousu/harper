@@ -10,6 +10,8 @@ repository = "https://github.com/automattic/harper"
 default = ["en"]
 # Bundle the English tagger and chunker models, including the neural chunker.
 en = ["harper-pos-utils/burn"]
+# Bundle the French tagger and chunker models.
+fr = []
 
 [dependencies]
 harper-pos-utils = { path = "../harper-pos-utils/", version = "3.0.0" }
