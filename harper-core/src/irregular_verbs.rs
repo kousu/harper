@@ -11,7 +11,7 @@ pub struct IrregularVerbs {
 /// The uncached function that is used to produce the original copy of the
 /// irregular verb table.
 fn uncached_inner_new() -> Arc<IrregularVerbs> {
-    IrregularVerbs::from_json_file(include_str!("../irregular_verbs.json"))
+    IrregularVerbs::from_json_file(include_str!("lang/en/irregular_verbs.json"))
         .map(Arc::new)
         .unwrap_or_else(|e| panic!("Failed to load irregular verb table: {}", e))
 }
