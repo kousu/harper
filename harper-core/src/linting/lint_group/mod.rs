@@ -252,7 +252,8 @@ impl LintGroup {
         }
     }
 
-    /// The French rules: only spell checking so far. `dictionary` should be French, such as
+    /// The French rules: spell checking and the rules in `linting::fr`. `dictionary` should be
+    /// French, such as
     /// `FstDictionary::curated_for(LanguageFamily::French)`.
     #[cfg(feature = "fr")]
     fn new_curated_french(
@@ -265,6 +266,8 @@ impl LintGroup {
             "SpellCheck",
             SpellCheck::new(dictionary, Language::French(dialect), PlainSpelling),
         );
+        out.add("FrenchElision", super::fr::Elision);
+        out.add("FrenchArticleGender", super::fr::ArticleGender);
         out.set_all_rules_to(Some(true));
 
         out

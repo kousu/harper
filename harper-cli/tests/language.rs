@@ -124,17 +124,14 @@ fn unknown_language_is_an_error_for_every_subcommand() {
 
 #[cfg(feature = "fr")]
 #[test]
-fn french_only_spell_checks() {
-    // "an" before a consonant is an English `AnA` lint; French gets only spell checking.
+fn french_skips_english_rules() {
+    // "an" before a consonant is an English `AnA` lint, but not a French one.
     for args in [
         &["--language", "fr"][..],
         &["--language", "French", "--dialect", "ca"],
     ] {
         let found = lints(args, "Un an plus tard.");
-        assert!(
-            found.iter().all(|(rule, _)| rule == "SpellCheck"),
-            "{found:?}"
-        );
+        assert!(found.iter().all(|(rule, _)| rule != "AnA"), "{found:?}");
     }
 }
 
