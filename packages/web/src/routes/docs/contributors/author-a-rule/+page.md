@@ -105,7 +105,7 @@ The `add_many_to_many_mappings` section is more complex. Each set still has a si
 ```
 
 
-Similarly, if you just want Harper to enforce proper capitalization of a multi-token proper noun (like "Tumblr Blaze") you just need to add an entry to `harper-core/proper_noun_rules.json`.
+Similarly, if you just want Harper to enforce proper capitalization of a multi-token proper noun (like "Tumblr Blaze") you just need to add an entry to `harper-core/src/lang/en/proper_noun_rules.json`.
 
 ```javascript
 // The name of the rule
