@@ -1170,6 +1170,32 @@ impl EnglishDialect {
     pub fn try_from_bcp47(bcp47: &str) -> Option<Self> {
         bcp47.strip_prefix("en-").and_then(Self::try_from_abbr)
     }
+
+    /// Tries to get a dialect from how a person might write it, in any case: its name
+    /// ("British"), its country ("Britain"), its country code ("GB", "UK") or its BCP 47 tag
+    /// ("en-GB", "en_GB"). Returns `None` if the name is not recognized.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use harper_core::EnglishDialect;
+    ///
+    /// assert_eq!(EnglishDialect::try_from_name("uk"), Some(EnglishDialect::British));
+    /// assert_eq!(EnglishDialect::try_from_name("en-CA"), Some(EnglishDialect::Canadian));
+    /// assert_eq!(EnglishDialect::try_from_name("Indian"), Some(EnglishDialect::Indian));
+    /// assert_eq!(EnglishDialect::try_from_name("xx"), None);
+    /// ```
+    #[must_use]
+    pub fn try_from_name(name: &str) -> Option<Self> {
+        match name.to_lowercase().as_str() {
+            "us" | "usa" | "america" | "american" | "en-us" | "en_us" => Some(Self::American),
+            "uk" | "gb" | "british" | "britain" | "en-gb" | "en_gb" => Some(Self::British),
+            "au" | "aus" | "australia" | "australian" | "en-au" | "en_au" => Some(Self::Australian),
+            "in" | "india" | "indian" | "bharat" | "en-in" | "en_in" => Some(Self::Indian),
+            "ca" | "canada" | "canadian" | "en-ca" | "en_ca" => Some(Self::Canadian),
+            _ => None,
+        }
+    }
 }
 impl TryFrom<DialectFlags> for EnglishDialect {
     type Error = ();

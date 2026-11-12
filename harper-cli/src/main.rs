@@ -271,8 +271,8 @@ fn main() -> anyhow::Result<()> {
             quiet,
             no_parallel,
         } => {
-            let dialect = parse_dialect(&dialect_str)
-                .map_err(|e| anyhow!("Invalid dialect '{}': {}", dialect_str, e))?;
+            let dialect = EnglishDialect::try_from_name(&dialect_str)
+                .ok_or_else(|| anyhow!("Unknown dialect: {dialect_str}"))?;
 
             lint(
                 markdown_options,
@@ -1037,21 +1037,6 @@ fn main() -> anyhow::Result<()> {
             );
             Ok(())
         }
-    }
-}
-
-/// Parse a dialect string into an EnglishDialect enum value.
-/// Supports common synonyms, abbreviations, and codes.
-fn parse_dialect(dialect: &str) -> anyhow::Result<EnglishDialect> {
-    match dialect.to_lowercase().as_str() {
-        "us" | "usa" | "america" | "american" | "en-us" | "en_us" => Ok(EnglishDialect::American),
-        "uk" | "gb" | "british" | "britain" | "en-gb" | "en_gb" => Ok(EnglishDialect::British),
-        "au" | "aus" | "australia" | "australian" | "en-au" | "en_au" => {
-            Ok(EnglishDialect::Australian)
-        }
-        "in" | "india" | "indian" | "bharat" | "en-in" | "en_in" => Ok(EnglishDialect::Indian),
-        "ca" | "canada" | "canadian" | "en-ca" | "en_ca" => Ok(EnglishDialect::Canadian),
-        _ => Err(anyhow!("Unknown dialect: {}", dialect)),
     }
 }
 

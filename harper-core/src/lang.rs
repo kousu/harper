@@ -22,13 +22,96 @@ impl Language {
     pub fn family(self) -> LanguageFamily {
         self.into()
     }
+
+    /// Tries to get a language from how a person might write it, as in a command-line option or
+    /// a setting: a language name or code (see [`LanguageFamily::try_from_name`]) and optionally
+    /// a dialect (see [`EnglishDialect::try_from_name`]). Without a dialect, the language's
+    /// default dialect is used.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use harper_core::{EnglishDialect, Language};
+    ///
+    /// assert_eq!(
+    ///     Language::try_from_names("en", Some("uk")),
+    ///     Ok(Language::English(EnglishDialect::British))
+    /// );
+    /// assert_eq!(
+    ///     Language::try_from_names("English", None),
+    ///     Ok(Language::English(EnglishDialect::American))
+    /// );
+    /// assert!(Language::try_from_names("xx", None).is_err());
+    /// ```
+    pub fn try_from_names(
+        language: &str,
+        dialect: Option<&str>,
+    ) -> Result<Self, LanguageNameError> {
+        let family = LanguageFamily::try_from_name(language).ok_or_else(|| {
+            let name = language.to_lowercase();
+            match KNOWN_LANGUAGES
+                .iter()
+                .find(|(_, names)| names.contains(&name.as_str()))
+            {
+                Some((known, _)) => LanguageNameError::NotInThisBuild(known),
+                None => LanguageNameError::UnknownLanguage(language.to_owned()),
+            }
+        })?;
+        let unknown_dialect = |dialect: &str| LanguageNameError::UnknownDialect {
+            family,
+            dialect: dialect.to_owned(),
+        };
+
+        match family {
+            LanguageFamily::English => Ok(Self::English(match dialect {
+                Some(d) => EnglishDialect::try_from_name(d).ok_or_else(|| unknown_dialect(d))?,
+                None => EnglishDialect::American,
+            })),
+        }
+    }
+}
+
+impl LanguageFamily {
+    /// Tries to get a language from its name or ISO 639 code, in any case: "English", "en" or
+    /// "eng". Returns `None` if the name is not recognized.
+    #[must_use]
+    pub fn try_from_name(name: &str) -> Option<Self> {
+        match name.to_lowercase().as_str() {
+            n if ENGLISH_NAMES.contains(&n) => Some(Self::English),
+            _ => None,
+        }
+    }
+}
+
+/// How English can be named: its name and its ISO 639 codes.
+const ENGLISH_NAMES: &[&str] = &["en", "eng", "english"];
+
+/// Every language Harper knows, whether or not this build includes it, with the names it can be
+/// written as (lowercase). A name found here but not in [`LanguageFamily::try_from_name`] belongs
+/// to a language this build leaves out.
+const KNOWN_LANGUAGES: &[(&str, &[&str])] = &[("English", ENGLISH_NAMES)];
+
+/// Why [`Language::try_from_names`] didn't recognize a language or dialect.
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+#[non_exhaustive]
+pub enum LanguageNameError {
+    #[error("Unknown language: {0}")]
+    UnknownLanguage(String),
+    /// A language Harper knows, left out of this build by a Cargo feature.
+    #[error("This build has no {0} support.")]
+    NotInThisBuild(&'static str),
+    #[error("Invalid dialect '{dialect}' for {family}")]
+    UnknownDialect {
+        family: LanguageFamily,
+        dialect: String,
+    },
 }
 
 #[cfg(test)]
 mod tests {
     use std::str::FromStr;
 
-    use super::{Language, LanguageFamily};
+    use super::{Language, LanguageFamily, LanguageNameError};
     use crate::EnglishDialect;
 
     #[test]
@@ -50,6 +133,86 @@ mod tests {
             Ok(LanguageFamily::English)
         );
         assert_eq!(LanguageFamily::English.to_string(), "English");
+    }
+
+    #[test]
+    fn family_from_name_or_code() {
+        for name in ["en", "EN", "eng", "English", "english"] {
+            assert_eq!(
+                LanguageFamily::try_from_name(name),
+                Some(LanguageFamily::English),
+                "{name}"
+            );
+        }
+        assert_eq!(LanguageFamily::try_from_name("xx"), None);
+        assert_eq!(LanguageFamily::try_from_name(""), None);
+    }
+
+    #[test]
+    fn language_from_names() {
+        assert_eq!(
+            Language::try_from_names("en", Some("au")),
+            Ok(Language::English(EnglishDialect::Australian))
+        );
+        assert_eq!(
+            Language::try_from_names("ENGLISH", Some("en-IN")),
+            Ok(Language::English(EnglishDialect::Indian))
+        );
+        assert_eq!(
+            Language::try_from_names("en", None),
+            Ok(Language::English(EnglishDialect::American))
+        );
+    }
+
+    #[test]
+    fn unknown_names_are_errors() {
+        assert_eq!(
+            Language::try_from_names("xx", Some("us")),
+            Err(LanguageNameError::UnknownLanguage("xx".to_owned()))
+        );
+
+        let error = Language::try_from_names("en", Some("xx")).unwrap_err();
+        assert_eq!(
+            error,
+            LanguageNameError::UnknownDialect {
+                family: LanguageFamily::English,
+                dialect: "xx".to_owned()
+            }
+        );
+        assert_eq!(error.to_string(), "Invalid dialect 'xx' for English");
+    }
+
+    #[test]
+    fn dialect_from_name() {
+        for (name, dialect) in [
+            ("American", EnglishDialect::American),
+            ("us", EnglishDialect::American),
+            ("en_US", EnglishDialect::American),
+            ("British", EnglishDialect::British),
+            ("UK", EnglishDialect::British),
+            ("gb", EnglishDialect::British),
+            ("Australian", EnglishDialect::Australian),
+            ("aus", EnglishDialect::Australian),
+            ("Canadian", EnglishDialect::Canadian),
+            ("en-ca", EnglishDialect::Canadian),
+            ("Indian", EnglishDialect::Indian),
+            ("bharat", EnglishDialect::Indian),
+        ] {
+            assert_eq!(EnglishDialect::try_from_name(name), Some(dialect), "{name}");
+        }
+        assert_eq!(EnglishDialect::try_from_name("xx"), None);
+    }
+
+    #[test]
+    fn every_dialect_parses_from_its_own_name() {
+        use strum::IntoEnumIterator;
+
+        for dialect in EnglishDialect::iter() {
+            assert_eq!(
+                EnglishDialect::try_from_name(&dialect.to_string()),
+                Some(dialect)
+            );
+        }
     }
 
     #[test]
