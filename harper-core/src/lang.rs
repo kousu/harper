@@ -9,6 +9,8 @@ use strum_macros::{Display, EnumDiscriminants, EnumIter, EnumString};
 
 #[cfg(feature = "en")]
 use crate::EnglishDialect;
+use crate::Lrc;
+use crate::lexers::Lexer;
 
 /// A natural language Harper can check, together with its regional variant.
 ///
@@ -40,6 +42,14 @@ impl LanguageFamily {
             #[cfg(feature = "en")]
             Self::English => &en::English,
         }
+    }
+}
+
+impl LanguageFamily {
+    /// The lexer for prose in this language, for file-format parsers to hand their prose to (see
+    /// [`Markdown::with_lexer`](crate::parsers::Markdown::with_lexer)).
+    pub fn lexer(self) -> Lrc<dyn Lexer> {
+        self.data().lexer()
     }
 }
 
