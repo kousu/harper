@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 use crate::expr::{Expr, FirstMatchOf, WordExprGroup};
-use crate::thesaurus_helper;
+use crate::lang::en::thesaurus_helper;
 use crate::{Token, TokenStringExt};
 
 use super::{ExprLinter, Lint, LintKind};

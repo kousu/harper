@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use crate::{
     CharStringExt, Document, EnglishDialect, OrthFlags, TokenStringExt,
-    indefinite_article::{InitialSound, starts_with_vowel},
+    lang::en::indefinite_article::{InitialSound, starts_with_vowel},
     linting::{Lint, LintKind, Linter, Suggestion},
 };
 

@@ -1,7 +1,7 @@
 use crate::{
     CharStringExt, Lint, Token, TokenStringExt,
     expr::{Expr, SequenceExpr},
-    irregular_verbs::IrregularVerbs,
+    lang::en::irregular_verbs::IrregularVerbs,
     linting::{
         ExprLinter, LintKind, Suggestion,
         expr_linter::{Chunk, preceded_by_word},

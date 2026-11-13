@@ -2,7 +2,7 @@ use crate::{
     EnglishDialect, Lint, Token, TokenStringExt,
     char_string::CharStringExt,
     expr::{Expr, SequenceExpr},
-    indefinite_article::{InitialSound, starts_with_vowel},
+    lang::en::indefinite_article::{InitialSound, starts_with_vowel},
     linting::{
         ExprLinter, LintGroup, LintKind, Suggestion,
         expr_linter::{Chunk, followed_by_word},
