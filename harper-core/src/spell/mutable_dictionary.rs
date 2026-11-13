@@ -3,8 +3,8 @@ use super::{
 };
 use crate::edit_distance::edit_distance_min_alloc;
 use itertools::Itertools;
+use std::borrow::Cow;
 use std::sync::Arc;
-use std::{borrow::Cow, sync::LazyLock};
 
 use crate::{CharString, CharStringExt, DictWordMetadata};
 
@@ -24,19 +24,6 @@ pub struct MutableDictionary {
     word_map: WordMap,
 }
 
-/// The uncached function that is used to produce the original copy of the
-/// curated dictionary.
-fn uncached_inner_new() -> Arc<MutableDictionary> {
-    MutableDictionary::from_rune_files(
-        super::dictionary::CURATED_DICT_STR,
-        super::dictionary::ANNOTATIONS_STR,
-    )
-    .map(Arc::new)
-    .unwrap_or_else(|e| panic!("Failed to load curated dictionary: {}", e))
-}
-
-static DICT: LazyLock<Arc<MutableDictionary>> = LazyLock::new(uncached_inner_new);
-
 impl MutableDictionary {
     pub fn new() -> Self {
         Self {
@@ -54,7 +41,7 @@ impl MutableDictionary {
     /// in the Harper binary.
     /// Consider using [`super::FstDictionary::curated()`] instead, as it is more performant for spellchecking.
     pub fn curated() -> Arc<Self> {
-        (*DICT).clone()
+        crate::lang::en::dictionary::mutable_dictionary()
     }
 
     /// Appends words to the dictionary.

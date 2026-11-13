@@ -5,9 +5,6 @@ use super::CanonicalWordId;
 use super::FuzzyMatchResult;
 use crate::DictWordMetadata;
 
-pub static CURATED_DICT_STR: &str = include_str!("../lang/en/dictionary.dict");
-pub static ANNOTATIONS_STR: &str = include_str!("../lang/en/annotations.json");
-
 /// An in-memory database that contains everything necessary to parse and analyze English text.
 ///
 /// See also: [`super::FstDictionary`] and [`super::MutableDictionary`].
