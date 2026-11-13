@@ -1,4 +1,7 @@
 pub mod en;
+mod language_data;
+
+pub(crate) use language_data::LanguageData;
 
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumDiscriminants, EnumIter, EnumString};
@@ -23,6 +26,16 @@ impl Language {
     /// The language without its regional variant.
     pub fn family(self) -> LanguageFamily {
         self.into()
+    }
+}
+
+impl LanguageFamily {
+    /// What Harper ships for this language. This is the only place that lists the languages a
+    /// build includes: everything else asks the language for its data.
+    pub(crate) fn data(self) -> &'static dyn LanguageData {
+        match self {
+            Self::English => &en::English,
+        }
     }
 }
 
