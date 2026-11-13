@@ -46,8 +46,8 @@ pub use case::{Case, CaseIterExt};
 pub use char_string::{CharString, CharStringExt};
 pub use currency::Currency;
 pub use dict_word_metadata::{
-    AdverbData, ConjunctionData, Degree, DeterminerData, DictWordMetadata, EnglishDialect,
-    EnglishDialectFlags, NounData, PronounData, VerbData, VerbForm, VerbFormFlags, WordDialects,
+    AdverbData, ConjunctionData, Degree, DeterminerData, DictWordMetadata, NounData, PronounData,
+    VerbData, VerbForm, VerbFormFlags, WordDialects,
 };
 pub use dict_word_metadata_orthography::{OrthFlags, Orthography};
 pub use document::Document;
@@ -56,6 +56,7 @@ pub use ignored_lints::{IgnoredLints, LintContext};
 pub use indefinite_article::{InitialSound, starts_with_vowel};
 pub use irregular_nouns::IrregularNouns;
 pub use irregular_verbs::IrregularVerbs;
+pub use lang::en::dialect::{EnglishDialect, EnglishDialectFlags};
 pub use lang::{Language, LanguageFamily, LanguageNameError};
 
 /// The old name of [`EnglishDialect`].

@@ -1,5 +1,6 @@
-//! English: its expressions, patterns and rules.
+//! English: its dialects, expressions, patterns and rules.
 
+pub(crate) mod dialect;
 pub(crate) mod expr;
 pub(crate) mod linting;
 pub(crate) mod patterns;
