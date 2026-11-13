@@ -830,9 +830,8 @@ mod tests {
                 Language::English(user_dialect),
                 EnglishSpelling::new()
             )
-            .lint(&Document::new_markdown_default(
-                "I like to use the software Calibre.",
-                &merged_dict
+            .lint(&Document::new_markdown_default_curated(
+                "I like to use the software Calibre."
             ))
             .len(),
             0,
@@ -845,9 +844,8 @@ mod tests {
                 Language::English(user_dialect),
                 EnglishSpelling::new()
             )
-            .lint(&Document::new_markdown_default(
-                "I like to use the spelling colour.",
-                &merged_dict
+            .lint(&Document::new_markdown_default_curated(
+                "I like to use the spelling colour."
             ))
             .len(),
             1
