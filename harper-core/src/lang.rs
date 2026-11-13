@@ -47,7 +47,7 @@ impl LanguageFamily {
 
 impl LanguageFamily {
     /// The lexer for prose in this language, for file-format parsers to hand their prose to (see
-    /// [`Markdown::with_lexer`](crate::parsers::Markdown::with_lexer)).
+    /// [`Markdown::with_language`](crate::parsers::Markdown::with_language)).
     pub fn lexer(self) -> Lrc<dyn Lexer> {
         self.data().lexer()
     }
