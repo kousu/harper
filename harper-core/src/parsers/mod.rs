@@ -6,7 +6,7 @@ mod markdown;
 mod mask;
 mod oops_all_headings;
 mod org_mode;
-mod prose;
+pub(crate) mod prose;
 
 #[cfg(feature = "en")]
 pub use crate::lexers::PlainEnglish;

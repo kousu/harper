@@ -229,7 +229,7 @@ mod tests {
 
     /// The words `SpellCheck` with `conventions` flags in `text`.
     fn flagged(text: &str, conventions: impl SpellingConventions) -> Vec<String> {
-        let document = Document::new_plain_english_curated(text);
+        let document = Document::new_with_language(text, crate::LanguageFamily::English);
         let mut linter = SpellCheck::new(
             crate::lang::en::dictionary::dictionary(),
             Language::English(EnglishDialect::American),
@@ -263,7 +263,7 @@ mod tests {
 
     #[test]
     fn conventions_adjust_suggestion_order() {
-        let document = Document::new_plain_english_curated("thw");
+        let document = Document::new_with_language("thw", crate::LanguageFamily::English);
         let mut linter = SpellCheck::new(
             crate::lang::en::dictionary::dictionary(),
             Language::English(EnglishDialect::American),

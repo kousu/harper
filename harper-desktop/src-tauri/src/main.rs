@@ -303,7 +303,6 @@ pub fn run_highlighter(has_parent: bool) {
 
     let lint_ignored_lints = ignored_lints.clone();
     let lint_linter = linter.clone();
-    let lint_user_dictionary = user_dictionary.clone();
     let lint_debounce_ms = debounce_ms.clone();
     let lint_debounce_state = Rc::new(RefCell::new(DebounceState::default()));
 
@@ -343,9 +342,14 @@ pub fn run_highlighter(has_parent: bool) {
             DebounceStatus::Ready => {}
         }
 
-        let dictionary =
-            Config::dictionary_from_user_dictionary(lint_user_dictionary.borrow().clone());
-        let doc = Document::new_markdown_default(text, &dictionary);
+        let doc = Document::new_with_parser_and_language(
+            text,
+            &harper_core::parsers::Markdown::with_language(
+                Default::default(),
+                harper_core::LanguageFamily::English,
+            ),
+            harper_core::LanguageFamily::English,
+        );
         let mut organized_lints = lint_linter.borrow_mut().organized_lints(&doc);
 
         for lints in organized_lints.values_mut() {

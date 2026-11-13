@@ -19,7 +19,7 @@ macro_rules! create_test {
 
                  let parser = AsciidocParser::default();
                  let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
-                 let document = Document::new(&source, &parser, &dict);
+                 let document = Document::new_with_parser_and_language(&source, &parser, harper_core::LanguageFamily::English);
 
                  let mut linter = LintGroup::new_curated_for_language(dict, harper_core::Language::English(EnglishDialect::American));
                  let lints = linter.lint(&document);

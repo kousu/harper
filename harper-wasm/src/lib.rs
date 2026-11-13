@@ -186,16 +186,16 @@ impl Linter {
 
     /// Helper method to quickly check if a plain string is likely intended to be English
     pub fn is_likely_english(&self, text: String) -> bool {
-        let document = Document::new_plain_english(&text, &self.dictionary);
+        let document = Document::new_with_language(&text, harper_core::LanguageFamily::English);
         is_doc_likely_english(&document, &self.dictionary)
     }
 
     /// Helper method to remove non-English text from a plain English document.
     pub fn isolate_english(&self, text: String) -> String {
-        let document = Document::new(
+        let document = Document::new_with_parser_and_language(
             &text,
             &IsolateEnglish::new(Box::new(PlainEnglish), self.dictionary.clone()),
-            &self.dictionary,
+            harper_core::LanguageFamily::English,
         );
 
         document.to_string()
@@ -290,10 +290,10 @@ impl Linter {
         let source: Lrc<_> = source_text.chars().collect();
 
         for lint in lints {
-            let document = Document::new_from_chars(
+            let document = Document::new_with_parser_and_language(
                 source.clone(),
                 &lint.language.create_parser(),
-                &self.dictionary,
+                harper_core::LanguageFamily::English,
             );
 
             self.ignored_lints.ignore_lint(&lint.inner, &document);
@@ -311,10 +311,10 @@ impl Linter {
     pub fn context_hash(&self, source_text: String, lint: &Lint) -> u64 {
         let source: Vec<_> = source_text.chars().collect();
 
-        let document = Document::new_from_chars(
-            source.into(),
+        let document = Document::new_with_parser_and_language(
+            source,
             &lint.language.create_parser(),
-            &self.dictionary,
+            harper_core::LanguageFamily::English,
         );
 
         let ctx = LintContext::from_lint(&lint.inner, &document);
@@ -378,7 +378,11 @@ impl Linter {
             return vec![];
         };
 
-        let document = Document::new_from_chars(source.clone(), &parser, &self.dictionary);
+        let document = Document::new_with_parser_and_language(
+            source.clone(),
+            &parser,
+            harper_core::LanguageFamily::English,
+        );
 
         let mut lints =
             self.with_curated_config(|lint_group| lint_group.organized_lints(&document));
@@ -422,7 +426,11 @@ impl Linter {
             return vec![];
         };
 
-        let document = Document::new_from_chars(source.clone(), &parser, &self.dictionary);
+        let document = Document::new_with_parser_and_language(
+            source.clone(),
+            &parser,
+            harper_core::LanguageFamily::English,
+        );
 
         let mut lints = self.with_curated_config(|lint_group| lint_group.lint(&document));
 
@@ -506,10 +514,10 @@ impl Linter {
     ) -> Result<String, String> {
         let mut source: Vec<_> = source_text.chars().collect();
 
-        let doc = Document::new_from_chars(
-            source.clone().into(),
+        let doc = Document::new_with_parser_and_language(
+            source.clone(),
             &lint.language.create_parser(),
-            &self.dictionary,
+            harper_core::LanguageFamily::English,
         );
 
         self.stats

@@ -194,9 +194,7 @@ Read the [Desktop contributor documentation](packages/web/src/routes/docs/contri
 
 - Keep dictionary construction centralized through `Config::dictionary_from_user_dictionary(user_dictionary: MutableDictionary) -> Arc<MergedDictionary>` and `Config::create_dictionary()`.
 - Keep linter construction centralized through `Config::create_linter()`.
-- The same merged dictionary source must be used for both `Document::new_markdown_default(text, &dictionary)` and `LintGroup::new_curated_for_language(dictionary, Language::English(dialect))`.
-- Do not use `Document::new_markdown_default_curated(text)` in the main highlighter lint callback when user dictionary words should suppress spelling lints.
-- Harper spelling lint behavior depends on document token metadata, so a linter with the updated dictionary is not enough if the `Document` was built with the curated dictionary only.
+- A `Document` only uses its language's curated dictionary. User dictionary words reach spell checking through the linter: build `LintGroup::new_curated_for_language(dictionary, Language::English(dialect))` with the merged dictionary, and rebuild it when the user dictionary changes.
 - `RenderState` may still use curated document construction for localized source extraction where dictionary membership does not matter.
 
 ### Frontend Integration
