@@ -1,5 +1,6 @@
-use harper_core::parsers::{self, Markdown, MarkdownOptions, Parser};
-use harper_core::{Mask, Masker, Span, Token, TokenKind};
+use harper_core::lexers::Lexer;
+use harper_core::parsers::{self, Markdown, MarkdownOptions, Parser, PlainEnglish};
+use harper_core::{Lrc, Mask, Masker, Span, Token, TokenKind};
 use harper_tree_sitter::TreeSitterMasker;
 use tree_sitter::Node;
 
@@ -46,7 +47,13 @@ impl Masker for GitCommitMasker {
 }
 
 impl GitCommitParser {
+    /// A parser whose prose is English.
     pub fn new(markdown_options: MarkdownOptions) -> Self {
+        Self::with_lexer(markdown_options, Lrc::new(PlainEnglish))
+    }
+
+    /// A parser whose Markdown hands its prose to `prose`.
+    pub fn with_lexer(markdown_options: MarkdownOptions, prose: Lrc<dyn Lexer>) -> Self {
         Self {
             inner: parsers::Mask::new(
                 GitCommitMasker {
@@ -66,7 +73,7 @@ impl GitCommitParser {
                         },
                     ),
                 },
-                Markdown::new(markdown_options),
+                Markdown::with_lexer(markdown_options, prose),
             ),
         }
     }

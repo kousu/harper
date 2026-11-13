@@ -1,4 +1,5 @@
 use harper_core::Lrc;
+use harper_core::lexers::Lexer;
 use harper_core::parsers::{Markdown, MarkdownOptions, Parser};
 use harper_core::{Span, Token};
 
@@ -20,8 +21,8 @@ impl Unit {
         Self { inner: parser }
     }
 
-    pub fn new_markdown(markdown_options: MarkdownOptions) -> Self {
-        Self::new(Lrc::new(Markdown::new(markdown_options)))
+    pub fn new_markdown(markdown_options: MarkdownOptions, prose: Lrc<dyn Lexer>) -> Self {
+        Self::new(Lrc::new(Markdown::with_lexer(markdown_options, prose)))
     }
 }
 
