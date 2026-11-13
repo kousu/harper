@@ -2,7 +2,7 @@ use crate::{
     CharStringExt, Lint, Token,
     char_ext::CharExt,
     expr::{Expr, FixedPhrase, SequenceExpr},
-    irregular_verbs::IrregularVerbs,
+    lang::en::irregular_verbs::IrregularVerbs,
     linting::{ExprLinter, LintKind, Suggestion, expr_linter::Chunk},
     patterns::WordSet,
     spell::Dictionary,

@@ -2,12 +2,12 @@ use crate::lang::en::expr::SpelledNumberExpr;
 use crate::{
     CharStringExt, EnglishDialect, IrregularNouns, Lint, Lrc, Token, TokenStringExt,
     expr::{Expr, FirstMatchOf, OwnedExprExt, SequenceExpr},
-    indefinite_article::{InitialSound, starts_with_vowel},
+    lang::en::indefinite_article::{InitialSound, starts_with_vowel},
+    lang::en::regular_nouns,
     linting::{
         ExprLinter, LintKind, Suggestion,
         expr_linter::{Sentence, followed_by_hyphen, followed_by_word},
     },
-    regular_nouns,
     spell::Dictionary,
 };
 

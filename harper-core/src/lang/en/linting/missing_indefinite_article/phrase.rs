@@ -2,7 +2,7 @@ use harper_brill::UPOS;
 
 use crate::{
     CharStringExt, Document, EnglishDialect, Span, Token, TokenStringExt,
-    indefinite_article::{InitialSound, starts_with_vowel},
+    lang::en::indefinite_article::{InitialSound, starts_with_vowel},
     linting::{Lint, LintKind, Suggestion},
 };
 

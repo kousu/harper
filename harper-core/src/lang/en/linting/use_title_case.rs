@@ -1,4 +1,6 @@
-use crate::{Document, TokenStringExt, spell::Dictionary, title_case::try_make_title_case};
+use crate::{
+    Document, TokenStringExt, lang::en::title_case::try_make_title_case, spell::Dictionary,
+};
 
 use super::{Lint, LintKind, Linter, Suggestion};
 
