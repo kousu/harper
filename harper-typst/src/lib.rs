@@ -1,17 +1,39 @@
 mod offset_cursor;
 mod typst_translator;
 
+use harper_core::lexers::Lexer;
 use typst_translator::TypstTranslator;
 
-use harper_core::{Token, parsers::Parser};
+use harper_core::{
+    Lrc, Token,
+    parsers::{Parser, PlainEnglish},
+};
 use itertools::Itertools;
 use typst_syntax::{
     Source, SyntaxNode,
     ast::{AstNode, Expr, Markup},
 };
 
-/// A parser that wraps Harper's `PlainEnglish` parser allowing one to ingest Typst files.
-pub struct Typst;
+/// A parser for Typst files. It hands the prose it finds to an inner parser, which is
+/// [`PlainEnglish`] unless it was built with [`Typst::with_lexer`].
+#[derive(Clone)]
+pub struct Typst {
+    prose: Lrc<dyn Lexer>,
+}
+
+impl Typst {
+    /// A Typst parser that hands its prose to `prose`.
+    pub fn with_lexer(prose: Lrc<dyn Lexer>) -> Self {
+        Self { prose }
+    }
+}
+
+/// A Typst parser whose prose is English.
+impl Default for Typst {
+    fn default() -> Self {
+        Self::with_lexer(Lrc::new(PlainEnglish))
+    }
+}
 
 impl Parser for Typst {
     fn parse(&self, source: &[char]) -> Vec<Token> {
@@ -23,7 +45,7 @@ impl Parser for Typst {
             .expect("Unable to create typst document from parsed tree!");
 
         // Recurse through AST to create tokens
-        let parse_helper = TypstTranslator::new(&typst_document);
+        let parse_helper = TypstTranslator::new(&typst_document, self.prose.as_ref());
         let mut buf = Vec::new();
         let exprs = typst_tree.exprs().collect_vec();
         let exprs = convert_parbreaks(&mut buf, &exprs);
@@ -80,16 +102,48 @@ mod tests {
     use super::*;
     use harper_core::parsers::StrParser;
 
+    /// A lexer that makes every letter a word of its own.
+    struct LetterLexer;
+
+    impl Lexer for LetterLexer {
+        fn lex(&self, source: &[char]) -> Vec<Token> {
+            source
+                .iter()
+                .enumerate()
+                .map(|(i, c)| {
+                    let kind = if c.is_alphabetic() {
+                        harper_core::TokenKind::blank_word()
+                    } else {
+                        harper_core::TokenKind::Space(1)
+                    };
+                    Token::new(harper_core::Span::new(i, i + 1), kind)
+                })
+                .collect()
+        }
+    }
+
+    #[test]
+    fn uses_given_lexer() {
+        let source: Vec<char> = "= Hi\n\nok #\"no\"".chars().collect();
+        let words: Vec<String> = Typst::with_lexer(Lrc::new(LetterLexer))
+            .parse(&source)
+            .iter()
+            .filter(|t| t.kind.is_word())
+            .map(|t| t.span.get_content_string(&source))
+            .collect();
+        assert_eq!(words, ["H", "i", "o", "k", "n", "o"]);
+    }
+
     #[test]
     fn issue_1898() {
-        Typst.parse_str("#for ");
-        Typst.parse_str("#(.$#$$$. ");
-        Typst.parse_str("=#{m\"\".'m\"\"#p#");
+        Typst::default().parse_str("#for ");
+        Typst::default().parse_str("#(.$#$$$. ");
+        Typst::default().parse_str("=#{m\"\".'m\"\"#p#");
     }
 
     #[test]
     fn issue_2126_show_rule_preserves_token_order() {
-        let tokens = Typst.parse_str("#show \"a\": \"a\"");
+        let tokens = Typst::default().parse_str("#show \"a\": \"a\"");
         let spans = tokens
             .iter()
             .map(|token| (token.span.start, token.span.end))

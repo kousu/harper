@@ -1,5 +1,7 @@
+use harper_core::Lrc;
 use harper_core::Token;
-use harper_core::parsers::{self, Markdown, MarkdownOptions, Parser};
+use harper_core::lexers::Lexer;
+use harper_core::parsers::{self, Markdown, MarkdownOptions, Parser, PlainEnglish};
 use harper_tree_sitter::TreeSitterMasker;
 use tree_sitter::Node;
 
@@ -13,11 +15,17 @@ impl JJDescriptionParser {
         n.kind() == "text"
     }
 
+    /// A parser whose prose is English.
     pub fn new(markdown_options: MarkdownOptions) -> Self {
+        Self::with_lexer(markdown_options, Lrc::new(PlainEnglish))
+    }
+
+    /// A parser whose Markdown hands its prose to `prose`.
+    pub fn with_lexer(markdown_options: MarkdownOptions, prose: Lrc<dyn Lexer>) -> Self {
         Self {
             inner: parsers::Mask::new(
                 TreeSitterMasker::new(tree_sitter_jjdescription::language(), Self::node_condition),
-                Markdown::new(markdown_options),
+                Markdown::with_lexer(markdown_options, prose),
             ),
         }
     }

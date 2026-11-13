@@ -1,5 +1,7 @@
+use harper_core::lexers::Lexer;
 use std::collections::VecDeque;
 
+use harper_core::Lrc;
 use harper_core::parsers::Parser;
 use harper_core::{Punctuation, Token, TokenKind, VecExt};
 use harper_html::HtmlParser;
@@ -9,6 +11,15 @@ use super::without_initiators;
 #[derive(Default)]
 pub struct JavaDoc {
     html_parser: HtmlParser,
+}
+
+impl JavaDoc {
+    /// A JavaDoc parser whose HTML hands its prose to `prose`.
+    pub fn with_lexer(prose: Lrc<dyn Lexer>) -> Self {
+        Self {
+            html_parser: HtmlParser::with_lexer(prose),
+        }
+    }
 }
 
 impl Parser for JavaDoc {

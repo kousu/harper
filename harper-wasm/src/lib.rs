@@ -71,7 +71,7 @@ impl Language {
                 #[cfg(feature = "typst")]
                 {
                     use harper_typst::Typst;
-                    Box::new(Typst)
+                    Box::new(Typst::default())
                 }
                 #[cfg(not(feature = "typst"))]
                 {

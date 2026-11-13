@@ -68,6 +68,14 @@ macro_rules! impl_parser_for_lexer {
 }
 pub(crate) use impl_parser_for_lexer;
 
+/// A lexer behind a pointer, such as `Lrc<dyn Lexer>`, is a [`Parser`](crate::parsers::Parser)
+/// too.
+impl crate::parsers::Parser for dyn Lexer {
+    fn parse(&self, source: &[char]) -> Vec<Token> {
+        self.lex(source)
+    }
+}
+
 /// A lexer with only the tokens every Latin-script language shares (see `lex_base_token`).
 /// For a language that has no lexer of its own yet.
 #[derive(Clone, Copy)]
