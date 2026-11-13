@@ -21,7 +21,7 @@ impl StructuredConfig {
     pub fn curated() -> Self {
         let human: HumanReadableStructuredConfig = serde_json::from_str(include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/default_config.json"
+            "/src/lang/en/linting/default_config.json"
         )))
         .unwrap();
 
