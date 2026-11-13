@@ -733,11 +733,31 @@ use dashes::Dashes;
 #[cfg(test)]
 use crate::linting::tests;
 use crate::linting::{
-    ExprLinter, InitialismLinter, Lint, LintGroup, LintKind, Linter, MapPhraseLinter,
-    MapPhraseSetLinter, Suggestion, expr_linter, merge_linters,
+    ExprLinter, HumanReadableStructuredConfig, InitialismLinter, Lint, LintGroup, LintKind, Linter,
+    MapPhraseLinter, MapPhraseSetLinter, StructuredConfig, Suggestion, expr_linter, merge_linters,
 };
 use crate::spell::Dictionary;
 use crate::{EnglishDialect, Language};
+
+/// English's curated rules for `dialect`, with their default settings.
+pub(crate) fn new_curated(
+    dictionary: Arc<impl Dictionary + 'static>,
+    dialect: EnglishDialect,
+) -> LintGroup {
+    let mut out = LintGroup::empty();
+
+    add_curated_rules(&mut out, dictionary, dialect);
+
+    out.with_lint_config(default_config().to_flat_config().unwrap())
+}
+
+/// English's default rule settings, from `default_config.json` next to this module.
+pub(crate) fn default_config() -> StructuredConfig {
+    let human: HumanReadableStructuredConfig =
+        serde_json::from_str(include_str!("default_config.json")).unwrap();
+
+    human.to_structured_config().unwrap()
+}
 
 /// Add the curated English rules to `out`.
 pub(crate) fn add_curated_rules(

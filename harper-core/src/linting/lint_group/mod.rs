@@ -245,11 +245,7 @@ impl LintGroup {
         dictionary: Arc<impl Dictionary + 'static>,
         dialect: EnglishDialect,
     ) -> Self {
-        let mut out = Self::empty();
-
-        super::en::add_curated_rules(&mut out, dictionary, dialect);
-
-        out.with_lint_config(StructuredConfig::curated().to_flat_config().unwrap())
+        super::en::new_curated(dictionary, dialect)
     }
 
     /// Create a new curated group with all config values cleared out.
