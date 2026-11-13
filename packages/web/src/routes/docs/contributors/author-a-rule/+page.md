@@ -38,6 +38,17 @@ It also makes it much easier to ask questions about how Harper works while you'r
 
 GitHub has some [good documentation on how to create a draft PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork) if this is your first time.
 
+## Rules Belong to a Language
+
+Harper can check more than one language, and every rule checks one language.
+Each language's rules live in their own folder, `harper-core/src/lang/<code>/linting/`, and only run on text in that language.
+This guide uses English, whose rules are in `harper-core/src/lang/en/linting/`.
+Rules for another language go in that language's folder and are registered in its lint group, in the same way.
+
+Rules can use anything in `harper-core` that isn't tied to a language: expressions such as `SequenceExpr`, patterns such as `WordSet`, and the part-of-speech data in the dictionary.
+Some helpers only match English words, such as `IndefiniteArticle`, `ModalVerb` or `SpelledNumberExpr`.
+They live in `harper-core/src/lang/en/expr/` and `harper-core/src/lang/en/patterns/`, and only exist when English is built in, so don't use them in rules for other languages.
+
 ## Determine Your Rule's Needed Complexity
 
 A vast plurality of potential grammatical rules are pretty simple.
@@ -274,6 +285,17 @@ cargo test -- <REGEX>
 ```
 
 This keeps the edit-test loop fast while you iterate on one rule and skips tests from other workspace crates.
+
+The test helpers in `harper_core::linting::tests`, such as `assert_lint_count` and `assert_suggestion_result`, check English text.
+To test a rule for another language, build the document in that language with [`Document::new_with_language`](https://docs.rs/harper-core/latest/harper_core/struct.Document.html#method.new_with_language):
+
+```rust
+let language = LanguageFamily::English; // Your rule's language.
+let document = Document::new_with_language(text, language);
+let lints = MyRule::default().lint(&document);
+```
+
+Run a language's tests with its Cargo feature turned on: `cargo test --features <code> -- <REGEX>`.
 
 If you need any help writing or debugging rules, don't be afraid to contact the Harper team in your draft pull request.
 
