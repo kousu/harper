@@ -6,10 +6,10 @@ mod markdown;
 mod mask;
 mod oops_all_headings;
 mod org_mode;
-#[cfg(feature = "en")]
-mod plain_english;
-mod plain_text;
 
+#[cfg(feature = "en")]
+pub use crate::lexers::PlainEnglish;
+pub use crate::lexers::PlainText;
 use blanket::blanket;
 pub use collapse_identifiers::CollapseIdentifiers;
 pub use isolate_english::IsolateEnglish;
@@ -17,9 +17,6 @@ pub use markdown::{Markdown, MarkdownOptions};
 pub use mask::Mask;
 pub use oops_all_headings::OopsAllHeadings;
 pub use org_mode::OrgMode;
-#[cfg(feature = "en")]
-pub use plain_english::PlainEnglish;
-pub use plain_text::PlainText;
 
 /// The parser that file-format parsers hand their prose to: English's, or [`PlainText`] in a
 /// build without English.

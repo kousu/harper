@@ -14,6 +14,7 @@ mod fat_token;
 mod ignored_lints;
 pub mod lang;
 pub mod language_detection;
+pub mod lexers;
 mod lexing;
 pub mod linting;
 mod mask;
