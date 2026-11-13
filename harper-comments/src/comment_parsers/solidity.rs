@@ -1,6 +1,7 @@
 use harper_core::Lrc;
 use harper_core::Span;
 use harper_core::Token;
+use harper_core::lexers::Lexer;
 use harper_core::parsers::{MarkdownOptions, Parser};
 
 use super::jsdoc::JsDoc;
@@ -16,8 +17,8 @@ impl Solidity {
         Self { inner: parser }
     }
 
-    pub fn new_markdown(markdown_options: MarkdownOptions) -> Self {
-        Self::new(Lrc::new(JsDoc::new_markdown(markdown_options)))
+    pub fn new_markdown(markdown_options: MarkdownOptions, prose: Lrc<dyn Lexer>) -> Self {
+        Self::new(Lrc::new(JsDoc::new_markdown(markdown_options, prose)))
     }
 }
 

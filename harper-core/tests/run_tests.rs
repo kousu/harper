@@ -53,7 +53,7 @@ macro_rules! create_org_test {
                 );
 
                 let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
-                let document = Document::new(&source, &OrgMode, &dict);
+                let document = Document::new(&source, &OrgMode::default(), &dict);
 
                 let mut linter = LintGroup::new_curated_for_language(dict, harper_core::Language::English($dialect));
                 let lints = linter.lint(&document);

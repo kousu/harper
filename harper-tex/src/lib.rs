@@ -1,23 +1,33 @@
 mod masker;
 
+use harper_core::Lrc;
+use harper_core::lexers::Lexer;
 use harper_core::parsers::{Mask, Parser, PlainEnglish};
 use harper_core::{Punctuation, Span, Token, TokenKind};
 
 use self::masker::Masker;
 
-/// A parser for Harper that wraps the native `PlainEnglish` parser, allowing one use Harper on
+/// A parser for Harper that wraps a prose parser (`PlainEnglish` by default), allowing one use Harper on
 /// documents written in TeX, LaTeX, or any other TeX derivative.
 ///
 /// This parser is crude, and could definitely use work if all features of Harper wish to be
 /// supported for the language.
 pub struct TeX {
-    inner: Mask<Masker, PlainEnglish>,
+    inner: Mask<Masker, Lrc<dyn Lexer>>,
 }
 
 impl Default for TeX {
+    /// A parser whose prose is English.
     fn default() -> Self {
+        Self::with_lexer(Lrc::new(PlainEnglish))
+    }
+}
+
+impl TeX {
+    /// A parser that hands its prose to `prose`.
+    pub fn with_lexer(prose: Lrc<dyn Lexer>) -> Self {
         Self {
-            inner: Mask::new(Default::default(), PlainEnglish),
+            inner: Mask::new(Default::default(), prose),
         }
     }
 }

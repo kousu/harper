@@ -149,9 +149,9 @@ impl SingleInputTrait for FileInput {
             Some("lhs") => Box::new(LiterateHaskellParser::new_markdown(
                 MarkdownOptions::default(),
             )),
-            Some("org") => Box::new(OrgMode),
+            Some("org") => Box::new(OrgMode::default()),
             Some("tex" | "latex" | "sty" | "cls" | "dtx") => Box::new(harper_tex::TeX::default()),
-            Some("typ") => Box::new(harper_typst::Typst),
+            Some("typ") => Box::new(harper_typst::Typst::default()),
             Some("py") | Some("pyi") => Box::new(PythonParser::default()),
             Some("adoc") | Some("asciidoc") => Box::new(AsciidocParser::default()),
             Some("txt") => Box::new(PlainEnglish),

@@ -1,17 +1,33 @@
+use crate::lexers::Lexer;
 use std::collections::VecDeque;
 
 use serde::{Deserialize, Serialize};
 
-use super::{PROSE_PARSER, Parser};
-use crate::{Span, Token, TokenKind, TokenStringExt, VecExt, offsets::build_byte_to_char_map};
+use super::{Parser, default_prose};
+use crate::{Lrc, Span, Token, TokenKind, TokenStringExt, VecExt, offsets::build_byte_to_char_map};
 
-/// A parser that wraps a prose [`Lexer`](crate::lexers::Lexer), such as `PlainEnglish`, to parse
-/// CommonMark files.
+/// A parser for CommonMark files. It hands the prose it finds to an inner parser, which is
+/// `PlainEnglish` unless it was built with [`Markdown::with_lexer`].
 ///
 /// Will ignore code blocks and tables.
-#[derive(Default, Clone, Debug, Copy)]
+#[derive(Clone)]
 pub struct Markdown {
     options: MarkdownOptions,
+    prose: Lrc<dyn Lexer>,
+}
+
+impl Default for Markdown {
+    fn default() -> Self {
+        Self::new(MarkdownOptions::default())
+    }
+}
+
+impl std::fmt::Debug for Markdown {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Markdown")
+            .field("options", &self.options)
+            .finish_non_exhaustive()
+    }
 }
 
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
@@ -31,8 +47,14 @@ impl Default for MarkdownOptions {
 }
 
 impl Markdown {
+    /// A Markdown parser whose prose is English.
     pub fn new(options: MarkdownOptions) -> Self {
-        Self { options }
+        Self::with_lexer(options, default_prose())
+    }
+
+    /// A Markdown parser that hands its prose to `prose`.
+    pub fn with_lexer(options: MarkdownOptions, prose: Lrc<dyn Lexer>) -> Self {
+        Self { options, prose }
     }
 
     /// Remove hidden Wikilink target text.
@@ -138,8 +160,6 @@ impl Parser for Markdown {
     /// This implementation is quite gross to look at, but it works.
     /// If any issues arise, it would likely help to refactor this out first.
     fn parse(&self, source: &[char]) -> Vec<Token> {
-        let english_parser = PROSE_PARSER;
-
         let source_str: String = source.iter().collect();
         let md_parser = pulldown_cmark::Parser::new_ext(
             &source_str,
@@ -254,7 +274,7 @@ impl Parser for Markdown {
                         }
                     }
 
-                    let mut new_tokens = english_parser.parse(&source[span_start..span_end]);
+                    let mut new_tokens = self.prose.parse(&source[span_start..span_end]);
 
                     new_tokens
                         .iter_mut()

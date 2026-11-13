@@ -1,8 +1,6 @@
 use crate::offset_cursor::OffsetCursor;
-use harper_core::{
-    Punctuation, Token, TokenKind,
-    parsers::{PlainEnglish, StrParser},
-};
+use harper_core::lexers::Lexer;
+use harper_core::{Punctuation, Token, TokenKind};
 use itertools::Itertools;
 use typst_syntax::{
     Source,
@@ -43,11 +41,13 @@ macro_rules! merge {
 #[derive(Clone, Copy)]
 pub struct TypstTranslator<'a> {
     doc: &'a Source,
+    /// Parses the prose found in the document.
+    prose: &'a dyn Lexer,
 }
 
 impl<'a> TypstTranslator<'a> {
-    pub fn new(doc: &'a Source) -> Self {
-        Self { doc }
+    pub fn new(doc: &'a Source, prose: &'a dyn Lexer) -> Self {
+        Self { doc, prose }
     }
 
     pub fn parse_exprs(self, exprs: &[Expr]) -> Vec<Token> {
@@ -117,17 +117,17 @@ impl<'a> TypstTranslator<'a> {
 
         let joined = self.doc.text().get(left_range.start..right_range.end)?;
         let offset = OffsetCursor::new(self.doc).push_to_span(left.span())?;
-        let parsed = self.parse_english(joined, offset)?;
+        let parsed = self.parse_prose(joined, offset)?;
 
         // The first Text, plus (Quote, Text) expressions count times.
         Some((parsed, 1 + (count_minus_one + 1) * 2))
     }
 
-    /// Use the [`PlainEnglish`] parser to parse plain text from a Typst expression.
-    fn parse_english(self, str: impl Into<String>, offset: OffsetCursor) -> Option<Vec<Token>> {
+    /// Use the prose parser to parse plain text from a Typst expression.
+    fn parse_prose(self, str: impl Into<String>, offset: OffsetCursor) -> Option<Vec<Token>> {
         Some(
-            PlainEnglish
-                .parse_str(str.into())
+            self.prose
+                .lex(&str.into().chars().collect::<Vec<_>>())
                 .into_iter()
                 .map(|mut t| {
                     t.span.push_by(offset.char);
@@ -340,7 +340,7 @@ impl<'a> TypstTranslator<'a> {
         //
         // A full list of variants is available in the [typst_syntax docs](https://docs.rs/typst/latest/typst/syntax/ast/enum.Expr.html)
         match expr {
-            Expr::Text(text) => self.parse_english(text.get(), offset.push_to_span(text.span())?),
+            Expr::Text(text) => self.parse_prose(text.get(), offset.push_to_span(text.span())?),
             Expr::Space(a) => {
                 let mut chars = get_text!(a).chars();
                 let first_char = chars.next().unwrap();
@@ -383,8 +383,8 @@ impl<'a> TypstTranslator<'a> {
                 let string = text.to_untyped().text();
 
                 Some(
-                    PlainEnglish
-                        .parse_str(&string[1..string.len() - 1])
+                    self.prose
+                        .lex(&string[1..string.len() - 1].chars().collect::<Vec<_>>())
                         .into_iter()
                         .map(|mut t| {
                             t.span.push_by(offset);
@@ -477,7 +477,7 @@ mod tests {
     #[test]
     fn parse_none_returns_none() {
         let source = Source::detached("");
-        let translator = TypstTranslator::new(&source);
+        let translator = TypstTranslator::new(&source, &harper_core::parsers::PlainEnglish);
 
         assert!(
             translator

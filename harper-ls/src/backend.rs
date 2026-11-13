@@ -403,10 +403,10 @@ impl Backend {
             "markdown" | "quarto" | "rmarkdown" | "rmd" => {
                 Some(Box::new(Markdown::new(markdown_options)))
             }
-            "org" => Some(Box::new(OrgMode)),
+            "org" => Some(Box::new(OrgMode::default())),
             "plaintext" | "text" => Some(Box::new(PlainEnglish)),
             "python" => Some(Box::new(PythonParser::default())),
-            "typst" => Some(Box::new(Typst)),
+            "typst" => Some(Box::new(Typst::default())),
             "tex" | "plaintex" | "latex" => Some(Box::new(TeX::default())),
             _ => None,
         };

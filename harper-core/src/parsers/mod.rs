@@ -18,12 +18,14 @@ pub use mask::Mask;
 pub use oops_all_headings::OopsAllHeadings;
 pub use org_mode::OrgMode;
 
-/// The parser that file-format parsers hand their prose to: English's, or [`PlainText`] in a
-/// build without English.
-#[cfg(feature = "en")]
-pub(crate) const PROSE_PARSER: PlainEnglish = PlainEnglish;
-#[cfg(not(feature = "en"))]
-pub(crate) const PROSE_PARSER: PlainText = PlainText;
+/// The lexer that file-format parsers hand their prose to unless they are built with one:
+/// English's, or [`PlainText`] in a build without English.
+pub(crate) fn default_prose() -> crate::Lrc<dyn crate::lexers::Lexer> {
+    #[cfg(feature = "en")]
+    return crate::Lrc::new(PlainEnglish);
+    #[cfg(not(feature = "en"))]
+    return crate::Lrc::new(PlainText);
+}
 
 use crate::{LSend, Token, TokenStringExt};
 
@@ -52,6 +54,7 @@ mod tests {
     use super::{Markdown, OrgMode, Parser, PlainEnglish};
     use crate::Punctuation;
     use crate::TokenKind::{self, *};
+    use crate::lexers::Lexer;
 
     fn assert_tokens_eq(test_str: impl AsRef<str>, expected: &[TokenKind], parser: &impl Parser) {
         let chars: Vec<_> = test_str.as_ref().chars().collect();
@@ -70,7 +73,7 @@ mod tests {
     }
 
     fn assert_tokens_eq_org(test_str: impl AsRef<str>, expected: &[TokenKind]) {
-        assert_tokens_eq(test_str, expected, &OrgMode)
+        assert_tokens_eq(test_str, expected, &OrgMode::default())
     }
 
     #[test]
@@ -135,6 +138,70 @@ mod tests {
     fn parses_non_english() {
         assert_tokens_eq_plain("Løvetann", &[TokenKind::blank_word()]);
         assert_tokens_eq_plain("Naïve", &[TokenKind::blank_word()]);
+    }
+
+    /// A lexer that makes every letter a word of its own, so tests can tell it apart from
+    /// [`PlainEnglish`].
+    struct LetterLexer;
+
+    impl Lexer for LetterLexer {
+        fn lex(&self, source: &[char]) -> Vec<crate::Token> {
+            source
+                .iter()
+                .enumerate()
+                .map(|(i, c)| {
+                    let kind = if c.is_alphabetic() {
+                        TokenKind::blank_word()
+                    } else {
+                        Space(1)
+                    };
+                    crate::Token::new(crate::Span::new(i, i + 1), kind)
+                })
+                .collect()
+        }
+    }
+
+    /// The text of each word `parser` finds in `source`.
+    fn words(source: &str, parser: &impl Parser) -> Vec<String> {
+        let chars: Vec<char> = source.chars().collect();
+        parser
+            .parse(&chars)
+            .iter()
+            .filter(|t| t.kind.is_word())
+            .map(|t| t.span.get_content_string(&chars))
+            .collect()
+    }
+
+    #[test]
+    fn markdown_uses_given_lexer() {
+        let parser = Markdown::with_lexer(Default::default(), crate::Lrc::new(LetterLexer));
+        assert_eq!(words("# Hi\n\n*ok* `code`", &parser), ["H", "i", "o", "k"]);
+    }
+
+    #[test]
+    fn org_mode_uses_given_lexer() {
+        let parser = OrgMode::with_lexer(crate::Lrc::new(LetterLexer));
+        assert_eq!(
+            words("* Hi\nok\n#+BEGIN_SRC\ncode\n#+END_SRC", &parser),
+            ["H", "i", "o", "k"]
+        );
+    }
+
+    #[test]
+    fn markdown_defaults_to_english() {
+        assert_eq!(
+            words("# Hi\n\n*ok* `code`", &Markdown::default()),
+            words(
+                "# Hi\n\n*ok* `code`",
+                &Markdown::with_lexer(Default::default(), crate::Lrc::new(PlainEnglish))
+            )
+        );
+        assert_eq!(words("Hi there", &Markdown::default()), ["Hi", "there"]);
+    }
+
+    #[test]
+    fn org_mode_defaults_to_english() {
+        assert_eq!(words("* Hi there", &OrgMode::default()), ["Hi", "there"]);
     }
 
     #[test]
