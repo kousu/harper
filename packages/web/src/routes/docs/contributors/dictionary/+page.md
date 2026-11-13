@@ -11,6 +11,24 @@ If this happens to you, please open a PR to get them in.
 
 PR [#343](https://github.com/Automattic/harper/pull/343) is a practical example of the ideas described here.
 
+## One Dictionary per Language
+
+Harper can check more than one language, and each language has its own dictionary in its own folder, `harper-core/src/lang/<code>/`.
+English, for example, is in `harper-core/src/lang/en/`.
+A language that isn't built into Harper (see its Cargo feature, such as `en`) has no dictionary in the binary at all.
+
+This page describes the English dictionary.
+Other languages use the same `dictionary.dict` and `annotations.json` format unless their folder has a `README.md` saying otherwise, for example when the dictionary is generated from another source by a script.
+In that case, change the source and rerun the script instead of editing the output.
+
+### Dialects
+
+A word that belongs to only some dialects of its language says so with the `dialects` metadata field.
+Each language has its own dialect names: in the English dictionary they are `AMERICAN`, `BRITISH`, `AUSTRALIAN`, `CANADIAN` and `INDIAN`, and can be combined, as in `"dialects": "AMERICAN | CANADIAN"`.
+A word with no `dialects` field is accepted in every dialect of its language.
+
+## The English Dictionary
+
 There are two files you need to worry about.
 [`harper-core/src/lang/en/dictionary.dict`](https://github.com/Automattic/harper/blob/master/harper-core/src/lang/en/dictionary.dict) and [`harper-core/src/lang/en/annotations.json`](https://github.com/Automattic/harper/blob/master/harper-core/src/lang/en/annotations.json) (formerly `affixes.json`).
 The first is a list of words, tagged with modifiers defined in the second.
