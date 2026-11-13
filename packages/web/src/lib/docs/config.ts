@@ -83,6 +83,7 @@ export const sidebar: Record<string, SidebarEntry[]> = {
 				{ title: 'Dictionary', to: '/docs/contributors/dictionary' },
 				{ title: 'Testing Strategy', to: '/docs/contributors/testing-strategy' },
 				{ title: 'Author a Rule', to: '/docs/contributors/author-a-rule' },
+				{ title: 'Add a Language', to: '/docs/contributors/add-a-language' },
 				{ title: 'Visual Studio Code', to: '/docs/contributors/visual-studio-code' },
 				{ title: 'Chrome Extension', to: '/docs/contributors/chrome-extension' },
 				{ title: 'Harper Desktop', to: '/docs/contributors/desktop' },

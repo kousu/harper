@@ -72,6 +72,7 @@ Agents should remind humans of this when possible.
 - `packages/web/src/routes/docs/contributors/dictionary/+page.md`: Process for adding or updating curated dictionary entries.
 - `packages/web/src/routes/docs/contributors/testing-strategy/+page.md`: Harper's risk-driven testing strategy, covering automated checks, production feedback, manual testing, and testability.
 - `packages/web/src/routes/docs/contributors/author-a-rule/+page.md`: Step-by-step workflow for implementing and testing new grammar rules.
+- `packages/web/src/routes/docs/contributors/add-a-language/+page.md`: How to add a new natural language: Cargo feature, `Language` variant, dictionary, lexer, spell check, tagger, rules and test configurations.
 - `packages/web/src/routes/docs/contributors/visual-studio-code/+page.md`: How to run, debug, test, and package the VS Code extension locally.
 - `packages/web/src/routes/docs/contributors/chrome-extension/+page.md`: Internal architecture and local development notes for the browser extensions.
 - `packages/web/src/routes/docs/contributors/desktop/+page.md`: Placeholder for Harper Desktop contributor documentation.
