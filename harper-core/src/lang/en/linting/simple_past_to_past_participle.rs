@@ -1,7 +1,7 @@
 use crate::{
     Token, TokenKind,
     expr::{All, Expr, FirstMatchOf, SequenceExpr},
-    irregular_verbs::IrregularVerbs,
+    lang::en::irregular_verbs::IrregularVerbs,
     linting::{ExprLinter, Lint, LintKind, Suggestion, expr_linter::Chunk},
     patterns::{InflectionOfBe, WordSet},
 };

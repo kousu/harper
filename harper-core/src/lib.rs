@@ -12,9 +12,6 @@ mod edit_distance;
 pub mod expr;
 mod fat_token;
 mod ignored_lints;
-mod indefinite_article;
-mod irregular_nouns;
-mod irregular_verbs;
 mod lang;
 pub mod language_detection;
 mod lexing;
@@ -25,13 +22,10 @@ mod offsets;
 pub mod parsers;
 pub mod patterns;
 mod punctuation;
-mod regular_nouns;
 mod render_markdown;
 mod span;
 pub mod spell;
 mod sync;
-mod thesaurus_helper;
-mod title_case;
 mod token;
 mod token_kind;
 mod token_string_ext;
@@ -53,10 +47,14 @@ pub use dict_word_metadata_orthography::{OrthFlags, Orthography};
 pub use document::Document;
 pub use fat_token::{FatStringToken, FatToken};
 pub use ignored_lints::{IgnoredLints, LintContext};
-pub use indefinite_article::{InitialSound, starts_with_vowel};
-pub use irregular_nouns::IrregularNouns;
-pub use irregular_verbs::IrregularVerbs;
-pub use lang::en::dialect::{EnglishDialect, EnglishDialectFlags};
+pub use lang::en::{
+    dialect::{EnglishDialect, EnglishDialectFlags},
+    indefinite_article::{InitialSound, starts_with_vowel},
+    irregular_nouns::IrregularNouns,
+    irregular_verbs::IrregularVerbs,
+    regular_nouns::{get_plurals, get_singulars},
+    title_case::{make_title_case, make_title_case_str},
+};
 pub use lang::{Language, LanguageFamily, LanguageNameError};
 
 /// The old name of [`EnglishDialect`].
@@ -70,10 +68,8 @@ use linting::Lint;
 pub use mask::{Mask, Masker, RegexMasker};
 pub use number::{Number, OrdinalSuffix};
 pub use punctuation::{Punctuation, Quote};
-pub use regular_nouns::{get_plurals, get_singulars};
 pub use span::Span;
 pub use sync::{LSend, Lrc};
-pub use title_case::{make_title_case, make_title_case_str};
 pub use token::Token;
 pub use token_kind::TokenKind;
 pub use token_string_ext::TokenStringExt;

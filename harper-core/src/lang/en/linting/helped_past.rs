@@ -5,7 +5,7 @@ use crate::{
     char_ext::CharExt,
     char_string::CharStringExt,
     expr::{All, Expr, OwnedExprExt, SequenceExpr},
-    irregular_verbs::IrregularVerbs,
+    lang::en::irregular_verbs::IrregularVerbs,
     linting::{ExprLinter, LintKind, Suggestion, expr_linter::Chunk},
     spell::Dictionary,
 };

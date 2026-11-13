@@ -12,7 +12,7 @@ pub struct IrregularNouns {
 /// The uncached function that is used to produce the original copy of the
 /// irregular noun table.
 fn uncached_inner_new() -> Arc<IrregularNouns> {
-    IrregularNouns::from_json_file(include_str!("lang/en/irregular_nouns.json"))
+    IrregularNouns::from_json_file(include_str!("irregular_nouns.json"))
         .map(Arc::new)
         .unwrap_or_else(|e| panic!("Failed to load irregular noun table: {}", e))
 }
