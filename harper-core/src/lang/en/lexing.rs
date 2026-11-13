@@ -1,5 +1,5 @@
-use crate::lexing::{FoundToken, lex_base_token, lex_hex_number};
-use crate::{Number, TokenKind};
+use crate::lexing::{FoundToken, Lexer, lex_base_token, lex_hex_number, lex_with};
+use crate::{Number, Token, TokenKind};
 
 /// Lex one token of English prose: the shared tokens (see [`lex_base_token`]), plus decimal
 /// numbers like "3.14" and plural numbers like "1990s" and "4s".
@@ -113,6 +113,18 @@ pub(crate) fn lex_number(source: &[char]) -> Option<FoundToken> {
 
     None
 }
+
+/// A lexer for English prose (see `lex_english_token`).
+#[derive(Clone, Copy)]
+pub struct PlainEnglish;
+
+impl Lexer for PlainEnglish {
+    fn lex(&self, source: &[char]) -> Vec<Token> {
+        lex_with(source, lex_english_token)
+    }
+}
+
+crate::lexing::impl_parser_for_lexer!(PlainEnglish);
 
 #[cfg(test)]
 mod tests {

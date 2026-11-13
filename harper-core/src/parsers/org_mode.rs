@@ -118,7 +118,7 @@ fn find_line_start(chars: &[char], pos: usize) -> usize {
     start
 }
 
-/// A parser that wraps the `PlainEnglish` parser that allows one to parse
+/// A parser that wraps a prose [`Lexer`](crate::lexers::Lexer), such as `PlainEnglish`, to parse
 /// Org-mode files.
 ///
 /// Will ignore code blocks, source blocks, and other org-mode specific elements

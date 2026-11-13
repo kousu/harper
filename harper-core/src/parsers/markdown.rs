@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use super::{PROSE_PARSER, Parser};
 use crate::{Span, Token, TokenKind, TokenStringExt, VecExt, offsets::build_byte_to_char_map};
 
-/// A parser that wraps the `PlainEnglish` parser that allows one to parse
+/// A parser that wraps a prose [`Lexer`](crate::lexers::Lexer), such as `PlainEnglish`, to parse
 /// CommonMark files.
 ///
 /// Will ignore code blocks and tables.

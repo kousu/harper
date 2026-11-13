@@ -8,13 +8,10 @@ use hostname::lex_hostname_token;
 use ordered_float::OrderedFloat;
 use url::lex_url;
 
-#[cfg(feature = "en")]
-pub use english::lex_english_token;
-
 use self::email_address::lex_email_address;
 use crate::char_ext::CharExt;
 use crate::punctuation::{Punctuation, Quote};
-use crate::{Number, Span, Token, TokenKind};
+use crate::{LSend, Number, Span, Token, TokenKind};
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct FoundToken {
@@ -46,6 +43,43 @@ pub fn lex_with(source: &[char], lex_fn: fn(&[char]) -> FoundToken) -> Vec<Token
         cursor += next_index;
     }
 }
+
+/// Splits prose in one natural language into tokens: words, numbers, punctuation and
+/// whitespace.
+///
+/// A lexer only recognizes words; it doesn't recognize any structure, such as headings or
+/// paragraphs. File-format parsers, such as [`Markdown`](crate::parsers::Markdown), recognize
+/// the structure and hand the prose in between to a lexer.
+pub trait Lexer: LSend {
+    /// Split all of `source` into tokens.
+    fn lex(&self, source: &[char]) -> Vec<Token>;
+}
+
+/// Lexers are also [`Parser`]s that read all of their input as prose, so they can be handed to
+/// file-format parsers and [`Document`](crate::Document)s that take a parser.
+macro_rules! impl_parser_for_lexer {
+    ($lexer:ty) => {
+        impl crate::parsers::Parser for $lexer {
+            fn parse(&self, source: &[char]) -> Vec<crate::Token> {
+                crate::lexing::Lexer::lex(self, source)
+            }
+        }
+    };
+}
+pub(crate) use impl_parser_for_lexer;
+
+/// A lexer with only the tokens every Latin-script language shares (see `lex_base_token`).
+/// For a language that has no lexer of its own yet.
+#[derive(Clone, Copy)]
+pub struct PlainText;
+
+impl Lexer for PlainText {
+    fn lex(&self, source: &[char]) -> Vec<Token> {
+        lex_with(source, lex_base_token)
+    }
+}
+
+crate::lexing::impl_parser_for_lexer!(PlainText);
 
 /// Lex one token of Latin-script prose: the kinds of token every language shares. Each language's
 /// lexer tries its own kinds first, then falls back to this one.
@@ -279,7 +313,7 @@ fn lex_catch() -> FoundToken {
 
 #[cfg(all(test, feature = "en"))]
 mod tests {
-    use super::lex_english_token;
+    use super::english::lex_english_token;
     use super::lex_hex_number;
     use super::{FoundToken, TokenKind};
     use crate::Punctuation;
