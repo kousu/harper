@@ -292,7 +292,7 @@ impl HumanReadableAttributeList {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::spell::Dictionary;
 

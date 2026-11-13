@@ -253,6 +253,7 @@ impl CharStringExt for [char] {
     }
 }
 
+#[cfg_attr(not(feature = "en"), allow(unused))]
 macro_rules! char_string {
     ($string:literal) => {{
         use crate::char_string::CharString;
@@ -261,6 +262,7 @@ macro_rules! char_string {
     }};
 }
 
+#[cfg_attr(not(feature = "en"), allow(unused))]
 pub(crate) use char_string;
 
 #[cfg(test)]

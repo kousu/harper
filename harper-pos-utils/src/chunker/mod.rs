@@ -1,6 +1,7 @@
 use crate::UPOS;
 
 mod brill_chunker;
+#[cfg(feature = "burn")]
 mod burn_chunker;
 mod cached_chunker;
 #[cfg(feature = "training")]
@@ -8,6 +9,7 @@ mod np_extraction;
 mod upos_freq_dict;
 
 pub use brill_chunker::BrillChunker;
+#[cfg(feature = "burn")]
 pub use burn_chunker::{BurnChunker, BurnChunkerCpu};
 pub use cached_chunker::CachedChunker;
 pub use upos_freq_dict::UPOSFreqDict;

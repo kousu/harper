@@ -24,7 +24,7 @@ impl Expr for Not {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::{
         Document,

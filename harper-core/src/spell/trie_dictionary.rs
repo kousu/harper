@@ -1,5 +1,7 @@
 use std::borrow::Cow;
-use std::sync::{Arc, LazyLock};
+use std::sync::Arc;
+#[cfg(feature = "en")]
+use std::sync::LazyLock;
 
 use trie_rs::Trie;
 use trie_rs::iter::{Keys, PrefixIter, SearchIter};
@@ -16,6 +18,7 @@ pub struct TrieDictionary<D: Dictionary> {
 }
 
 /// The curated English dictionary, as a [`TrieDictionary`].
+#[cfg(feature = "en")]
 #[deprecated(note = "use `TrieDictionary::curated_for(LanguageFamily::English)`")]
 pub static DICT: LazyLock<Arc<TrieDictionary<Arc<FstDictionary>>>> =
     LazyLock::new(crate::lang::en::dictionary::trie_dictionary);
@@ -23,6 +26,7 @@ pub static DICT: LazyLock<Arc<TrieDictionary<Arc<FstDictionary>>>> =
 impl TrieDictionary<Arc<FstDictionary>> {
     /// Create a dictionary from the curated English dictionary included
     /// in the Harper binary.
+    #[cfg(feature = "en")]
     #[deprecated(note = "use `TrieDictionary::curated_for(LanguageFamily::English)`")]
     pub fn curated() -> Arc<Self> {
         Self::curated_for(LanguageFamily::English)

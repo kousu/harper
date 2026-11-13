@@ -26,6 +26,7 @@ impl FixedPhrase {
     #[deprecated(
         note = "use `FixedPhrase::from_phrase_for` with the phrase's language, or `lang::en::expr::fixed_phrase`"
     )]
+    #[cfg(feature = "en")]
     pub fn from_phrase(text: &str) -> Self {
         Self::from_phrase_for(text, LanguageFamily::English)
     }

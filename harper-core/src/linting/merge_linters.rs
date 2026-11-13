@@ -1,3 +1,4 @@
+#[cfg_attr(not(feature = "en"), allow(unused))]
 macro_rules! merge_linters {
     ($name:ident => $($linter:ident),* => $desc:expr) => {
         pub use merge_rule_hidden::$name;
@@ -40,4 +41,5 @@ macro_rules! merge_linters {
     };
 }
 
+#[cfg_attr(not(feature = "en"), allow(unused))]
 pub(crate) use merge_linters;

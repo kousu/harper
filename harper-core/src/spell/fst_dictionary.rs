@@ -43,6 +43,7 @@ impl PartialEq for FstDictionary {
 impl FstDictionary {
     /// Create a dictionary from the curated English dictionary included
     /// in the Harper binary.
+    #[cfg(feature = "en")]
     #[deprecated(note = "use `FstDictionary::curated_for(LanguageFamily::English)`")]
     pub fn curated() -> Arc<Self> {
         crate::lang::en::dictionary::dictionary()
@@ -255,7 +256,7 @@ impl Dictionary for FstDictionary {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use itertools::Itertools;
 

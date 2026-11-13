@@ -7,6 +7,7 @@ use itertools::Itertools;
 
 use crate::expr::{Expr, ExprExt, FirstMatchOf, Repeating, SequenceExpr};
 use crate::parsers::Parser;
+#[cfg(feature = "en")]
 use crate::parsers::{Markdown, MarkdownOptions, PlainEnglish};
 use crate::punctuation::Punctuation;
 use crate::spell::Dictionary;
@@ -59,6 +60,7 @@ impl Document {
             .collect()
     }
 
+    #[cfg(feature = "en")]
     /// Lexes and parses text to produce a document using a provided language
     /// parser and dictionary.
     pub fn new(text: &str, parser: &impl Parser, dictionary: &impl Dictionary) -> Self {
@@ -67,6 +69,7 @@ impl Document {
         Self::new_from_chars(source, parser, dictionary)
     }
 
+    #[cfg(feature = "en")]
     /// Lexes and parses text to produce a document using a provided language
     /// parser and the included curated dictionary.
     pub fn new_curated(text: &str, parser: &impl Parser) -> Self {
@@ -75,6 +78,7 @@ impl Document {
         Self::new_from_chars(source, parser, &crate::lang::en::dictionary::dictionary())
     }
 
+    #[cfg(feature = "en")]
     /// Lexes and parses text to produce a document using a provided language
     /// parser and dictionary.
     pub fn new_from_chars(
@@ -100,6 +104,7 @@ impl Document {
         document
     }
 
+    #[cfg(feature = "en")]
     /// Create a new document from character data using the built-in [`PlainEnglish`]
     /// parser and curated dictionary. This avoids string-to-char conversions.
     pub fn new_plain_english_curated_chars(source: &[char]) -> Self {
@@ -110,6 +115,7 @@ impl Document {
         )
     }
 
+    #[cfg(feature = "en")]
     /// Parse text to produce a document using the built-in [`PlainEnglish`]
     /// parser and curated dictionary.
     pub fn new_plain_english_curated(text: &str) -> Self {
@@ -143,12 +149,14 @@ impl Document {
         Self::new_basic_tokenize(text, &language.data().prose_parser(), language)
     }
 
+    #[cfg(feature = "en")]
     /// Parse text to produce a document using the built-in [`PlainEnglish`]
     /// parser and a provided dictionary.
     pub fn new_plain_english(text: &str, dictionary: &impl Dictionary) -> Self {
         Self::new(text, &PlainEnglish, dictionary)
     }
 
+    #[cfg(feature = "en")]
     /// Parse text to produce a document using the built-in [`Markdown`] parser
     /// and curated dictionary.
     pub fn new_markdown_curated(text: &str, markdown_options: MarkdownOptions) -> Self {
@@ -159,6 +167,7 @@ impl Document {
         )
     }
 
+    #[cfg(feature = "en")]
     /// Create a new document from character data using the built-in [`Markdown`] parser
     /// and curated dictionary. This avoids string-to-char conversions.
     pub fn new_markdown_default_curated_chars(chars: &[char]) -> Self {
@@ -169,12 +178,14 @@ impl Document {
         )
     }
 
+    #[cfg(feature = "en")]
     /// Parse text to produce a document using the built-in [`Markdown`] parser
     /// and curated dictionary with the default Markdown configuration.
     pub fn new_markdown_default_curated(text: &str) -> Self {
         Self::new_markdown_curated(text, MarkdownOptions::default())
     }
 
+    #[cfg(feature = "en")]
     /// Parse text to produce a document using the built-in [`PlainEnglish`]
     /// parser and the curated dictionary.
     pub fn new_markdown(
@@ -185,6 +196,7 @@ impl Document {
         Self::new(text, &Markdown::new(markdown_options), dictionary)
     }
 
+    #[cfg(feature = "en")]
     /// Parse text to produce a document using the built-in [`PlainEnglish`]
     /// parser and the curated dictionary with the default Markdown configuration.
     pub fn new_markdown_default(text: &str, dictionary: &impl Dictionary) -> Self {
@@ -996,7 +1008,7 @@ impl Display for Document {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use itertools::Itertools;
 
