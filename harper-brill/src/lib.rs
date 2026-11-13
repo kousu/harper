@@ -1,10 +1,14 @@
+#[cfg(feature = "en")]
+pub use harper_pos_utils::BurnChunkerCpu;
 pub use harper_pos_utils::{
-    BrillChunker, BrillTagger, BurnChunkerCpu, CachedChunker, Chunker, FreqDict, Tagger, UPOS,
+    BrillChunker, BrillTagger, CachedChunker, Chunker, FreqDict, Tagger, UPOS,
 };
 
+#[cfg(feature = "en")]
 pub use en::{brill_chunker, brill_tagger, burn_chunker};
 
 /// The English tagger and chunkers.
+#[cfg(feature = "en")]
 mod en {
     use std::num::NonZero;
     use std::rc::Rc;

@@ -34,7 +34,7 @@ impl<D: Dictionary> Parser for IsolateEnglish<D> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::IsolateEnglish;
 

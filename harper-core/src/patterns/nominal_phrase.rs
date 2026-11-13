@@ -34,7 +34,7 @@ impl Pattern for NominalPhrase {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::super::DocPattern;
     use super::NominalPhrase;

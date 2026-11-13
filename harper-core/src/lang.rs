@@ -6,6 +6,7 @@ pub(crate) use language_data::LanguageData;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumDiscriminants, EnumIter, EnumString};
 
+#[cfg(feature = "en")]
 use crate::EnglishDialect;
 
 /// A natural language Harper can check, together with its regional variant.
@@ -19,6 +20,7 @@ use crate::EnglishDialect;
     doc = "A natural language Harper can check, without its regional variant."
 )]
 pub enum Language {
+    #[cfg(feature = "en")]
     English(EnglishDialect),
 }
 
@@ -39,7 +41,7 @@ impl LanguageFamily {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use std::str::FromStr;
 

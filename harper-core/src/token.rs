@@ -37,7 +37,7 @@ impl Token {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::{
         TokenStringExt,

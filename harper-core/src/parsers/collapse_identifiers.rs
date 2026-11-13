@@ -58,7 +58,7 @@ impl Parser for CollapseIdentifiers {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::*;
     use crate::spell::{MergedDictionary, MutableDictionary};

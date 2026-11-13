@@ -17,6 +17,7 @@ mod within_edit_distance;
 mod word;
 mod word_set;
 
+#[cfg(feature = "en")]
 use crate::lang::en::patterns as en;
 
 pub use any_pattern::AnyPattern;
@@ -30,22 +31,29 @@ pub use word::Word;
 pub use word_set::WordSet;
 
 // English patterns used to live here. They are in `lang::en::patterns` now.
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::patterns::ImpliesQuantity`")]
 pub type ImpliesQuantity = en::ImpliesQuantity;
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::patterns::IndefiniteArticle`")]
 pub type IndefiniteArticle = en::IndefiniteArticle;
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::patterns::InflectionOfBe`")]
 pub type InflectionOfBe = en::InflectionOfBe;
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::patterns::ModalVerb`")]
 pub type ModalVerb = en::ModalVerb;
+#[cfg(feature = "en")]
 #[deprecated(
     note = "English only: use `harper_core::lang::en::patterns::PrepositionalPrecederPattern`"
 )]
 pub type PrepositionalPrecederPattern = en::PrepositionalPrecederPattern;
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::patterns::RelativePronoun`")]
 pub type RelativePronoun = en::RelativePronoun;
 
 /// The shared [`PrepositionalPrecederPattern`](en::PrepositionalPrecederPattern).
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::patterns::prepositional_preceder`")]
 pub fn prepositional_preceder() -> &'static en::PrepositionalPrecederPattern {
     en::prepositional_preceder()

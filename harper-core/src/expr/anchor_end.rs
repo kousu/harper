@@ -31,7 +31,7 @@ impl Step for AnchorEnd {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::expr::{AnchorStart, ExprExt, SequenceExpr};
     use crate::{Document, Span, TokenStringExt};

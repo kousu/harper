@@ -203,7 +203,7 @@ impl<T: Dictionary, C: SpellingConventions> Linter for SpellCheck<T, C> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::{SpellCheck, SpellingConventions};
     use crate::linting::{Lint, Linter};

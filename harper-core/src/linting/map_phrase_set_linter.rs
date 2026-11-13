@@ -18,6 +18,7 @@ pub struct MapPhraseSetLinter<'a> {
 
 impl<'a> MapPhraseSetLinter<'a> {
     #[deprecated(note = "use `MapPhraseSetLinter::one_to_one_for` with the phrase's language")]
+    #[cfg(feature = "en")]
     pub fn one_to_one(
         wrong_forms_to_correct_forms: &'a [(&'a str, &'a str)],
         message: impl ToString,
@@ -60,6 +61,7 @@ impl<'a> MapPhraseSetLinter<'a> {
     }
 
     #[deprecated(note = "use `MapPhraseSetLinter::many_to_many_for` with the phrase's language")]
+    #[cfg(feature = "en")]
     pub fn many_to_many(
         multi_wrong_forms_to_multi_correct_forms: &'a [(&'a [&'a str], &'a [&'a str])],
         message: impl ToString,

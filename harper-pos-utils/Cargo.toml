@@ -14,13 +14,15 @@ strum_macros = "0.28.0"
 serde = { version = "1.0.228", features = ["derive"] }
 is-macro = "0.3.7"
 rand = { version = "0.10.1", optional = true }
-burn = { version = "0.19.1", default-features = false, features = ["std"] }
-burn-ndarray = { version = "0.19.0", default-features = false }
+burn = { version = "0.19.1", default-features = false, features = ["std"], optional = true }
+burn-ndarray = { version = "0.19.0", default-features = false, optional = true }
 serde_json = "1.0.150"
 lru = "0.18.0"
 rayon = { version = "1.12.0", optional = true }
 
 [features]
 default = []
-training = ["dep:rand", "burn/train", "burn/autodiff"]
+training = ["dep:rand", "burn", "burn/train", "burn/autodiff"]
+# The neural chunker (`BurnChunker`), built on the Burn deep-learning framework.
+burn = ["dep:burn", "dep:burn-ndarray"]
 threaded = ["dep:rayon"]

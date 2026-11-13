@@ -17,6 +17,7 @@ pub struct StructuredConfig {
 
 impl StructuredConfig {
     /// Build the curated structured config of the English rules, including labels.
+    #[cfg(feature = "en")]
     #[deprecated(note = "use `StructuredConfig::curated_for(LanguageFamily::English)`")]
     pub fn curated() -> Self {
         crate::lang::en::linting::default_config()
@@ -113,7 +114,7 @@ impl Setting {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use std::collections::BTreeSet;
 

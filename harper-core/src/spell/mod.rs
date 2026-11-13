@@ -4,9 +4,7 @@
 use itertools::Itertools;
 use smallvec::ToSmallVec;
 
-use crate::{
-    CharString, CharStringExt, DictWordMetadata, EnglishDialect, Language, LanguageFamily,
-};
+use crate::{CharString, CharStringExt, DictWordMetadata, LanguageFamily};
 
 pub use self::dictionary::Dictionary;
 pub use self::fst_dictionary::FstDictionary;
@@ -17,6 +15,7 @@ pub use self::trie_dictionary::TrieDictionary;
 pub use self::word_id::{CanonicalWordId, CaseFoldedWordId};
 
 /// Whether `b` is `a` with an "h" added after a "t".
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::is_th_h_missing`")]
 pub fn is_th_h_missing(a: &[char], b: &[char]) -> bool {
     crate::lang::en::is_th_h_missing(a, b)
@@ -133,6 +132,7 @@ fn order_suggestions<'b>(
 /// suggestions English writers most likely meant.
 /// Implementation is left up to the underlying dictionary.
 #[deprecated(note = "use `suggest_correct_spelling_for` with the text's language")]
+#[cfg(feature = "en")]
 pub fn suggest_correct_spelling<'a>(
     misspelled_word: &[char],
     result_limit: usize,
@@ -192,10 +192,11 @@ pub fn suggest_correct_spelling_with<'a>(
 /// order, keeping only words used in `dialect`.
 ///
 /// Widens the edit distance until a match appears.
+#[cfg(feature = "en")]
 pub fn spelling_candidates(
     word: &[char],
     dictionary: &impl Dictionary,
-    dialect: EnglishDialect,
+    dialect: crate::EnglishDialect,
     limit: usize,
 ) -> Vec<(CharString, i32)> {
     let data = LanguageFamily::English.data();
@@ -203,7 +204,7 @@ pub fn spelling_candidates(
         word,
         dictionary,
         limit,
-        |meta| meta.allows_language(Language::English(dialect)),
+        |meta| meta.allows_language(crate::Language::English(dialect)),
         |misspelled, suggestion, distance| data.score_adjustment(misspelled, suggestion, distance),
     )
 }
@@ -238,6 +239,7 @@ pub(crate) fn spelling_candidates_with(
 /// Convenience function over [`suggest_correct_spelling`] that does conversions
 /// for you.
 #[deprecated(note = "use `suggest_correct_spelling_str_for` with the text's language")]
+#[cfg(feature = "en")]
 pub fn suggest_correct_spelling_str(
     misspelled_word: impl Into<String>,
     result_limit: usize,
@@ -269,7 +271,7 @@ pub fn suggest_correct_spelling_str_for(
         .collect()
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use itertools::Itertools;
 

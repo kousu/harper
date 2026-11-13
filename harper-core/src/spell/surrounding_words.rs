@@ -44,7 +44,7 @@ pub fn surrounding_words(
     (left, right)
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::surrounding_words;
     use crate::parsers::{Parser, PlainEnglish};
