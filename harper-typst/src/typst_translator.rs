@@ -123,7 +123,7 @@ impl<'a> TypstTranslator<'a> {
         Some((parsed, 1 + (count_minus_one + 1) * 2))
     }
 
-    /// Use the prose parser to parse plain text from a Typst expression.
+    /// Use the lexer to lex plain text from a Typst expression.
     fn parse_prose(self, str: impl Into<String>, offset: OffsetCursor) -> Option<Vec<Token>> {
         Some(
             self.prose

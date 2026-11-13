@@ -243,7 +243,7 @@ impl WeirLinter {
 
                 let doc = Document::new_from_chars(
                     current.chars().collect::<Vec<_>>().into(),
-                    &Markdown::default(),
+                    &Markdown::with_language(Default::default(), crate::LanguageFamily::English),
                     &crate::lang::en::dictionary::dictionary(),
                 );
                 let lints = linter.lint(&doc);
@@ -269,7 +269,7 @@ impl WeirLinter {
             loop {
                 let test = Document::new_from_chars(
                     text_chars.clone().into(),
-                    &Markdown::default(),
+                    &Markdown::with_language(Default::default(), crate::LanguageFamily::English),
                     &crate::lang::en::dictionary::dictionary(),
                 );
                 let lints = linter.lint(&test);
@@ -296,7 +296,7 @@ impl WeirLinter {
         fn lint_count(text: &str, linter: &mut impl Linter) -> usize {
             let document = Document::new_from_chars(
                 text.chars().collect::<Vec<_>>().into(),
-                &Markdown::default(),
+                &Markdown::with_language(Default::default(), crate::LanguageFamily::English),
                 &crate::lang::en::dictionary::dictionary(),
             );
 

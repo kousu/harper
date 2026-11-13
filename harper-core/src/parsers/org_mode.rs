@@ -1,6 +1,6 @@
-use super::{Parser, default_prose};
+use super::{Parser, ProseLexer};
 use crate::lexers::Lexer;
-use crate::{Lrc, Span, Token, TokenKind};
+use crate::{LanguageFamily, Lrc, Span, Token, TokenKind};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 enum SourceBlockMarker {
@@ -119,27 +119,43 @@ fn find_line_start(chars: &[char], pos: usize) -> usize {
     start
 }
 
-/// A parser for Org-mode files. It hands the prose it finds to an inner parser, which is
-/// `PlainEnglish` unless it was built with [`OrgMode::with_lexer`].
+/// A parser for Org-mode files. It hands the prose it finds to a lexer: the one for the
+/// language it guesses from each document (see [`ProseLexer::Guess`]), unless it was built for a
+/// language with [`OrgMode::with_language`] or given a lexer with [`OrgMode::with_lexer`].
 ///
 /// Will ignore code blocks, source blocks, and other org-mode specific elements
 /// that should not be linted for prose.
 #[derive(Clone)]
 pub struct OrgMode {
-    prose: Lrc<dyn Lexer>,
+    prose: ProseLexer,
 }
 
 impl OrgMode {
+    /// An Org-mode parser that guesses each document's language (see [`ProseLexer::Guess`]). Use
+    /// [`Self::with_language`] when you know the language.
+    pub fn new() -> Self {
+        Self {
+            prose: ProseLexer::Guess,
+        }
+    }
+
+    /// An Org-mode parser for prose in `language`.
+    pub fn with_language(language: LanguageFamily) -> Self {
+        Self::with_lexer(language.lexer())
+    }
+
     /// An Org-mode parser that hands its prose to `prose`.
     pub fn with_lexer(prose: Lrc<dyn Lexer>) -> Self {
-        Self { prose }
+        Self {
+            prose: ProseLexer::Given(prose),
+        }
     }
 }
 
-/// An Org-mode parser whose prose is English.
+/// The same as [`OrgMode::new`]: it guesses each document's language.
 impl Default for OrgMode {
     fn default() -> Self {
-        Self::with_lexer(default_prose())
+        Self::new()
     }
 }
 
@@ -151,6 +167,7 @@ impl std::fmt::Debug for OrgMode {
 
 impl Parser for OrgMode {
     fn parse(&self, source: &[char]) -> Vec<Token> {
+        let prose = self.prose.for_text(source);
         let mut tokens = Vec::new();
         let mut cursor = 0;
         let mut in_source_block = false;
@@ -189,7 +206,7 @@ impl Parser for OrgMode {
 
                 // If there's actual text after the stars, parse it
                 if header_text_start < line_end {
-                    let mut header_tokens = self.prose.parse(&source[header_text_start..line_end]);
+                    let mut header_tokens = prose.parse(&source[header_text_start..line_end]);
                     header_tokens
                         .iter_mut()
                         .for_each(|token| token.span.push_by(header_text_start));
@@ -223,7 +240,7 @@ impl Parser for OrgMode {
                 let line_chars = &source[line_start..line_end];
                 let normalized_chars = normalize_list_item_whitespace(line_chars);
 
-                let mut line_tokens = self.prose.parse(&normalized_chars);
+                let mut line_tokens = prose.parse(&normalized_chars);
                 line_tokens
                     .iter_mut()
                     .for_each(|token| token.span.push_by(line_start));
@@ -236,7 +253,7 @@ impl Parser for OrgMode {
             // For normal text, parse with the English parser
             let line_end = find_line_end(source, cursor);
             if cursor < line_end {
-                let mut line_tokens = self.prose.parse(&source[cursor..line_end]);
+                let mut line_tokens = prose.parse(&source[cursor..line_end]);
                 line_tokens
                     .iter_mut()
                     .for_each(|token| token.span.push_by(cursor));

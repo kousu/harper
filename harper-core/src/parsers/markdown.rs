@@ -3,19 +3,24 @@ use std::collections::VecDeque;
 
 use serde::{Deserialize, Serialize};
 
-use super::{Parser, default_prose};
-use crate::{Lrc, Span, Token, TokenKind, TokenStringExt, VecExt, offsets::build_byte_to_char_map};
+use super::{Parser, ProseLexer};
+use crate::{
+    LanguageFamily, Lrc, Span, Token, TokenKind, TokenStringExt, VecExt,
+    offsets::build_byte_to_char_map,
+};
 
-/// A parser for CommonMark files. It hands the prose it finds to an inner parser, which is
-/// `PlainEnglish` unless it was built with [`Markdown::with_lexer`].
+/// A parser for CommonMark files. It hands the prose it finds to a lexer: the one for the
+/// language it guesses from each document (see [`ProseLexer::Guess`]), unless it was built for a
+/// language with [`Markdown::with_language`] or given a lexer with [`Markdown::with_lexer`].
 ///
 /// Will ignore code blocks and tables.
 #[derive(Clone)]
 pub struct Markdown {
     options: MarkdownOptions,
-    prose: Lrc<dyn Lexer>,
+    prose: ProseLexer,
 }
 
+/// The same as [`Markdown::new`] with default options: it guesses each document's language.
 impl Default for Markdown {
     fn default() -> Self {
         Self::new(MarkdownOptions::default())
@@ -47,14 +52,26 @@ impl Default for MarkdownOptions {
 }
 
 impl Markdown {
-    /// A Markdown parser whose prose is English.
+    /// A Markdown parser that guesses each document's language (see [`ProseLexer::Guess`]). Use
+    /// [`Self::with_language`] when you know the language.
     pub fn new(options: MarkdownOptions) -> Self {
-        Self::with_lexer(options, default_prose())
+        Self {
+            options,
+            prose: ProseLexer::Guess,
+        }
+    }
+
+    /// A Markdown parser for prose in `language`.
+    pub fn with_language(options: MarkdownOptions, language: LanguageFamily) -> Self {
+        Self::with_lexer(options, language.lexer())
     }
 
     /// A Markdown parser that hands its prose to `prose`.
     pub fn with_lexer(options: MarkdownOptions, prose: Lrc<dyn Lexer>) -> Self {
-        Self { options, prose }
+        Self {
+            options,
+            prose: ProseLexer::Given(prose),
+        }
     }
 
     /// Remove hidden Wikilink target text.
@@ -160,6 +177,7 @@ impl Parser for Markdown {
     /// This implementation is quite gross to look at, but it works.
     /// If any issues arise, it would likely help to refactor this out first.
     fn parse(&self, source: &[char]) -> Vec<Token> {
+        let prose = self.prose.for_text(source);
         let source_str: String = source.iter().collect();
         let md_parser = pulldown_cmark::Parser::new_ext(
             &source_str,
@@ -274,7 +292,7 @@ impl Parser for Markdown {
                         }
                     }
 
-                    let mut new_tokens = self.prose.parse(&source[span_start..span_end]);
+                    let mut new_tokens = prose.parse(&source[span_start..span_end]);
 
                     new_tokens
                         .iter_mut()
