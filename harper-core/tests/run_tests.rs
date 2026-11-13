@@ -1,3 +1,6 @@
+//! English tests.
+#![cfg(feature = "en")]
+
 use harper_core::linting::{LintGroup, Linter};
 use harper_core::parsers::OrgMode;
 use harper_core::spell::FstDictionary;

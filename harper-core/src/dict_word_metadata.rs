@@ -1121,6 +1121,7 @@ impl WordDialects {
     #[must_use]
     pub fn allows(self, language: Language) -> bool {
         match (self, language) {
+            #[cfg(feature = "en")]
             (Self::English(flags), Language::English(dialect)) => flags.is_dialect_enabled(dialect),
         }
     }
@@ -1158,6 +1159,7 @@ impl From<EnglishDialect> for WordDialects {
 impl From<Language> for WordDialects {
     fn from(language: Language) -> Self {
         match language {
+            #[cfg(feature = "en")]
             Language::English(dialect) => dialect.into(),
         }
     }
@@ -1172,7 +1174,7 @@ impl DictWordMetadata {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 pub mod tests {
     use crate::DictWordMetadata;
     use crate::spell::Dictionary;

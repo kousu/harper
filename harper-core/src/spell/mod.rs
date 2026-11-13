@@ -11,6 +11,7 @@ pub use self::trie_dictionary::TrieDictionary;
 pub use self::word_id::{CanonicalWordId, CaseFoldedWordId};
 
 /// Whether `b` is `a` with an "h" added after a "t".
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::is_th_h_missing`")]
 pub fn is_th_h_missing(a: &[char], b: &[char]) -> bool {
     crate::lang::en::is_th_h_missing(a, b)
@@ -124,6 +125,7 @@ fn order_suggestions<'b>(
 /// suggestions English writers most likely meant.
 /// Implementation is left up to the underlying dictionary.
 #[deprecated(note = "use `suggest_correct_spelling_for` with the text's language")]
+#[cfg(feature = "en")]
 pub fn suggest_correct_spelling<'a>(
     misspelled_word: &[char],
     result_limit: usize,
@@ -179,6 +181,7 @@ pub fn suggest_correct_spelling_with<'a>(
 /// Convenience function over [`suggest_correct_spelling`] that does conversions
 /// for you.
 #[deprecated(note = "use `suggest_correct_spelling_str_for` with the text's language")]
+#[cfg(feature = "en")]
 pub fn suggest_correct_spelling_str(
     misspelled_word: impl Into<String>,
     result_limit: usize,
@@ -210,7 +213,7 @@ pub fn suggest_correct_spelling_str_for(
         .collect()
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use itertools::Itertools;
 

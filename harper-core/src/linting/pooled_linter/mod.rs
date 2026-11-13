@@ -65,7 +65,7 @@ impl<L: Linter> Clone for PooledLinter<L> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 pub mod for_tests {
     /// Constructs a static `PooledLinter` for use in tests. Provide the name of the linter under
     /// test, its type, and an expression to construct it.

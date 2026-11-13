@@ -98,7 +98,7 @@ impl SingleTokenPattern for WordSet {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::{Document, Span, patterns::DocPattern};
 
