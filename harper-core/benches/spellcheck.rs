@@ -1,7 +1,10 @@
 use criterion::{
     BenchmarkGroup, Criterion, Throughput, criterion_group, criterion_main, measurement::WallTime,
 };
-use harper_core::spell::{Dictionary, FstDictionary, MergedDictionary, suggest_correct_spelling};
+use harper_core::LanguageFamily;
+use harper_core::spell::{
+    Dictionary, FstDictionary, MergedDictionary, suggest_correct_spelling_for,
+};
 use std::hint::black_box;
 
 static ESSAY: &str = include_str!("./essay.md");
@@ -119,11 +122,12 @@ fn bench_suggest_correct_spelling(
     let dict = FstDictionary::curated();
 
     bench_word_list(group, name, words, |word| {
-        black_box(suggest_correct_spelling(
+        black_box(suggest_correct_spelling_for(
             word,
             MAX_RESULTS,
             MAX_EDIT_DISTANCE,
             &*dict,
+            LanguageFamily::English,
         ))
         .len()
     });
