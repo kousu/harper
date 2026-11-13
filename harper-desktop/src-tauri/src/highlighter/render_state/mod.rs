@@ -305,7 +305,14 @@ impl RenderState {
                             )
                         })
                     {
-                        let document = Document::new_markdown_default_curated(&source_text);
+                        let document = Document::new_with_parser_and_language(
+                            &source_text,
+                            &harper_core::parsers::Markdown::with_language(
+                                harper_core::parsers::MarkdownOptions::default(),
+                                harper_core::LanguageFamily::English,
+                            ),
+                            harper_core::LanguageFamily::English,
+                        );
                         (self.ignore_lint)(&lint, &document);
                     }
 
@@ -320,7 +327,14 @@ impl RenderState {
                             )
                         })
                     {
-                        let document = Document::new_markdown_default_curated(&source_text);
+                        let document = Document::new_with_parser_and_language(
+                            &source_text,
+                            &harper_core::parsers::Markdown::with_language(
+                                harper_core::parsers::MarkdownOptions::default(),
+                                harper_core::LanguageFamily::English,
+                            ),
+                            harper_core::LanguageFamily::English,
+                        );
                         let word = lint.get_str(document.get_source());
                         (self.add_to_dictionary)(&word);
                     }

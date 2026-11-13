@@ -164,7 +164,7 @@ mod tests {
         lint_group.config.set_rule_enabled("SpellCheck", true);
         lint_group.config.set_rule_enabled("WrongNegative", true);
 
-        let document = Document::new_plain_english_curated("unvisible");
+        let document = Document::new_with_language("unvisible", crate::LanguageFamily::English);
         let mut lints = lint_group.lint(&document);
 
         // Remove overlapping lints - this should keep WrongNegative due to higher priority

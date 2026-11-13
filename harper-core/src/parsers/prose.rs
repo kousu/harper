@@ -59,7 +59,7 @@ impl Lexer for ProseLexer {
 
 crate::lexing::impl_parser_for_lexer!(ProseLexer);
 
-fn guessed_or_first_language(text: &str) -> Option<LanguageFamily> {
+pub(crate) fn guessed_or_first_language(text: &str) -> Option<LanguageFamily> {
     use strum::IntoEnumIterator;
 
     guess_language(text).or_else(|| LanguageFamily::iter().next())

@@ -76,28 +76,56 @@ mod tests {
 
     #[test]
     fn matches_single_digit() {
-        let doc = Document::new_markdown_default_curated("one two three");
+        let doc = Document::new_with_parser_and_language(
+            "one two three",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = SpelledNumberExpr.iter_matches_in_doc(&doc);
         assert_eq!(matches.count(), 3);
     }
 
     #[test]
     fn matches_teens() {
-        let doc = Document::new_markdown_default_curated("ten eleven twelve");
+        let doc = Document::new_with_parser_and_language(
+            "ten eleven twelve",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = SpelledNumberExpr.iter_matches_in_doc(&doc);
         assert_eq!(matches.count(), 3);
     }
 
     #[test]
     fn matches_tens() {
-        let doc = Document::new_markdown_default_curated("twenty thirty forty");
+        let doc = Document::new_with_parser_and_language(
+            "twenty thirty forty",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = SpelledNumberExpr.iter_matches_in_doc(&doc);
         assert_eq!(matches.count(), 3);
     }
 
     #[test]
     fn matches_compound_numbers() {
-        let doc = Document::new_markdown_default_curated("twenty-one thirty-two");
+        let doc = Document::new_with_parser_and_language(
+            "twenty-one thirty-two",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = SpelledNumberExpr
             .iter_matches_in_doc(&doc)
             .collect::<Vec<_>>();
@@ -117,8 +145,13 @@ mod tests {
 
     #[test]
     fn deep_thought() {
-        let doc = Document::new_markdown_default_curated(
+        let doc = Document::new_with_parser_and_language(
             "the answer to the ultimate question of life, the universe, and everything is forty-two",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
         );
         let matches = SpelledNumberExpr
             .iter_matches_in_doc(&doc)
@@ -132,8 +165,13 @@ mod tests {
 
     #[test]
     fn jacksons() {
-        let doc = Document::new_markdown_default_curated(
+        let doc = Document::new_with_parser_and_language(
             "A, B, C It's easy as one, two, three. Or simple as Do-Re-Mi",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
         );
         let matches = SpelledNumberExpr
             .iter_matches_in_doc(&doc)
@@ -144,7 +182,14 @@ mod tests {
 
     #[test]
     fn orwell() {
-        let doc = Document::new_markdown_default_curated("Nineteen Eighty-Four");
+        let doc = Document::new_with_parser_and_language(
+            "Nineteen Eighty-Four",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = SpelledNumberExpr
             .iter_matches_in_doc(&doc)
             .collect::<Vec<_>>();
@@ -154,8 +199,13 @@ mod tests {
 
     #[test]
     fn get_smart() {
-        let doc = Document::new_markdown_default_curated(
+        let doc = Document::new_with_parser_and_language(
             "Maxwell Smart was Agent Eighty-Six, but who was Agent Ninety-Nine?",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
         );
         let matches = SpelledNumberExpr
             .iter_matches_in_doc(&doc)
@@ -166,8 +216,13 @@ mod tests {
 
     #[test]
     fn hyphens_or_spaces() {
-        let doc = Document::new_markdown_default_curated(
+        let doc = Document::new_with_parser_and_language(
             "twenty-one, thirty two, forty-three, fifty four, sixty-five, seventy six, eighty-seven, ninety eight",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
         );
         let matches = SpelledNumberExpr
             .iter_matches_in_doc(&doc)
@@ -190,7 +245,14 @@ mod tests {
 
     #[test]
     fn waiting_since() {
-        let doc = Document::new_markdown_default_curated("I have been waiting since two hours.");
+        let doc = Document::new_with_parser_and_language(
+            "I have been waiting since two hours.",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = SpelledNumberExpr
             .iter_matches_in_doc(&doc)
             .collect::<Vec<_>>();

@@ -13,7 +13,7 @@ use super::{Expr, SequenceExpr};
 /// use harper_core::expr::{FixedPhrase, Expr};
 /// use harper_core::{Document, LanguageFamily};
 ///
-/// let doc = Document::new_plain_english_curated("Hello, world!");
+/// let doc = Document::new_with_language("Hello, world!", LanguageFamily::English);
 /// let phrase = FixedPhrase::from_phrase_for("Hello, world!", LanguageFamily::English);
 /// assert!(phrase.run(0, doc.get_tokens(), doc.get_source()).is_some());
 /// # }
@@ -80,7 +80,8 @@ mod tests {
 
     #[test]
     fn from_phrase_for_matches_in_its_language() {
-        let doc = Document::new_plain_english_curated("I said hello, world.");
+        let doc =
+            Document::new_with_language("I said hello, world.", crate::LanguageFamily::English);
         let phrase = FixedPhrase::from_phrase_for("hello, world", crate::LanguageFamily::English);
         assert_eq!(
             phrase.run(4, doc.get_tokens(), doc.get_source()),
@@ -90,9 +91,9 @@ mod tests {
 
     #[test]
     fn test_not_case_sensitive() {
-        let doc_lower = Document::new_plain_english_curated("hello world");
-        let doc_upper = Document::new_plain_english_curated("HELLO WORLD");
-        let doc_title = Document::new_plain_english_curated("Hello World");
+        let doc_lower = Document::new_with_language("hello world", crate::LanguageFamily::English);
+        let doc_upper = Document::new_with_language("HELLO WORLD", crate::LanguageFamily::English);
+        let doc_title = Document::new_with_language("Hello World", crate::LanguageFamily::English);
         let phrase = FixedPhrase::from_document(&doc_lower);
         assert_eq!(
             phrase.run(0, doc_lower.get_tokens(), doc_title.get_source()),

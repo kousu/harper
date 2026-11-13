@@ -7,7 +7,6 @@ use strum_macros::EnumTryAs;
 use harper_asciidoc::AsciidocParser;
 use harper_comments::CommentParser;
 use harper_core::parsers::{Markdown, OrgMode, Parser};
-use harper_core::spell::Dictionary;
 use harper_core::{
     Document, LanguageFamily,
     parsers::{MarkdownOptions, PlainEnglish},
@@ -28,10 +27,9 @@ pub(crate) trait SingleInputTrait: InputTrait {
     fn load(
         &self,
         markdown_options: MarkdownOptions,
-        dictionary: &dyn Dictionary,
         language: LanguageFamily,
     ) -> anyhow::Result<(Document, Cow<'_, str>)> {
-        self.load_with_parser(&self.get_parser(markdown_options), dictionary, language)
+        self.load_with_parser(&self.get_parser(markdown_options), language)
     }
 
     /// Loads the contained file/string, as text in `language`, into a conventional format using
@@ -40,13 +38,10 @@ pub(crate) trait SingleInputTrait: InputTrait {
     fn load_with_parser(
         &self,
         parser: &dyn Parser,
-        dictionary: &dyn Dictionary,
         language: LanguageFamily,
     ) -> anyhow::Result<(Document, Cow<'_, str>)> {
         let text = self.get_content()?;
-        let document = match language {
-            LanguageFamily::English => Document::new(&text, &parser, &dictionary),
-        };
+        let document = Document::new_with_parser_and_language(text.as_ref(), &parser, language);
         Ok((document, text))
     }
 

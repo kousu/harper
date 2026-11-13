@@ -427,42 +427,42 @@ mod tests {
 
     #[test]
     fn car_is_singular_noun() {
-        let doc = Document::new_plain_english_curated("car");
+        let doc = Document::new_with_language("car", crate::LanguageFamily::English);
         let tk = &doc.tokens().next().unwrap().kind;
         assert!(tk.is_singular_noun());
     }
 
     #[test]
     fn traffic_is_mass_noun_only() {
-        let doc = Document::new_plain_english_curated("traffic");
+        let doc = Document::new_with_language("traffic", crate::LanguageFamily::English);
         let tk = &doc.tokens().next().unwrap().kind;
         assert!(tk.is_mass_noun_only());
     }
 
     #[test]
     fn equipment_is_mass_noun() {
-        let doc = Document::new_plain_english_curated("equipment");
+        let doc = Document::new_with_language("equipment", crate::LanguageFamily::English);
         let tk = &doc.tokens().next().unwrap().kind;
         assert!(tk.is_mass_noun());
     }
 
     #[test]
     fn equipment_is_non_countable_noun() {
-        let doc = Document::new_plain_english_curated("equipment");
+        let doc = Document::new_with_language("equipment", crate::LanguageFamily::English);
         let tk = &doc.tokens().next().unwrap().kind;
         assert!(tk.is_non_countable_noun());
     }
 
     #[test]
     fn equipment_isnt_countable_noun() {
-        let doc = Document::new_plain_english_curated("equipment");
+        let doc = Document::new_with_language("equipment", crate::LanguageFamily::English);
         let tk = &doc.tokens().next().unwrap().kind;
         assert!(!tk.is_countable_noun());
     }
 
     #[test]
     fn ate_is_simple_past_only() {
-        let doc = Document::new_plain_english_curated("ate");
+        let doc = Document::new_with_language("ate", crate::LanguageFamily::English);
         let tk = &doc.tokens().next().unwrap().kind;
         assert!(tk.is_verb_simple_past_only());
         assert!(!tk.is_verb_past_participle_only());
@@ -470,7 +470,7 @@ mod tests {
 
     #[test]
     fn eaten_is_past_participle_only() {
-        let doc = Document::new_plain_english_curated("eaten");
+        let doc = Document::new_with_language("eaten", crate::LanguageFamily::English);
         let tk = &doc.tokens().next().unwrap().kind;
         assert!(tk.is_verb_past_participle_only());
         assert!(!tk.is_verb_simple_past_only());
@@ -478,28 +478,28 @@ mod tests {
 
     #[test]
     fn thought_is_regular_past_form() {
-        let doc = Document::new_plain_english_curated("thought");
+        let doc = Document::new_with_language("thought", crate::LanguageFamily::English);
         let tk = &doc.tokens().next().unwrap().kind;
         assert!(tk.is_verb_preterite_and_participle_form());
     }
 
     #[test]
     fn oov_word_is_oov() {
-        let doc = Document::new_plain_english_curated("nonexistentword");
+        let doc = Document::new_with_language("nonexistentword", crate::LanguageFamily::English);
         let tk = &doc.tokens().next().unwrap().kind;
         assert!(tk.is_oov());
     }
 
     #[test]
     fn known_word_is_not_oov() {
-        let doc = Document::new_plain_english_curated("car");
+        let doc = Document::new_with_language("car", crate::LanguageFamily::English);
         let tk = &doc.tokens().next().unwrap().kind;
         assert!(!tk.is_oov());
     }
 
     #[test]
     fn non_word_tokens_are_not_oov() {
-        let doc = Document::new_plain_english_curated("Hello, world!");
+        let doc = Document::new_with_language("Hello, world!", crate::LanguageFamily::English);
         let tokens: Vec<_> = doc.tokens().collect();
 
         // Comma should not be OOV

@@ -272,7 +272,7 @@ mod tests {
 
     #[test]
     fn to_char_span_converts_correctly() {
-        let doc = Document::new_plain_english_curated("Hello world!");
+        let doc = Document::new_with_language("Hello world!", crate::LanguageFamily::English);
 
         // Empty span.
         let token_span = Span::ZERO;

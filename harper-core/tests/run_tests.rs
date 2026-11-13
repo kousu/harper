@@ -21,7 +21,7 @@ macro_rules! create_test {
                 );
 
                 let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
-                let document = Document::new_markdown_default(&source, &dict);
+                let document = Document::new_with_parser_and_language(&source, &harper_core::parsers::Markdown::with_language(harper_core::parsers::MarkdownOptions::default(), harper_core::LanguageFamily::English), harper_core::LanguageFamily::English);
 
                 let mut linter = LintGroup::new_curated_for_language(dict, harper_core::Language::English($dialect));
                 let lints = linter.lint(&document);
@@ -53,7 +53,7 @@ macro_rules! create_org_test {
                 );
 
                 let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
-                let document = Document::new(&source, &OrgMode::default(), &dict);
+                let document = Document::new_with_parser_and_language(&source, &OrgMode::default(), harper_core::LanguageFamily::English);
 
                 let mut linter = LintGroup::new_curated_for_language(dict, harper_core::Language::English($dialect));
                 let lints = linter.lint(&document);

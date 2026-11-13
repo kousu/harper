@@ -18,7 +18,7 @@ impl SimilarToPhrase {
     #[deprecated(note = "use `SimilarToPhrase::from_phrase_for` with the phrase's language")]
     #[cfg(feature = "en")]
     pub fn from_phrase(text: &str, max_edit_dist: u8) -> Self {
-        let document = Document::new_plain_english_curated(text);
+        let document = Document::new_with_language(text, crate::LanguageFamily::English);
 
         Self::from_doc(&document, max_edit_dist)
     }

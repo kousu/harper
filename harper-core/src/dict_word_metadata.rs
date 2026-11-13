@@ -1289,7 +1289,8 @@ pub mod tests {
 
         #[test]
         fn guess_british_dialect() {
-            let document = Document::new_plain_english_curated("Aluminium was used.");
+            let document =
+                Document::new_with_language("Aluminium was used.", crate::LanguageFamily::English);
             let df = EnglishDialectFlags::get_most_used_dialects_from_document(&document);
             assert!(
                 df.is_dialect_enabled_strict(EnglishDialect::British)
@@ -1299,7 +1300,8 @@ pub mod tests {
 
         #[test]
         fn guess_american_dialect() {
-            let document = Document::new_plain_english_curated("Aluminum was used.");
+            let document =
+                Document::new_with_language("Aluminum was used.", crate::LanguageFamily::English);
             let df = EnglishDialectFlags::get_most_used_dialects_from_document(&document);
             assert!(
                 df.is_dialect_enabled_strict(EnglishDialect::American)

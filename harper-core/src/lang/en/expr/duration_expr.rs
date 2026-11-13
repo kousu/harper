@@ -51,22 +51,41 @@ pub mod tests {
 
     #[test]
     fn detect_10_days() {
-        let doc = Document::new_markdown_default_curated("Is 10 days a long time?");
+        let doc = Document::new_with_parser_and_language(
+            "Is 10 days a long time?",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = DurationExpr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["10 days"]);
     }
 
     #[test]
     fn detect_ten_days() {
-        let doc = Document::new_markdown_default_curated("I think ten days is a long time.");
+        let doc = Document::new_with_parser_and_language(
+            "I think ten days is a long time.",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = DurationExpr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["ten days"]);
     }
 
     #[test]
     fn detect_a_few_months() {
-        let doc = Document::new_markdown_default_curated(
+        let doc = Document::new_with_parser_and_language(
             "I am struggling since a few months with the rebuild of an old FORTRAN program.",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
         );
         let matches = DurationExpr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["a few months"]);

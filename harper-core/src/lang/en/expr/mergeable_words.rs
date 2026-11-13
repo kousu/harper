@@ -117,7 +117,7 @@ mod tests {
     #[test]
     fn merges_open_compound_not_in_dict() {
         // note book is not in the dictionary, but notebook is
-        let doc = Document::new_plain_english_curated("note book");
+        let doc = Document::new_with_language("note book", crate::LanguageFamily::English);
         let a = doc.tokens().next().unwrap();
         let b = doc.tokens().nth(2).unwrap();
 
@@ -129,7 +129,7 @@ mod tests {
     #[test]
     fn does_not_merge_open_compound_in_dict() {
         // straight away is in the dictionary, and straightaway is
-        let doc = Document::new_plain_english_curated("straight away");
+        let doc = Document::new_with_language("straight away", crate::LanguageFamily::English);
         let a = doc.tokens().next().unwrap();
         let b = doc.tokens().nth(2).unwrap();
 
@@ -141,7 +141,7 @@ mod tests {
     #[test]
     fn does_not_merge_invalid_compound() {
         // neither quick for nor quickfox are in the dictionary
-        let doc = Document::new_plain_english_curated("quick fox");
+        let doc = Document::new_with_language("quick fox", crate::LanguageFamily::English);
         let a = doc.tokens().next().unwrap();
         let b = doc.tokens().nth(2).unwrap();
 
@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn merges_open_compound() {
         // Dictionary has "frontline" but not "front line"
-        let doc = Document::new_plain_english_curated("front line");
+        let doc = Document::new_with_language("front line", crate::LanguageFamily::English);
         let a = doc.tokens().next().unwrap();
         let b = doc.tokens().nth(2).unwrap();
 
@@ -165,7 +165,7 @@ mod tests {
     #[test]
     fn merges_hyphenated_compound() {
         // Doesn't check for "front-line" in the dictionary but matches it and "frontline" is in the dictionary
-        let doc = Document::new_plain_english_curated("front-line");
+        let doc = Document::new_with_language("front-line", crate::LanguageFamily::English);
         let a = doc.tokens().next().unwrap();
         let b = doc.tokens().nth(2).unwrap();
 

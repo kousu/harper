@@ -83,7 +83,6 @@
 //! - All other token kinds are denoted by their variant name.
 use std::borrow::Cow;
 
-use harper_core::spell::FstDictionary;
 use harper_core::{
     Degree, DictWordMetadata, Document, EnglishDialect, OrthFlags, TokenKind, VerbFormFlags,
     WordDialects,
@@ -381,8 +380,14 @@ impl Formatter {
 #[test]
 fn test_pos_tagger() {
     snapshot::snapshot_all_text_files("tagged", ".md", |source, _| {
-        let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
-        let document = Document::new_markdown_default(source, &dict);
+        let document = Document::new_with_parser_and_language(
+            source,
+            &harper_core::parsers::Markdown::with_language(
+                harper_core::parsers::MarkdownOptions::default(),
+                harper_core::LanguageFamily::English,
+            ),
+            harper_core::LanguageFamily::English,
+        );
 
         let mut formatter = Formatter::new();
         for token in document.fat_string_tokens() {

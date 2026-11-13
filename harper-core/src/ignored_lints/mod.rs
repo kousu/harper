@@ -79,7 +79,14 @@ mod tests {
 
     #[quickcheck]
     fn can_ignore_all(text: String) -> bool {
-        let document = Document::new_markdown_default_curated(&text);
+        let document = Document::new_with_parser_and_language(
+            &text,
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
 
         let mut lints = test_linter().lint(&document);
 
@@ -95,7 +102,14 @@ mod tests {
 
     #[quickcheck]
     fn can_ignore_first(text: String) -> TestResult {
-        let document = Document::new_markdown_default_curated(&text);
+        let document = Document::new_with_parser_and_language(
+            &text,
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
 
         let mut lints = test_linter().lint(&document);
 
@@ -113,7 +127,14 @@ mod tests {
 
     // Check that ignoring the nth lint found in source text actually removes it (and no others).
     fn assert_ignore_lint_reduction(source: &str, nth_lint: usize) {
-        let document = Document::new_markdown_default_curated(source);
+        let document = Document::new_with_parser_and_language(
+            source,
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
 
         let mut lints = test_linter().lint(&document);
 

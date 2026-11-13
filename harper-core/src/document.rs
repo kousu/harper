@@ -8,20 +8,83 @@ use itertools::Itertools;
 #[cfg(feature = "en")]
 use crate::EnglishOrdinalSuffix;
 use crate::expr::{Expr, ExprExt, FirstMatchOf, Repeating, SequenceExpr};
+use crate::lexers::{Lexer, PlainText};
 use crate::parsers::Parser;
 #[cfg(feature = "en")]
 use crate::parsers::{Markdown, MarkdownOptions, PlainEnglish};
 use crate::punctuation::Punctuation;
 use crate::spell::Dictionary;
+use crate::spell::FstDictionary;
 use crate::vec_ext::VecExt;
 use crate::{CharStringExt, FatStringToken, FatToken, Lrc, Token, TokenKind, TokenStringExt};
 use crate::{LanguageFamily, Span};
 
-/// A document containing some amount of lexed and parsed English text.
+/// Text that a [`Document`] can be built from: a string, or text that is already a slice of
+/// characters (which avoids converting it again).
+pub trait DocumentText {
+    /// The text as characters.
+    fn into_chars(self) -> Lrc<[char]>;
+}
+
+impl DocumentText for &str {
+    fn into_chars(self) -> Lrc<[char]> {
+        self.chars().collect()
+    }
+}
+
+impl DocumentText for &String {
+    fn into_chars(self) -> Lrc<[char]> {
+        self.chars().collect()
+    }
+}
+
+impl DocumentText for &&str {
+    fn into_chars(self) -> Lrc<[char]> {
+        self.chars().collect()
+    }
+}
+
+impl DocumentText for &&String {
+    fn into_chars(self) -> Lrc<[char]> {
+        self.chars().collect()
+    }
+}
+
+impl DocumentText for &[char] {
+    fn into_chars(self) -> Lrc<[char]> {
+        Lrc::from(self)
+    }
+}
+
+impl DocumentText for Vec<char> {
+    fn into_chars(self) -> Lrc<[char]> {
+        self.into()
+    }
+}
+
+impl DocumentText for &Vec<char> {
+    fn into_chars(self) -> Lrc<[char]> {
+        Lrc::from(self.as_slice())
+    }
+}
+
+impl DocumentText for Lrc<[char]> {
+    fn into_chars(self) -> Lrc<[char]> {
+        self
+    }
+}
+
+/// A document containing some amount of lexed and parsed text, in one language.
+///
+/// Build one with [`Document::new`], [`Document::new_with_parser`],
+/// [`Document::new_with_language`] or [`Document::new_with_parser_and_language`]. The language
+/// decides the lexer, the curated dictionary and the tagger; when it isn't given, it is guessed
+/// from the text (see [`Document::language`]).
 #[derive(Debug, Clone)]
 pub struct Document {
     source: Lrc<[char]>,
     tokens: Vec<Token>,
+    language: Option<LanguageFamily>,
 }
 
 /// Tag each word of a sentence with its part of speech, and mark which words are in a noun phrase.
@@ -30,11 +93,18 @@ fn tag_and_chunk(sentence: &[String], language: LanguageFamily) -> (Vec<Option<U
 }
 
 /// An empty document, in no particular language.
+/// The language `text` is in, or the first built-in language when that can't be told.
+fn guess(text: &[char]) -> Option<LanguageFamily> {
+    let text: String = text.iter().collect();
+    crate::parsers::prose::guessed_or_first_language(&text)
+}
+
 impl Default for Document {
     fn default() -> Self {
         Self {
             source: Lrc::from([]),
             tokens: Vec::new(),
+            language: None,
         }
     }
 }
@@ -62,25 +132,101 @@ impl Document {
             .collect()
     }
 
-    #[cfg(feature = "en")]
-    /// Lexes and parses text to produce a document using a provided language
-    /// parser and dictionary.
-    pub fn new(text: &str, parser: &impl Parser, dictionary: &impl Dictionary) -> Self {
-        let source: Lrc<_> = text.chars().collect();
+    /// A document of plain text, in the language guessed from it.
+    ///
+    /// The language is guessed with [`guess_language`](crate::language_detection::guess_language);
+    /// when it can't tell, the first language built into Harper is used (English, when it's built
+    /// in). [`Self::language`] says which one was picked.
+    pub fn new(text: impl DocumentText) -> Self {
+        let source = text.into_chars();
+        let language = guess(&source);
+        let tokens = Self::lex_plain(&source, language);
+        Self::build(source, tokens, language)
+    }
 
-        Self::new_from_chars(source, parser, dictionary)
+    /// A document in the format `parser` reads (such as [`Markdown`](crate::parsers::Markdown)), in the language guessed
+    /// from its prose, as for [`Self::new`].
+    pub fn new_with_parser(text: impl DocumentText, parser: &impl Parser) -> Self {
+        let source = text.into_chars();
+        let tokens = parser.parse(&source);
+        let prose: Vec<char> = tokens
+            .iter()
+            .filter(|t| !matches!(t.kind, TokenKind::Unlintable))
+            .flat_map(|t| t.get_ch(&source).iter().copied())
+            .collect();
+        let language = guess(&prose);
+        Self::build(source, tokens, language)
+    }
+
+    /// A document of plain text in `language`.
+    // With no language built in, `LanguageFamily` has no values, so these can't be called.
+    #[cfg_attr(not(feature = "en"), allow(unreachable_code, unused_variables))]
+    pub fn new_with_language(text: impl DocumentText, language: impl Into<LanguageFamily>) -> Self {
+        let source = text.into_chars();
+        let language = Some(language.into());
+        let tokens = Self::lex_plain(&source, language);
+        Self::build(source, tokens, language)
+    }
+
+    /// A document in the format `parser` reads (such as [`Markdown`](crate::parsers::Markdown)),
+    /// in `language`.
+    ///
+    /// Build `parser` for the same language, since the parser still lexes the prose it finds.
+    // With no language built in, `LanguageFamily` has no values, so these can't be called.
+    #[cfg_attr(not(feature = "en"), allow(unreachable_code, unused_variables))]
+    pub fn new_with_parser_and_language(
+        text: impl DocumentText,
+        parser: &impl Parser,
+        language: impl Into<LanguageFamily>,
+    ) -> Self {
+        let source = text.into_chars();
+        let tokens = parser.parse(&source);
+        Self::build(source, tokens, Some(language.into()))
+    }
+
+    /// The language of this document: the one it was built for, or the one guessed from its
+    /// text. `None` only when Harper is built without any language.
+    pub fn language(&self) -> Option<LanguageFamily> {
+        self.language
+    }
+
+    fn lex_plain(source: &[char], language: Option<LanguageFamily>) -> Vec<Token> {
+        match language {
+            Some(language) => language.lexer().lex(source),
+            None => PlainText.lex(source),
+        }
+    }
+
+    fn build(source: Lrc<[char]>, tokens: Vec<Token>, language: Option<LanguageFamily>) -> Self {
+        let mut document = Self {
+            source,
+            tokens,
+            language,
+        };
+        match language {
+            Some(language) => {
+                document.parse(&FstDictionary::curated_for(language), language);
+            }
+            None => document.apply_fixups(None),
+        }
+        document
     }
 
     #[cfg(feature = "en")]
+    #[deprecated(note = "use `Document::new_with_parser_and_language`")]
     /// Lexes and parses text to produce a document using a provided language
     /// parser and the included curated dictionary.
     pub fn new_curated(text: &str, parser: &impl Parser) -> Self {
         let source: Lrc<_> = text.chars().collect();
 
+        #[allow(deprecated)]
         Self::new_from_chars(source, parser, &crate::lang::en::dictionary::dictionary())
     }
 
     #[cfg(feature = "en")]
+    #[deprecated(
+        note = "use `Document::new_with_parser_and_language`, which uses the language's curated dictionary; give other dictionaries to the linter"
+    )]
     /// Lexes and parses text to produce a document using a provided language
     /// parser and dictionary.
     pub fn new_from_chars(
@@ -100,13 +246,19 @@ impl Document {
     ) -> Self {
         let tokens = parser.parse(&source);
 
-        let mut document = Self { source, tokens };
+        let mut document = Self {
+            source,
+            tokens,
+            language: Some(language),
+        };
         document.parse(dictionary, language);
 
         document
     }
 
     #[cfg(feature = "en")]
+    #[deprecated(note = "use `Document::new_with_language(chars, LanguageFamily::English)`")]
+    #[allow(deprecated)]
     /// Create a new document from character data using the built-in [`PlainEnglish`]
     /// parser and curated dictionary. This avoids string-to-char conversions.
     pub fn new_plain_english_curated_chars(source: &[char]) -> Self {
@@ -118,11 +270,13 @@ impl Document {
     }
 
     #[cfg(feature = "en")]
+    #[deprecated(note = "use `Document::new_with_language(text, LanguageFamily::English)`")]
+    #[allow(deprecated)]
     /// Parse text to produce a document using the built-in [`PlainEnglish`]
     /// parser and curated dictionary.
     pub fn new_plain_english_curated(text: &str) -> Self {
-        Self::new(
-            text,
+        Self::new_from_chars(
+            text.chars().collect(),
             &PlainEnglish,
             &crate::lang::en::dictionary::dictionary(),
         )
@@ -140,7 +294,11 @@ impl Document {
     ) -> Self {
         let source: Lrc<_> = text.chars().collect();
         let tokens = parser.parse(&source);
-        let mut document = Self { source, tokens };
+        let mut document = Self {
+            source,
+            tokens,
+            language: Some(language),
+        };
         document.apply_fixups(Some(language));
         document
     }
@@ -152,24 +310,36 @@ impl Document {
     }
 
     #[cfg(feature = "en")]
+    #[deprecated(
+        note = "use `Document::new_with_language(text, LanguageFamily::English)`; give other dictionaries to the linter"
+    )]
+    #[allow(deprecated)]
     /// Parse text to produce a document using the built-in [`PlainEnglish`]
     /// parser and a provided dictionary.
     pub fn new_plain_english(text: &str, dictionary: &impl Dictionary) -> Self {
-        Self::new(text, &PlainEnglish, dictionary)
+        Self::new_from_chars(text.chars().collect(), &PlainEnglish, dictionary)
     }
 
     #[cfg(feature = "en")]
+    #[deprecated(
+        note = "use `Document::new_with_parser_and_language` with `Markdown::with_language`"
+    )]
+    #[allow(deprecated)]
     /// Parse text to produce a document using the built-in [`Markdown`] parser
     /// and curated dictionary.
     pub fn new_markdown_curated(text: &str, markdown_options: MarkdownOptions) -> Self {
-        Self::new(
-            text,
+        Self::new_from_chars(
+            text.chars().collect(),
             &Markdown::with_language(markdown_options, LanguageFamily::English),
             &crate::lang::en::dictionary::dictionary(),
         )
     }
 
     #[cfg(feature = "en")]
+    #[deprecated(
+        note = "use `Document::new_with_parser_and_language` with `Markdown::with_language`"
+    )]
+    #[allow(deprecated)]
     /// Create a new document from character data using the built-in [`Markdown`] parser
     /// and curated dictionary. This avoids string-to-char conversions.
     pub fn new_markdown_default_curated_chars(chars: &[char]) -> Self {
@@ -181,6 +351,10 @@ impl Document {
     }
 
     #[cfg(feature = "en")]
+    #[deprecated(
+        note = "use `Document::new_with_parser_and_language` with `Markdown::with_language`"
+    )]
+    #[allow(deprecated)]
     /// Parse text to produce a document using the built-in [`Markdown`] parser
     /// and curated dictionary with the default Markdown configuration.
     pub fn new_markdown_default_curated(text: &str) -> Self {
@@ -188,6 +362,10 @@ impl Document {
     }
 
     #[cfg(feature = "en")]
+    #[deprecated(
+        note = "use `Document::new_with_parser_and_language` with `Markdown::with_language`; give other dictionaries to the linter"
+    )]
+    #[allow(deprecated)]
     /// Parse text to produce a document using the built-in [`PlainEnglish`]
     /// parser and the curated dictionary.
     pub fn new_markdown(
@@ -195,14 +373,18 @@ impl Document {
         markdown_options: MarkdownOptions,
         dictionary: &impl Dictionary,
     ) -> Self {
-        Self::new(
-            text,
+        Self::new_from_chars(
+            text.chars().collect(),
             &Markdown::with_language(markdown_options, LanguageFamily::English),
             dictionary,
         )
     }
 
     #[cfg(feature = "en")]
+    #[deprecated(
+        note = "use `Document::new_with_parser_and_language` with `Markdown::with_language`; give other dictionaries to the linter"
+    )]
+    #[allow(deprecated)]
     /// Parse text to produce a document using the built-in [`PlainEnglish`]
     /// parser and the curated dictionary with the default Markdown configuration.
     pub fn new_markdown_default(text: &str, dictionary: &impl Dictionary) -> Self {
@@ -1025,12 +1207,62 @@ mod tests {
     use crate::TokenStringExt;
     use crate::{Span, parsers::MarkdownOptions};
 
+    #[test]
+    #[allow(deprecated)]
+    fn english_constructor_matches_language_constructor() {
+        use crate::LanguageFamily;
+        use crate::parsers::PlainEnglish;
+        use crate::spell::FstDictionary;
+
+        let text = "The cat eats the mouse.";
+        let old = Document::new_from_chars(
+            text.chars().collect(),
+            &PlainEnglish,
+            &FstDictionary::curated(),
+        );
+        let new = Document::new_with_language(text, LanguageFamily::English);
+
+        assert_eq!(old.tokens, new.tokens);
+    }
+
+    #[test]
+    fn guesses_english() {
+        let document = Document::new("The cat eats the mouse.");
+        assert_eq!(document.language(), Some(crate::LanguageFamily::English));
+    }
+
+    #[test]
+    fn guesses_from_parsed_prose() {
+        let document = Document::new_with_parser(
+            "# The cat\n\nIt eats the `mouse`.",
+            &crate::parsers::Markdown::default(),
+        );
+        assert_eq!(document.language(), Some(crate::LanguageFamily::English));
+        assert!(document.iter_words().count() >= 4);
+    }
+
+    #[test]
+    fn str_and_chars_give_the_same_document() {
+        let text = "The cat eats the mouse.";
+        let chars: Vec<char> = text.chars().collect();
+        let from_str = Document::new_with_language(text, crate::LanguageFamily::English);
+        let from_chars = Document::new_with_language(&chars[..], crate::LanguageFamily::English);
+        assert_eq!(from_str.tokens, from_chars.tokens);
+    }
+
     fn assert_condensed_contractions(text: &str, final_tok_count: usize) {
-        let document = Document::new_plain_english_curated(text);
+        let document = Document::new_with_language(text, crate::LanguageFamily::English);
 
         assert_eq!(document.tokens.len(), final_tok_count);
 
-        let document = Document::new_markdown_curated(text, MarkdownOptions::default());
+        let document = Document::new_with_parser_and_language(
+            text,
+            &crate::parsers::Markdown::with_language(
+                MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
 
         assert_eq!(document.tokens.len(), final_tok_count);
     }
@@ -1068,7 +1300,7 @@ mod tests {
     #[test]
     fn selects_token_at_char_index() {
         let text = "There were three little pigs. They built three little homes.";
-        let document = Document::new_plain_english_curated(text);
+        let document = Document::new_with_language(text, crate::LanguageFamily::English);
 
         let got = document.get_token_at_char_index(19).unwrap();
 
@@ -1077,7 +1309,7 @@ mod tests {
     }
 
     fn assert_token_count(source: &str, count: usize) {
-        let document = Document::new_plain_english_curated(source);
+        let document = Document::new_with_language(source, crate::LanguageFamily::English);
 
         dbg!(document.tokens().map(|t| t.kind.clone()).collect_vec());
         assert_eq!(document.tokens.len(), count);
@@ -1129,7 +1361,7 @@ mod tests {
 
     #[test]
     fn selects_token_at_offset() {
-        let doc = Document::new_plain_english_curated("Foo bar baz");
+        let doc = Document::new_with_language("Foo bar baz", crate::LanguageFamily::English);
 
         let tok = doc.get_token_offset(1, -1).unwrap();
 
@@ -1138,7 +1370,7 @@ mod tests {
 
     #[test]
     fn cant_select_token_before_start() {
-        let doc = Document::new_plain_english_curated("Foo bar baz");
+        let doc = Document::new_with_language("Foo bar baz", crate::LanguageFamily::English);
 
         let tok = doc.get_token_offset(0, -1);
 
@@ -1147,7 +1379,7 @@ mod tests {
 
     #[test]
     fn select_next_word_pos_offset() {
-        let doc = Document::new_plain_english_curated("Foo bar baz");
+        let doc = Document::new_with_language("Foo bar baz", crate::LanguageFamily::English);
 
         let bar = doc.get_next_word_from_offset(0, 1).unwrap();
         let bar = doc.get_span_content(&bar.span);
@@ -1156,7 +1388,7 @@ mod tests {
 
     #[test]
     fn select_next_word_neg_offset() {
-        let doc = Document::new_plain_english_curated("Foo bar baz");
+        let doc = Document::new_with_language("Foo bar baz", crate::LanguageFamily::English);
 
         let bar = doc.get_next_word_from_offset(2, -1).unwrap();
         let bar = doc.get_span_content(&bar.span);
@@ -1165,7 +1397,7 @@ mod tests {
 
     #[test]
     fn cant_select_next_word_not_from_whitespace() {
-        let doc = Document::new_plain_english_curated("Foo bar baz");
+        let doc = Document::new_with_language("Foo bar baz", crate::LanguageFamily::English);
 
         let tok = doc.get_next_word_from_offset(0, 2);
 
@@ -1174,7 +1406,7 @@ mod tests {
 
     #[test]
     fn cant_select_next_word_before_start() {
-        let doc = Document::new_plain_english_curated("Foo bar baz");
+        let doc = Document::new_with_language("Foo bar baz", crate::LanguageFamily::English);
 
         let tok = doc.get_next_word_from_offset(0, -1);
 
@@ -1183,7 +1415,7 @@ mod tests {
 
     #[test]
     fn cant_select_next_word_with_punctuation_instead_of_whitespace() {
-        let doc = Document::new_plain_english_curated("Foo, bar, baz");
+        let doc = Document::new_with_language("Foo, bar, baz", crate::LanguageFamily::English);
 
         let tok = doc.get_next_word_from_offset(0, 1);
 
@@ -1192,7 +1424,7 @@ mod tests {
 
     #[test]
     fn cant_select_next_word_with_punctuation_after_whitespace() {
-        let doc = Document::new_plain_english_curated("Foo \"bar\", baz");
+        let doc = Document::new_with_language("Foo \"bar\", baz", crate::LanguageFamily::English);
 
         let tok = doc.get_next_word_from_offset(0, 1);
 
@@ -1201,7 +1433,8 @@ mod tests {
 
     #[test]
     fn condenses_filename_extensions() {
-        let doc = Document::new_plain_english_curated(".c and .exe and .js");
+        let doc =
+            Document::new_with_language(".c and .exe and .js", crate::LanguageFamily::English);
         assert!(doc.tokens[0].kind.is_unlintable());
         assert!(doc.tokens[4].kind.is_unlintable());
         assert!(doc.tokens[8].kind.is_unlintable());
@@ -1209,7 +1442,7 @@ mod tests {
 
     #[test]
     fn condense_filename_extension_ok_at_start_and_end() {
-        let doc = Document::new_plain_english_curated(".c and .EXE");
+        let doc = Document::new_with_language(".c and .EXE", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 5);
         assert!(doc.tokens[0].kind.is_unlintable());
         assert!(doc.tokens[4].kind.is_unlintable());
@@ -1217,7 +1450,7 @@ mod tests {
 
     #[test]
     fn doesnt_condense_filename_extensions_with_mixed_case() {
-        let doc = Document::new_plain_english_curated(".c and .Exe");
+        let doc = Document::new_with_language(".c and .Exe", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 6);
         assert!(doc.tokens[0].kind.is_unlintable());
         assert!(doc.tokens[4].kind.is_punctuation());
@@ -1226,7 +1459,7 @@ mod tests {
 
     #[test]
     fn doesnt_condense_filename_extensions_with_non_letters() {
-        let doc = Document::new_plain_english_curated(".COM and .C0M");
+        let doc = Document::new_with_language(".COM and .C0M", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 6);
         assert!(doc.tokens[0].kind.is_unlintable());
         assert!(doc.tokens[4].kind.is_punctuation());
@@ -1235,7 +1468,7 @@ mod tests {
 
     #[test]
     fn doesnt_condense_filename_extensions_longer_than_three() {
-        let doc = Document::new_plain_english_curated(".dll and .dlls");
+        let doc = Document::new_with_language(".dll and .dlls", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 6);
         assert!(doc.tokens[0].kind.is_unlintable());
         assert!(doc.tokens[4].kind.is_punctuation());
@@ -1244,8 +1477,9 @@ mod tests {
 
     #[test]
     fn condense_filename_extension_in_parens() {
-        let doc = Document::new_plain_english_curated(
+        let doc = Document::new_with_language(
             "true for the manual installation when trying to run the executable(.exe) after a manual download",
+            crate::LanguageFamily::English,
         );
         assert!(doc.tokens.len() > 23);
         assert!(doc.tokens[21].kind.is_open_round());
@@ -1255,7 +1489,7 @@ mod tests {
 
     #[test]
     fn condense_tldr_uppercase() {
-        let doc = Document::new_plain_english_curated("TL;DR");
+        let doc = Document::new_with_language("TL;DR", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 1);
         assert!(doc.tokens[0].kind.is_word());
         assert!(doc.tokens[0].span.len() == 5);
@@ -1263,29 +1497,30 @@ mod tests {
 
     #[test]
     fn condense_tldr_lowercase() {
-        let doc = Document::new_plain_english_curated("tl;dr");
+        let doc = Document::new_with_language("tl;dr", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 1);
         assert!(doc.tokens[0].kind.is_word());
     }
 
     #[test]
     fn condense_tldr_mixed_case_1() {
-        let doc = Document::new_plain_english_curated("tl;DR");
+        let doc = Document::new_with_language("tl;DR", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 1);
         assert!(doc.tokens[0].kind.is_word());
     }
 
     #[test]
     fn condense_tldr_mixed_case_2() {
-        let doc = Document::new_plain_english_curated("TL;Dr");
+        let doc = Document::new_with_language("TL;Dr", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 1);
         assert!(doc.tokens[0].kind.is_word());
     }
 
     #[test]
     fn condense_tldr_pural() {
-        let doc = Document::new_plain_english_curated(
+        let doc = Document::new_with_language(
             "managing the flow between components to produce relevant TL;DRs of current news articles",
+            crate::LanguageFamily::English,
         );
         // no token is a punctuation token - only words with whitespace between
         assert!(
@@ -1305,7 +1540,8 @@ mod tests {
 
     #[test]
     fn condense_common_top_level_domains() {
-        let doc = Document::new_plain_english_curated(".blog and .com and .NET");
+        let doc =
+            Document::new_with_language(".blog and .com and .NET", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 9);
         assert!(doc.tokens[0].kind.is_unlintable());
         assert!(doc.tokens[4].kind.is_unlintable());
@@ -1314,7 +1550,7 @@ mod tests {
 
     #[test]
     fn condense_common_top_level_domains_in_parens() {
-        let doc = Document::new_plain_english_curated("(.blog)");
+        let doc = Document::new_with_language("(.blog)", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 3);
         assert!(doc.tokens[0].kind.is_open_round());
         assert!(doc.tokens[1].kind.is_unlintable());
@@ -1323,7 +1559,7 @@ mod tests {
 
     #[test]
     fn doesnt_condense_unknown_top_level_domains() {
-        let doc = Document::new_plain_english_curated(".harper");
+        let doc = Document::new_with_language(".harper", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 2);
         assert!(doc.tokens[0].kind.is_punctuation());
         assert!(doc.tokens[1].kind.is_word());
@@ -1331,28 +1567,28 @@ mod tests {
 
     #[test]
     fn condense_r_and_d_caps() {
-        let doc = Document::new_plain_english_curated("R&D");
+        let doc = Document::new_with_language("R&D", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 1);
         assert!(doc.tokens[0].kind.is_word());
     }
 
     #[test]
     fn condense_r_and_d_mixed_case() {
-        let doc = Document::new_plain_english_curated("R&d");
+        let doc = Document::new_with_language("R&d", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 1);
         assert!(doc.tokens[0].kind.is_word());
     }
 
     #[test]
     fn condense_r_and_d_lowercase() {
-        let doc = Document::new_plain_english_curated("r&d");
+        let doc = Document::new_with_language("r&d", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 1);
         assert!(doc.tokens[0].kind.is_word());
     }
 
     #[test]
     fn dont_condense_r_and_d_with_spaces() {
-        let doc = Document::new_plain_english_curated("R & D");
+        let doc = Document::new_with_language("R & D", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 5);
         assert!(doc.tokens[0].kind.is_word());
         assert!(doc.tokens[1].kind.is_whitespace());
@@ -1363,8 +1599,10 @@ mod tests {
 
     #[test]
     fn condense_q_and_a() {
-        let doc =
-            Document::new_plain_english_curated("A Q&A platform software for teams at any scales.");
+        let doc = Document::new_with_language(
+            "A Q&A platform software for teams at any scales.",
+            crate::LanguageFamily::English,
+        );
         assert!(doc.tokens.len() >= 3);
         assert!(doc.tokens[2].kind.is_word());
         assert!(doc.tokens[2].get_str(&doc.source) == "Q&A");
@@ -1372,14 +1610,14 @@ mod tests {
 
     #[test]
     fn dont_allow_mixed_r_and_d_with_q_and_a() {
-        let doc = Document::new_plain_english_curated("R&A or Q&D");
+        let doc = Document::new_with_language("R&A or Q&D", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 9);
         assert!(doc.tokens[1].kind.is_ampersand() || doc.tokens[7].kind.is_ampersand());
     }
 
     #[test]
     fn condense_io() {
-        let doc = Document::new_plain_english_curated("I/O");
+        let doc = Document::new_with_language("I/O", crate::LanguageFamily::English);
         assert!(doc.tokens.len() == 1);
         assert!(doc.tokens[0].kind.is_word());
     }
@@ -1396,7 +1634,14 @@ This is a third paragraph with a single erroneous "quote.
 This is a final paragraph with a weird "quote and a not-weird "quote".
             "#;
 
-        let doc = Document::new_markdown_default_curated(raw);
+        let doc = Document::new_with_parser_and_language(
+            raw,
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
 
         let quote_twins: Vec<_> = doc
             .iter_quotes()
@@ -1418,7 +1663,14 @@ This is a final paragraph with a weird "quote and a not-weird "quote".
 "The last quoted line"
             "#;
 
-        let doc = Document::new_markdown_default_curated(raw);
+        let doc = Document::new_with_parser_and_language(
+            raw,
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
 
         let quote_twins: Vec<_> = doc
             .iter_quotes()

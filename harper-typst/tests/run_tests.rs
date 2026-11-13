@@ -18,7 +18,7 @@ macro_rules! create_test {
                  );
 
                  let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
-                 let document = Document::new(&source, &Typst::default(), &dict);
+                 let document = Document::new_with_parser_and_language(&source, &Typst::default(), harper_core::LanguageFamily::English);
 
                  let mut linter = LintGroup::new_curated_for_language(dict, harper_core::Language::English(EnglishDialect::American));
                  let lints = linter.lint(&document);

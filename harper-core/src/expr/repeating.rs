@@ -60,8 +60,9 @@ mod tests {
 
     #[test]
     fn matches_anything() {
-        let doc = Document::new_plain_english_curated(
+        let doc = Document::new_with_language(
             "This matcher will match the entirety of any document!",
+            crate::LanguageFamily::English,
         );
         let pat = Repeating::new(Box::new(SequenceExpr::from(AnyPattern)), 0);
 
@@ -73,7 +74,7 @@ mod tests {
 
     #[test]
     fn does_not_match_short() {
-        let doc = Document::new_plain_english_curated("No match");
+        let doc = Document::new_with_language("No match", crate::LanguageFamily::English);
         let pat = Repeating::new(Box::new(SequenceExpr::from(AnyPattern)), 4);
 
         assert_eq!(

@@ -249,7 +249,7 @@ pub mod tests {
 
     #[track_caller]
     pub fn assert_lint_count(text: &str, mut linter: impl Linter, count: usize) {
-        let test = Document::new_plain_english_curated(text);
+        let test = Document::new_with_language(text, crate::LanguageFamily::English);
         let lints = linter.lint(&test);
         // dbg!(&lints);
         if lints.len() != count {
@@ -287,7 +287,7 @@ pub mod tests {
     /// [`Lint`]s.
     #[track_caller]
     pub fn assert_suggestion_count(text: &str, mut linter: impl Linter, count: usize) {
-        let test = Document::new_plain_english_curated(text);
+        let test = Document::new_with_language(text, crate::LanguageFamily::English);
         let lints = linter.lint(&test);
         eprintln!(
             "{}",
@@ -332,8 +332,17 @@ pub mod tests {
     /// Creates a document of the specified type from character data
     fn create_document(chars: &[char], doc_type: DocumentType) -> Document {
         match doc_type {
-            DocumentType::PlainEnglish => Document::new_plain_english_curated_chars(chars),
-            DocumentType::Markdown => Document::new_markdown_default_curated_chars(chars),
+            DocumentType::PlainEnglish => {
+                Document::new_with_language(chars, crate::LanguageFamily::English)
+            }
+            DocumentType::Markdown => Document::new_with_parser_and_language(
+                chars,
+                &crate::parsers::Markdown::with_language(
+                    crate::parsers::MarkdownOptions::default(),
+                    crate::LanguageFamily::English,
+                ),
+                crate::LanguageFamily::English,
+            ),
         }
     }
 
@@ -569,7 +578,7 @@ pub mod tests {
         good: &[&str],
         bad: &[&str],
     ) {
-        let test = Document::new_plain_english_curated(text);
+        let test = Document::new_with_language(text, crate::LanguageFamily::English);
         let lints = linter.lint(&test);
 
         let mut unseen_good: HashSet<_> = good.iter().cloned().collect();
@@ -656,7 +665,7 @@ pub mod tests {
     /// Asserts that the lint's message matches the expected message.
     #[track_caller]
     pub fn assert_lint_message(text: &str, mut linter: impl Linter, expected_message: &str) {
-        let test = Document::new_plain_english_curated(text);
+        let test = Document::new_with_language(text, crate::LanguageFamily::English);
         let lints = linter.lint(&test);
 
         // Just check the first lint for now - TODO

@@ -36,7 +36,8 @@ mod tests {
 
     #[test]
     fn rejects_expression_at_start() {
-        let document = Document::new_plain_english_curated("Give the rise to power.");
+        let document =
+            Document::new_with_language("Give the rise to power.", crate::LanguageFamily::English);
         let expression = SequenceExpr::with(Not::new(AnchorStart))
             .then_any_capitalization_of("give")
             .then_whitespace()
@@ -55,7 +56,10 @@ mod tests {
 
     #[test]
     fn matches_expression_after_start() {
-        let document = Document::new_plain_english_curated("They give the rise to power.");
+        let document = Document::new_with_language(
+            "They give the rise to power.",
+            crate::LanguageFamily::English,
+        );
         let expression = SequenceExpr::with(Not::new(AnchorStart))
             .then_any_capitalization_of("give")
             .then_whitespace()

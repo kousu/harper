@@ -402,7 +402,7 @@ mod tests {
         for trigger in triggers {
             let mut rule = SplitWords::default();
 
-            let doc = Document::new_plain_english_curated(trigger);
+            let doc = Document::new_with_language(trigger, crate::LanguageFamily::English);
             let lints = rule.lint(&doc);
 
             for lint in lints {

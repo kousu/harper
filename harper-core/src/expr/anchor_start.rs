@@ -25,7 +25,14 @@ mod tests {
 
     #[test]
     fn matches_first_word() {
-        let document = Document::new_markdown_default_curated("This is a test.");
+        let document = Document::new_with_parser_and_language(
+            "This is a test.",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches: Vec<_> = AnchorStart.iter_matches_in_doc(&document).collect();
 
         assert_eq!(matches, vec![Span::new(0, 0)])
@@ -33,7 +40,14 @@ mod tests {
 
     #[test]
     fn does_not_match_empty() {
-        let document = Document::new_markdown_default_curated("");
+        let document = Document::new_with_parser_and_language(
+            "",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches: Vec<_> = AnchorStart.iter_matches_in_doc(&document).collect();
 
         assert_eq!(matches, vec![])

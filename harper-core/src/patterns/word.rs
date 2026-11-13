@@ -128,7 +128,10 @@ mod tests {
 
     #[test]
     fn fruit() {
-        let doc = Document::new_plain_english_curated("I ate a banana and an apple today.");
+        let doc = Document::new_with_language(
+            "I ate a banana and an apple today.",
+            crate::LanguageFamily::English,
+        );
 
         assert_eq!(
             Word::new("banana").find_all_matches_in_doc(&doc),
@@ -142,7 +145,10 @@ mod tests {
 
     #[test]
     fn fruit_whack_capitalization() {
-        let doc = Document::new_plain_english_curated("I Ate A bAnaNa And aN apPlE today.");
+        let doc = Document::new_with_language(
+            "I Ate A bAnaNa And aN apPlE today.",
+            crate::LanguageFamily::English,
+        );
 
         assert_eq!(
             Word::new("banana").find_all_matches_in_doc(&doc),
@@ -156,8 +162,10 @@ mod tests {
 
     #[test]
     fn standard_case_basic_matches() {
-        let doc =
-            Document::new_plain_english_curated("I ate a banana and BANANA and Banana today.");
+        let doc = Document::new_with_language(
+            "I ate a banana and BANANA and Banana today.",
+            crate::LanguageFamily::English,
+        );
 
         // Should match all three standard case variations
         let matches = Word::new_standard_case("banana").find_all_matches_in_doc(&doc);
@@ -166,7 +174,10 @@ mod tests {
 
     #[test]
     fn standard_case_rejects_mixed_case() {
-        let doc = Document::new_plain_english_curated("I saw iPhone and iPad and YouTube today.");
+        let doc = Document::new_with_language(
+            "I saw iPhone and iPad and YouTube today.",
+            crate::LanguageFamily::English,
+        );
 
         // Should not match any mixed-case words
         let iphone_matches: Vec<String> = Word::new_standard_case("iphone")
@@ -186,8 +197,9 @@ mod tests {
 
     #[test]
     fn standard_case_rejects_pascal_and_camel_case() {
-        let doc = Document::new_plain_english_curated(
+        let doc = Document::new_with_language(
             "I saw BananaTree and bananaTree and BaNaNa today.",
+            crate::LanguageFamily::English,
         );
 
         // Should not match PascalCase or camelCase
@@ -204,7 +216,7 @@ mod tests {
 
     #[test]
     fn standard_case_single_letters() {
-        let doc = Document::new_plain_english_curated("A B C a b c I i");
+        let doc = Document::new_with_language("A B C a b c I i", crate::LanguageFamily::English);
 
         // Should match single letters in both cases
         let a_matches: Vec<String> = Word::new_standard_case("a")
@@ -224,7 +236,10 @@ mod tests {
 
     #[test]
     fn standard_case_vs_exact_case() {
-        let doc = Document::new_plain_english_curated("I ate banana and BANANA and Banana.");
+        let doc = Document::new_with_language(
+            "I ate banana and BANANA and Banana.",
+            crate::LanguageFamily::English,
+        );
 
         // new_exact should only match exact case
         let exact_matches: Vec<String> = Word::new_exact("banana")
@@ -241,7 +256,7 @@ mod tests {
 
     #[test]
     fn standard_case_edge_cases() {
-        let doc = Document::new_plain_english_curated("A a B b I i.");
+        let doc = Document::new_with_language("A a B b I i.", crate::LanguageFamily::English);
 
         // Test single characters and common pronouns
         let a_matches: Vec<String> = Word::new_standard_case("a")
@@ -257,8 +272,9 @@ mod tests {
 
     #[test]
     fn standard_case_complex_examples() {
-        let doc = Document::new_plain_english_curated(
+        let doc = Document::new_with_language(
             "The iPhone is made by Apple but the apple is fruit.",
+            crate::LanguageFamily::English,
         );
 
         // Should match both "Apple" and "apple" (both are standard case)
@@ -276,7 +292,10 @@ mod tests {
 
     #[test]
     fn match_all_standard_3_letter_sets() {
-        let doc = Document::new_plain_english_curated("abc abC aBc aBC Abc AbC ABc ABC");
+        let doc = Document::new_with_language(
+            "abc abC aBc aBC Abc AbC ABc ABC",
+            crate::LanguageFamily::English,
+        );
 
         let matches: Vec<String> = Word::new_standard_case("abc")
             .find_all_matches_in_doc(&doc)

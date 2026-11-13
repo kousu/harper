@@ -422,7 +422,11 @@ impl Backend {
 
                 // Don't lint on documents larger than the configured maximum length.
                 if text.len() <= max_file_length {
-                    doc_state.document = Document::new(text, &parser, &doc_state.dict);
+                    doc_state.document = Document::new_with_parser_and_language(
+                        text,
+                        &parser,
+                        harper_core::LanguageFamily::English,
+                    );
                 } else {
                     // Ensures that existing lints are cleared when we stop linting the file.
                     // Otherwise, prior lints will remain, and they will quickly fall out of sync

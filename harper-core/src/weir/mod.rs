@@ -241,10 +241,10 @@ impl WeirLinter {
                     continue;
                 }
 
-                let doc = Document::new_from_chars(
-                    current.chars().collect::<Vec<_>>().into(),
+                let doc = Document::new_with_parser_and_language(
+                    current.chars().collect::<Vec<_>>(),
                     &Markdown::with_language(Default::default(), crate::LanguageFamily::English),
-                    &crate::lang::en::dictionary::dictionary(),
+                    crate::LanguageFamily::English,
                 );
                 let lints = linter.lint(&doc);
 
@@ -267,10 +267,10 @@ impl WeirLinter {
             let mut iter_count = 0;
 
             loop {
-                let test = Document::new_from_chars(
-                    text_chars.clone().into(),
+                let test = Document::new_with_parser_and_language(
+                    text_chars.clone(),
                     &Markdown::with_language(Default::default(), crate::LanguageFamily::English),
-                    &crate::lang::en::dictionary::dictionary(),
+                    crate::LanguageFamily::English,
                 );
                 let lints = linter.lint(&test);
 
@@ -294,10 +294,10 @@ impl WeirLinter {
         }
 
         fn lint_count(text: &str, linter: &mut impl Linter) -> usize {
-            let document = Document::new_from_chars(
-                text.chars().collect::<Vec<_>>().into(),
+            let document = Document::new_with_parser_and_language(
+                text.chars().collect::<Vec<_>>(),
                 &Markdown::with_language(Default::default(), crate::LanguageFamily::English),
-                &crate::lang::en::dictionary::dictionary(),
+                crate::LanguageFamily::English,
             );
 
             linter.lint(&document).len()

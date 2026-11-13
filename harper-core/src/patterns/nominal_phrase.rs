@@ -59,7 +59,14 @@ mod tests {
 
     #[test]
     fn simple_apple() {
-        let doc = Document::new_markdown_default_curated("A red apple");
+        let doc = Document::new_with_parser_and_language(
+            "A red apple",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = NominalPhrase.find_all_matches_in_doc(&doc);
 
         assert_eq!(matches.to_strings(&doc), vec!["A red apple"])
@@ -67,7 +74,14 @@ mod tests {
 
     #[test]
     fn complex_apple() {
-        let doc = Document::new_markdown_default_curated("A red apple with a long stem");
+        let doc = Document::new_with_parser_and_language(
+            "A red apple with a long stem",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = NominalPhrase.find_all_matches_in_doc(&doc);
 
         assert_eq!(matches.to_strings(&doc), vec!["A red apple", "a long stem"])
@@ -75,7 +89,14 @@ mod tests {
 
     #[test]
     fn list_fruit() {
-        let doc = Document::new_markdown_default_curated("An apple, a banana and a pear");
+        let doc = Document::new_with_parser_and_language(
+            "An apple, a banana and a pear",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches = NominalPhrase.find_all_matches_in_doc(&doc);
 
         assert_eq!(
@@ -86,7 +107,14 @@ mod tests {
 
     #[test]
     fn simplest_banana() {
-        let doc = Document::new_markdown_default_curated("a banana");
+        let doc = Document::new_with_parser_and_language(
+            "a banana",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         assert!(
             NominalPhrase
                 .matches(doc.get_tokens(), doc.get_source())
@@ -96,8 +124,13 @@ mod tests {
 
     #[test]
     fn food() {
-        let doc = Document::new_markdown_default_curated(
+        let doc = Document::new_with_parser_and_language(
             "My favorite foods are pizza, sushi, tacos and burgers.",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
         );
         let matches = NominalPhrase.find_all_matches_in_doc(&doc);
 
@@ -119,7 +152,14 @@ mod tests {
 
     #[test]
     fn simplest_way() {
-        let doc = Document::new_markdown_default_curated("a way");
+        let doc = Document::new_with_parser_and_language(
+            "a way",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         assert!(
             NominalPhrase
                 .matches(doc.get_tokens(), doc.get_source())
@@ -129,7 +169,14 @@ mod tests {
 
     #[test]
     fn present_participle_way() {
-        let doc = Document::new_markdown_default_curated("a winning way");
+        let doc = Document::new_with_parser_and_language(
+            "a winning way",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         assert!(
             NominalPhrase
                 .matches(doc.get_tokens(), doc.get_source())
@@ -139,7 +186,14 @@ mod tests {
 
     #[test]
     fn perfect_participle_way() {
-        let doc = Document::new_markdown_default_curated("a failed way");
+        let doc = Document::new_with_parser_and_language(
+            "a failed way",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         assert!(
             NominalPhrase
                 .matches(doc.get_tokens(), doc.get_source())

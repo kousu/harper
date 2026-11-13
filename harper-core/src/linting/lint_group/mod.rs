@@ -452,7 +452,8 @@ mod tests {
     #[test]
     fn corrects_extention() {
         let group = test_linter();
-        let document = Document::new_plain_english_curated("I love this extention!");
+        let document =
+            Document::new_with_language("I love this extention!", crate::LanguageFamily::English);
         let organized = group.run_with_inner(|l| l.organized_lints(&document));
 
         let spellcheck_lints = organized
@@ -635,7 +636,14 @@ mod tests {
         name_description_pairs
             .iter()
             .for_each(|(lint_name, description)| {
-                let doc = Document::new_markdown_default_curated(&description);
+                let doc = Document::new_with_parser_and_language(
+                    &description,
+                    &crate::parsers::Markdown::with_language(
+                        crate::parsers::MarkdownOptions::default(),
+                        crate::LanguageFamily::English,
+                    ),
+                    crate::LanguageFamily::English,
+                );
                 eprintln!("{lint_name}: {description}");
 
                 let mut lints = test_linter().lint(&doc);

@@ -79,7 +79,7 @@ mod tests {
     ];
 
     fn test_pronoun(word: &str) {
-        let doc = Document::new_plain_english_curated(word);
+        let doc = Document::new_with_language(word, crate::LanguageFamily::English);
         let token = doc.tokens().next().expect("No tokens in document");
 
         let is_good_pron = GOOD_REFLEXIVE_PRONOUNS.contains(&word);
@@ -131,8 +131,10 @@ mod tests {
 
     #[test]
     fn ensure_standard_ctor_includes_myself() {
-        let doc =
-            Document::new_plain_english_curated("If you want something done, do it yourself.");
+        let doc = Document::new_with_language(
+            "If you want something done, do it yourself.",
+            crate::LanguageFamily::English,
+        );
         let rp = ReflexivePronoun::standard();
         let matches = rp.iter_matches_in_doc(&doc);
         assert_eq!(matches.count(), 1);
@@ -140,8 +142,9 @@ mod tests {
 
     #[test]
     fn ensure_default_ctor_includes_myself() {
-        let doc = Document::new_plain_english_curated(
+        let doc = Document::new_with_language(
             "I wanted a reflexive pronoun module, so I wrote one myself.",
+            crate::LanguageFamily::English,
         );
         let rp = ReflexivePronoun::default();
         let matches = rp.iter_matches_in_doc(&doc);
@@ -150,7 +153,10 @@ mod tests {
 
     #[test]
     fn ensure_with_common_errors_includes_hisself() {
-        let doc = Document::new_plain_english_curated("He teached hisself English.");
+        let doc = Document::new_with_language(
+            "He teached hisself English.",
+            crate::LanguageFamily::English,
+        );
         let rp = ReflexivePronoun::with_common_errors();
         let matches = rp.iter_matches_in_doc(&doc);
         assert_eq!(matches.count(), 1);
@@ -158,7 +164,10 @@ mod tests {
 
     #[test]
     fn ensure_standard_ctor_excludes_hisself() {
-        let doc = Document::new_plain_english_curated("Was he pleased with hisself?");
+        let doc = Document::new_with_language(
+            "Was he pleased with hisself?",
+            crate::LanguageFamily::English,
+        );
         let rp = ReflexivePronoun::standard();
         let matches = rp.iter_matches_in_doc(&doc);
         assert_eq!(matches.count(), 0);
@@ -166,7 +175,10 @@ mod tests {
 
     #[test]
     fn ensure_default_ctor_excludes_theirself() {
-        let doc = Document::new_plain_english_curated("They look at theirself in the mirror.");
+        let doc = Document::new_with_language(
+            "They look at theirself in the mirror.",
+            crate::LanguageFamily::English,
+        );
         let rp = ReflexivePronoun::default();
         let matches = rp.iter_matches_in_doc(&doc);
         assert_eq!(matches.count(), 0);

@@ -832,8 +832,9 @@ mod tests {
                 Language::English(user_dialect),
                 EnglishSpelling::new()
             )
-            .lint(&Document::new_markdown_default_curated(
-                "I like to use the software Calibre."
+            .lint(&Document::new_with_language(
+                "I like to use the software Calibre.",
+                crate::LanguageFamily::English
             ))
             .len(),
             0,
@@ -846,8 +847,9 @@ mod tests {
                 Language::English(user_dialect),
                 EnglishSpelling::new()
             )
-            .lint(&Document::new_markdown_default_curated(
-                "I like to use the spelling colour."
+            .lint(&Document::new_with_language(
+                "I like to use the spelling colour.",
+                crate::LanguageFamily::English
             ))
             .len(),
             1

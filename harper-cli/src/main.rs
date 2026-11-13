@@ -301,11 +301,7 @@ fn main() -> anyhow::Result<()> {
             let input = input.unwrap_or_read_from_stdin();
 
             // Load the file/text.
-            let (doc, _) = input.load(
-                markdown_options,
-                &curated_dictionary,
-                LanguageFamily::English,
-            )?;
+            let (doc, _) = input.load(markdown_options, LanguageFamily::English)?;
 
             for token in doc.tokens() {
                 let json = serde_json::to_string(&token)?;
@@ -322,11 +318,7 @@ fn main() -> anyhow::Result<()> {
             let input = input.unwrap_or_read_from_stdin();
 
             // Load the file/text.
-            let (doc, source) = input.load(
-                markdown_options,
-                &curated_dictionary,
-                LanguageFamily::English,
-            )?;
+            let (doc, source) = input.load(markdown_options, LanguageFamily::English)?;
 
             let primary_color = Color::Blue;
             let secondary_color = Color::Magenta;
@@ -384,8 +376,7 @@ fn main() -> anyhow::Result<()> {
             };
 
             // Load the file/text.
-            let (doc, source) =
-                input.load_with_parser(&parser, &curated_dictionary, LanguageFamily::English)?;
+            let (doc, source) = input.load_with_parser(&parser, LanguageFamily::English)?;
 
             let input_identifier = input.get_identifier();
 
@@ -570,11 +561,7 @@ fn main() -> anyhow::Result<()> {
         }
         Args::MineWords { input } => {
             let input = input.unwrap_or_read_from_stdin();
-            let (doc, _source) = input.load(
-                MarkdownOptions::default(),
-                &curated_dictionary,
-                LanguageFamily::English,
-            )?;
+            let (doc, _source) = input.load(MarkdownOptions::default(), LanguageFamily::English)?;
 
             let mut words = HashMap::new();
 
@@ -970,11 +957,9 @@ fn main() -> anyhow::Result<()> {
         }
         Args::NominalPhrases { input } => {
             // Get input from either file or direct text
-            let (doc, _) = input.unwrap_or_read_from_stdin().load(
-                MarkdownOptions::default(),
-                &curated_dictionary,
-                LanguageFamily::English,
-            )?;
+            let (doc, _) = input
+                .unwrap_or_read_from_stdin()
+                .load(MarkdownOptions::default(), LanguageFamily::English)?;
 
             let phrases: Vec<_> = doc
                 .iter_nominal_phrases()

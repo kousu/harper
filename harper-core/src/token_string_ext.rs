@@ -309,7 +309,14 @@ mod tests {
 
     fn chunk_strings(source: &str) -> Vec<String> {
         let source_chars = source.chars().collect::<Vec<_>>();
-        let document = Document::new_markdown_default_curated(source);
+        let document = Document::new_with_parser_and_language(
+            source,
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
 
         document
             .iter_chunks()

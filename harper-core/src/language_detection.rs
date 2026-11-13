@@ -1,7 +1,7 @@
 //! This module implements rudimentary, dictionary-based language detection.
 //!
-//! harper-core never guesses a language itself: whoever calls it says which language the text is
-//! in. [`guess_language`] is for front ends that want to offer automatic detection.
+//! [`Document`]s and the file-format parsers guess a language with [`guess_language`] when they
+//! aren't told one. Front ends can also call it to offer automatic detection.
 
 use strum::IntoEnumIterator;
 
@@ -110,7 +110,7 @@ mod tests {
 
     fn assert_not_english(source: &'static str) {
         let dict = crate::lang::en::dictionary::dictionary();
-        let doc = Document::new_plain_english(source, &dict);
+        let doc = Document::new_with_language(source, crate::LanguageFamily::English);
         let is_likely_english = is_doc_likely_english(&doc, &dict);
         dbg!(source);
         assert!(!is_likely_english);
@@ -118,7 +118,7 @@ mod tests {
 
     fn assert_english(source: &'static str) {
         let dict = crate::lang::en::dictionary::dictionary();
-        let doc = Document::new_plain_english(source, &dict);
+        let doc = Document::new_with_language(source, crate::LanguageFamily::English);
         let is_likely_english = is_doc_likely_english(&doc, &dict);
         dbg!(source);
         assert!(is_likely_english);

@@ -8,7 +8,16 @@ static ESSAY: &str = include_str!("./essay.md");
 
 fn parse_essay(c: &mut Criterion) {
     c.bench_function("parse_essay", |b| {
-        b.iter(|| Document::new_markdown_default_curated(black_box(ESSAY)));
+        b.iter(|| {
+            Document::new_with_parser_and_language(
+                black_box(ESSAY),
+                &harper_core::parsers::Markdown::with_language(
+                    harper_core::parsers::MarkdownOptions::default(),
+                    harper_core::LanguageFamily::English,
+                ),
+                harper_core::LanguageFamily::English,
+            )
+        });
     });
 }
 
@@ -18,7 +27,14 @@ fn lint_essay(c: &mut Criterion) {
         dictionary,
         harper_core::Language::English(EnglishDialect::American),
     );
-    let document = Document::new_markdown_default_curated(black_box(ESSAY));
+    let document = Document::new_with_parser_and_language(
+        black_box(ESSAY),
+        &harper_core::parsers::Markdown::with_language(
+            harper_core::parsers::MarkdownOptions::default(),
+            harper_core::LanguageFamily::English,
+        ),
+        harper_core::LanguageFamily::English,
+    );
 
     c.bench_function("lint_essay", |b| {
         b.iter(|| lint_set.lint(&document));
@@ -33,7 +49,14 @@ fn lint_essay_uncached(c: &mut Criterion) {
                 dictionary.clone(),
                 harper_core::Language::English(EnglishDialect::American),
             );
-            let document = Document::new_markdown_default(black_box(ESSAY), &dictionary);
+            let document = Document::new_with_parser_and_language(
+                black_box(ESSAY),
+                &harper_core::parsers::Markdown::with_language(
+                    harper_core::parsers::MarkdownOptions::default(),
+                    harper_core::LanguageFamily::English,
+                ),
+                harper_core::LanguageFamily::English,
+            );
             lint_set.lint(&document)
         })
     });

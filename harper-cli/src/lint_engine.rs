@@ -71,7 +71,7 @@ pub fn lint_one_input(
             }
         }
 
-        match single_input.load(markdown_options, &merged_dictionary, language.family()) {
+        match single_input.load(markdown_options, language.family()) {
             Err(err) => {
                 eprintln!("{}", err);
                 if matches!(report_mode, ReportStyle::Json) {
