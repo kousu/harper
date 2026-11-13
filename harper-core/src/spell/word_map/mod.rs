@@ -1,7 +1,4 @@
-use std::{
-    ops::Index,
-    sync::{Arc, LazyLock},
-};
+use std::ops::Index;
 
 use hashbrown::{DefaultHashBuilder, HashMap};
 use indexmap::IndexMap;
@@ -9,7 +6,6 @@ use indexmap::IndexMap;
 use crate::{
     DictWordMetadata,
     spell::{
-        dictionary::{ANNOTATIONS_STR, CURATED_DICT_STR},
         rune::{self, AttributeList, parse_word_list},
         word_id::{CanonicalWordId, CaseFoldedWordId},
     },
@@ -45,16 +41,6 @@ impl WordMap {
     /// Create an empty word map.
     pub fn new() -> Self {
         Default::default()
-    }
-
-    /// A word map containing entries from the curated dictionary.
-    pub fn curated() -> Arc<Self> {
-        /// A word map containing entries from the curated dictionary.
-        static CURATED: LazyLock<Arc<WordMap>> = LazyLock::new(|| {
-            Arc::new(WordMap::from_rune_files(CURATED_DICT_STR, ANNOTATIONS_STR).unwrap())
-        });
-
-        (*CURATED).clone()
     }
 
     /// Does the word map contain a word with the given [`CanonicalWordId`]?

@@ -2,6 +2,7 @@
 //! to this module.
 
 pub(crate) mod dialect;
+pub(crate) mod dictionary;
 pub(crate) mod expr;
 pub(crate) mod indefinite_article;
 pub(crate) mod irregular_nouns;
