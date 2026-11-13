@@ -1,6 +1,6 @@
 use super::phrase::{lint_phrases, previous};
 use crate::{
-    CharStringExt, EnglishDialect, Document,
+    CharStringExt, Document, EnglishDialect,
     linting::{Lint, Linter},
 };
 

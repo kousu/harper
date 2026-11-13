@@ -15,6 +15,9 @@ pub(crate) mod pooled_linter;
 pub(crate) mod spell_check;
 mod suggestion;
 
+#[doc(hidden)]
+pub use en::spell_check::is_th_h_missing;
+
 pub use expr_linter::{Chunk, ExprLinter, Sentence};
 pub use initialism_linter::InitialismLinter;
 pub use lint::Lint;

@@ -1,6 +1,6 @@
 use super::phrase::{ArticlePhrase, lint_phrases};
 use crate::{
-    CharStringExt, EnglishDialect, Document, Token,
+    CharStringExt, Document, EnglishDialect, Token,
     linting::{Lint, Linter},
 };
 use harper_brill::UPOS;

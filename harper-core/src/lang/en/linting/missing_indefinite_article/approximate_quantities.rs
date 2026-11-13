@@ -1,6 +1,6 @@
 use super::phrase::{ArticlePhrase, suggest_article};
 use crate::{
-    CharStringExt, EnglishDialect, Document, TokenStringExt,
+    CharStringExt, Document, EnglishDialect, TokenStringExt,
     linting::{Lint, Linter},
 };
 

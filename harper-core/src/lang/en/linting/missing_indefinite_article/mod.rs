@@ -8,7 +8,7 @@ mod such_phrases;
 mod verb_complements;
 
 use crate::{
-    EnglishDialect, Document,
+    Document, EnglishDialect,
     linting::{Lint, LintGroup, Linter},
 };
 use approximate_quantities::ApproximateQuantities;

@@ -86,7 +86,10 @@ mod coverage_gaps {
             "She has painted doors.",
             "They are carrying buckets.",
         ] {
-            assert_no_lints(input, MissingIndefiniteArticle::new(EnglishDialect::American));
+            assert_no_lints(
+                input,
+                MissingIndefiniteArticle::new(EnglishDialect::American),
+            );
         }
     }
 }
@@ -234,7 +237,10 @@ mod mass_senses {
             "They attended religious services.",
             "It is a waste of time.",
         ] {
-            assert_no_lints(text, MissingIndefiniteArticle::new(EnglishDialect::American));
+            assert_no_lints(
+                text,
+                MissingIndefiniteArticle::new(EnglishDialect::American),
+            );
         }
     }
 
@@ -260,7 +266,10 @@ mod mass_senses {
             ("It is waste of time.", "It is a waste of time."),
             ("That was waste of money.", "That was a waste of money."),
         ] {
-            assert_no_lints(expected, MissingIndefiniteArticle::new(EnglishDialect::American));
+            assert_no_lints(
+                expected,
+                MissingIndefiniteArticle::new(EnglishDialect::American),
+            );
             assert_first_suggestion_result(
                 input,
                 MissingIndefiniteArticle::new(EnglishDialect::American),
@@ -315,7 +324,10 @@ fn dialect_reaches_each_article_inserting_child() {
             "Nearly a hundred visitors attended.",
         ),
     ] {
-        for (dialect, expected) in [(EnglishDialect::American, american), (EnglishDialect::British, british)] {
+        for (dialect, expected) in [
+            (EnglishDialect::American, american),
+            (EnglishDialect::British, british),
+        ] {
             assert_first_suggestion_result(input, MissingIndefiniteArticle::new(dialect), expected);
         }
     }
@@ -859,7 +871,10 @@ fn allows_empty_input() {
 
 #[test]
 fn allows_standalone_noun() {
-    assert_no_lints("teacher", MissingIndefiniteArticle::new(EnglishDialect::American));
+    assert_no_lints(
+        "teacher",
+        MissingIndefiniteArticle::new(EnglishDialect::American),
+    );
 }
 
 #[test]

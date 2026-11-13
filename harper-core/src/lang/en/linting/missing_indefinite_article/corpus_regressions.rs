@@ -1,6 +1,6 @@
 use super::MissingIndefiniteArticle;
 use crate::{
-    EnglishDialect, Document,
+    Document, EnglishDialect,
     linting::{
         Linter,
         tests::{assert_first_suggestion_result, assert_no_lints},

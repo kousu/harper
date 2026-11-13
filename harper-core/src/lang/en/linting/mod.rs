@@ -162,7 +162,7 @@ mod in_ones_defense;
 mod in_stock;
 mod in_time_from_now;
 mod inflected_verb_after_to;
-pub(crate) mod informal_laughter;
+mod informal_laughter;
 mod initialisms;
 mod interested_in;
 mod it_are_the_one;
@@ -263,7 +263,7 @@ mod pronoun_contraction;
 mod pronoun_inflection_be;
 mod pronoun_knew;
 mod pronoun_verb_agreement;
-pub(crate) mod proper_noun_capitalization_linters;
+mod proper_noun_capitalization_linters;
 mod quantifier_needs_of;
 mod quantifier_numeral_conflict;
 mod quite_quiet;
@@ -302,6 +302,7 @@ mod somewhat_something;
 mod soon_to_be;
 mod sought_after;
 mod spaces;
+pub(crate) mod spell_check;
 mod spelled_numbers;
 mod split_words;
 mod strive_for;
@@ -1221,7 +1222,14 @@ impl LintGroup {
         out.add("PluralDecades", PluralDecades::default());
 
         // Uses Dictionary and EnglishDialect
-        out.add("SpellCheck", SpellCheck::new(dictionary.clone(), dialect));
+        out.add(
+            "SpellCheck",
+            SpellCheck::new(
+                dictionary.clone(),
+                dialect,
+                spell_check::EnglishSpelling::new(),
+            ),
+        );
 
         // Uses Dictionary, and Sentence rather than Chunk
         out.add(
