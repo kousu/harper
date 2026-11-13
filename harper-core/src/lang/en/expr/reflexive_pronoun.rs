@@ -59,8 +59,10 @@ impl Expr for ReflexivePronoun {
 mod tests {
     use crate::{
         Document, TokenKind,
-        expr::{ExprExt, ReflexivePronoun, reflexive_pronoun::BAD_REFLEXIVE_PRONOUNS},
+        expr::{ExprExt, ReflexivePronoun},
     };
+
+    use super::BAD_REFLEXIVE_PRONOUNS;
 
     // These are considered grammatically correct, or are at least in `dictionary.dict`.
     // The tests below check if this changes so we can update this `Expr`
