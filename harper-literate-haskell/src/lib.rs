@@ -1,4 +1,5 @@
 use harper_comments::CommentParser;
+use harper_core::lexers::Lexer;
 use harper_core::{
     Lrc, Masker, Token,
     parsers::{Markdown, MarkdownOptions, Mask, Parser},
@@ -23,6 +24,14 @@ impl LiterateHaskellParser {
         Self {
             inner: Lrc::new(Markdown::new(markdown_options)),
         }
+    }
+
+    /// Like [`Self::new_markdown`], with the Markdown handing its prose to `prose`.
+    pub fn new_markdown_with_lexer(
+        markdown_options: MarkdownOptions,
+        prose: Lrc<dyn Lexer>,
+    ) -> Self {
+        Self::new(Lrc::new(Markdown::with_lexer(markdown_options, prose)))
     }
 
     pub fn create_ident_dict(

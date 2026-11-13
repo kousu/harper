@@ -1,10 +1,11 @@
+use harper_core::lexers::Lexer;
 use std::path::Path;
 
 use crate::comment_parsers;
 use comment_parsers::{Go, JavaDoc, JsDoc, Lua, Solidity, Unit};
-use harper_core::Token;
-use harper_core::parsers::{self, MarkdownOptions, Parser};
+use harper_core::parsers::{self, MarkdownOptions, Parser, PlainEnglish};
 use harper_core::spell::MutableDictionary;
+use harper_core::{Lrc, Token};
 use tree_sitter::Node;
 
 use crate::masker::CommentMasker;
@@ -18,9 +19,19 @@ impl CommentParser {
         self.inner.masker.create_ident_dict(source)
     }
 
+    /// A parser for the comments in `language_id` source code, whose prose is English.
     pub fn new_from_language_id(
         language_id: &str,
         markdown_options: MarkdownOptions,
+    ) -> Option<Self> {
+        Self::new_from_language_id_with_lexer(language_id, markdown_options, Lrc::new(PlainEnglish))
+    }
+
+    /// Like [`Self::new_from_language_id`], handing the prose in comments to `prose`.
+    pub fn new_from_language_id_with_lexer(
+        language_id: &str,
+        markdown_options: MarkdownOptions,
+        prose: Lrc<dyn Lexer>,
     ) -> Option<Self> {
         let language = match language_id {
             "c" => tree_sitter_c::LANGUAGE,
@@ -58,14 +69,14 @@ impl CommentParser {
         };
 
         let comment_parser: Box<dyn Parser> = match language_id {
-            "go" => Box::new(Go::new_markdown(markdown_options)),
-            "java" => Box::new(JavaDoc::default()),
+            "go" => Box::new(Go::new_markdown(markdown_options, prose.clone())),
+            "java" => Box::new(JavaDoc::with_lexer(prose)),
             "javascript" | "javascriptreact" | "typescript" | "typescriptreact" => {
-                Box::new(JsDoc::new_markdown(markdown_options))
+                Box::new(JsDoc::new_markdown(markdown_options, prose.clone()))
             }
-            "lua" => Box::new(Lua::new_markdown(markdown_options)),
-            "solidity" => Box::new(Solidity::new_markdown(markdown_options)),
-            _ => Box::new(Unit::new_markdown(markdown_options)),
+            "lua" => Box::new(Lua::new_markdown(markdown_options, prose.clone())),
+            "solidity" => Box::new(Solidity::new_markdown(markdown_options, prose.clone())),
+            _ => Box::new(Unit::new_markdown(markdown_options, prose.clone())),
         };
 
         Some(Self {
