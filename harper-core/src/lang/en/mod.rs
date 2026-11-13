@@ -1,9 +1,16 @@
-//! English: its dialects, expressions, patterns and rules.
+//! English: its dialects, word lists, expressions, patterns and rules. Its data files sit next
+//! to this module.
 
 pub(crate) mod dialect;
 pub mod expr;
+pub(crate) mod indefinite_article;
+pub(crate) mod irregular_nouns;
+pub(crate) mod irregular_verbs;
 pub(crate) mod linting;
 pub mod patterns;
+pub(crate) mod regular_nouns;
+pub(crate) mod thesaurus_helper;
+pub(crate) mod title_case;
 
 use crate::lang::LanguageData;
 

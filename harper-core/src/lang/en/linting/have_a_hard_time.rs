@@ -1,7 +1,7 @@
 use crate::{
     EnglishDialect, Lint, Token,
     expr::{Expr, SequenceExpr},
-    indefinite_article::{InitialSound, starts_with_vowel},
+    lang::en::indefinite_article::{InitialSound, starts_with_vowel},
     linting::{ExprLinter, LintKind, Suggestion, expr_linter::Chunk},
 };
 

@@ -2,8 +2,8 @@ use crate::{
     Token,
     char_string::CharStringExt,
     expr::Expr,
-    irregular_nouns::IrregularNouns,
-    irregular_verbs::IrregularVerbs,
+    lang::en::irregular_nouns::IrregularNouns,
+    lang::en::irregular_verbs::IrregularVerbs,
     linting::{ExprLinter, Lint, LintKind, Suggestion, expr_linter::Chunk},
     spell::Dictionary,
 };
