@@ -115,8 +115,12 @@ impl<T: Dictionary, C: SpellingConventions> Linter for SpellCheck<T, C> {
                 continue;
             }
 
-            if let Some(Some(metadata)) = word.kind.as_word()
-                && metadata.allows_language(self.language)
+            // Look the word up in our own dictionary, not the document's: ours holds the user's
+            // words too.
+            if self
+                .dictionary
+                .get_word_metadata(word_chars)
+                .is_some_and(|metadata| metadata.allows_language(self.language))
                 && (self.dictionary.contains_exact_word(word_chars)
                     || self
                         .dictionary
