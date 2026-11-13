@@ -156,6 +156,7 @@ mod tests {
             spell_check::SpellCheck::new(
                 dict.clone(),
                 crate::Language::English(EnglishDialect::American),
+                super::super::spell_check::EnglishSpelling::new(),
             ),
         );
         lint_group.add_chunk_expr_linter("WrongNegative", WrongNegative::new(dict));
