@@ -16,7 +16,7 @@ impl Step for AnchorStart {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::expr::ExprExt;
     use crate::{Document, Span};

@@ -51,7 +51,7 @@ pub fn is_likely_english(toks: &[Token], source: &[char], dict: &impl Dictionary
     true
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::is_doc_likely_english;
     use crate::Document;

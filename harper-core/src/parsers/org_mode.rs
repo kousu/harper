@@ -1,4 +1,4 @@
-use super::{Parser, PlainEnglish};
+use super::{PROSE_PARSER, Parser};
 use crate::{Span, Token, TokenKind};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -118,7 +118,7 @@ fn find_line_start(chars: &[char], pos: usize) -> usize {
     start
 }
 
-/// A parser that wraps the [`PlainEnglish`] parser that allows one to parse
+/// A parser that wraps the `PlainEnglish` parser that allows one to parse
 /// Org-mode files.
 ///
 /// Will ignore code blocks, source blocks, and other org-mode specific elements
@@ -130,7 +130,7 @@ impl OrgMode {}
 
 impl Parser for OrgMode {
     fn parse(&self, source: &[char]) -> Vec<Token> {
-        let english_parser = PlainEnglish;
+        let english_parser = PROSE_PARSER;
         let mut tokens = Vec::new();
         let mut cursor = 0;
         let mut in_source_block = false;

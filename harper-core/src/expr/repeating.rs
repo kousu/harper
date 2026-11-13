@@ -50,7 +50,7 @@ impl Expr for Repeating {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
 
     use super::Repeating;

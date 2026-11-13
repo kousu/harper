@@ -242,7 +242,7 @@ fn check_roman_group<I: Iterator<Item = char>>(
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::CharString;
     use crate::dict_word_metadata::tests::md;

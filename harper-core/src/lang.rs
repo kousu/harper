@@ -6,6 +6,7 @@ pub(crate) use language_data::LanguageData;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumDiscriminants, EnumIter, EnumString};
 
+#[cfg(feature = "en")]
 use crate::EnglishDialect;
 
 /// A natural language Harper can check, together with its regional variant.
@@ -19,6 +20,7 @@ use crate::EnglishDialect;
     doc = "A natural language Harper can check, without its regional variant."
 )]
 pub enum Language {
+    #[cfg(feature = "en")]
     English(EnglishDialect),
 }
 
@@ -68,6 +70,7 @@ impl Language {
         };
 
         match family {
+            #[cfg(feature = "en")]
             LanguageFamily::English => Ok(Self::English(match dialect {
                 Some(d) => EnglishDialect::try_from_name(d).ok_or_else(|| unknown_dialect(d))?,
                 None => EnglishDialect::American,
@@ -82,6 +85,7 @@ impl LanguageFamily {
     #[must_use]
     pub fn try_from_name(name: &str) -> Option<Self> {
         match name.to_lowercase().as_str() {
+            #[cfg(feature = "en")]
             n if ENGLISH_NAMES.contains(&n) => Some(Self::English),
             _ => None,
         }
@@ -122,7 +126,10 @@ pub enum LanguageNameError {
     },
 }
 
-#[cfg(test)]
+#[cfg(not(feature = "en"))]
+compile_error!("harper-core needs at least one language: enable the `en` feature.");
+
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use std::str::FromStr;
 

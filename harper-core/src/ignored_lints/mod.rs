@@ -55,7 +55,7 @@ impl IgnoredLints {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use quickcheck::TestResult;
     use quickcheck_macros::quickcheck;

@@ -3,7 +3,6 @@ use paste::paste;
 use crate::{
     CharStringExt, LanguageFamily, Lrc, Span, Token, TokenKind,
     expr::{AsBoxedExpr, FirstMatchOf, FixedPhrase, LongestMatchOf},
-    lang::en::patterns::{IndefiniteArticle, RelativePronoun},
     patterns::{AnyPattern, WhitespacePattern, Word, WordSet},
 };
 
@@ -650,8 +649,9 @@ impl SequenceExpr {
     gen_then_from_is!(object_pronoun);
 
     #[deprecated(note = "English only: use `.then(RelativePronoun::default())`")]
+    #[cfg(feature = "en")]
     pub fn then_relative_pronoun(self) -> Self {
-        self.then(RelativePronoun::default())
+        self.then(crate::lang::en::patterns::RelativePronoun::default())
     }
 
     // Verbs
@@ -687,10 +687,11 @@ impl SequenceExpr {
     gen_then_from_is!(non_quantifier_determiner);
     gen_then_from_is!(non_demonstrative_determiner);
 
-    /// Push an [`IndefiniteArticle`] to the end of the operation list.
+    /// Push an [`IndefiniteArticle`](crate::lang::en::patterns::IndefiniteArticle) to the end of the operation list.
     #[deprecated(note = "English only: use `.then(IndefiniteArticle::default())`")]
+    #[cfg(feature = "en")]
     pub fn then_indefinite_article(self) -> Self {
-        self.then(IndefiniteArticle::default())
+        self.then(crate::lang::en::patterns::IndefiniteArticle::default())
     }
 
     // Other parts of speech
@@ -764,7 +765,7 @@ where
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::{
         Document, TokenKind,

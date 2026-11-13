@@ -120,7 +120,7 @@ impl SingleTokenPattern for Word {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::{Document, Span, linting::tests::SpanVecExt, patterns::DocPattern};
 

@@ -2,17 +2,24 @@
 //! next to this module.
 
 pub(crate) mod dialect;
+#[cfg(feature = "en")]
 pub(crate) mod dictionary;
+#[cfg(feature = "en")]
 pub mod expr;
 pub(crate) mod indefinite_article;
+#[cfg(feature = "en")]
 pub(crate) mod irregular_nouns;
+#[cfg(feature = "en")]
 pub(crate) mod irregular_verbs;
 pub(crate) mod lexing;
+#[cfg(feature = "en")]
 pub(crate) mod linting;
 pub(crate) mod ordinal;
+#[cfg(feature = "en")]
 pub mod patterns;
 pub(crate) mod regular_nouns;
 pub(crate) mod thesaurus_helper;
+#[cfg(feature = "en")]
 pub(crate) mod title_case;
 
 pub use linting::spell_check::is_th_h_missing;

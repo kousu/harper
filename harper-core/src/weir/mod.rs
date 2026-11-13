@@ -210,6 +210,7 @@ impl WeirLinter {
     }
 
     /// Runs the tests defined in the source code, returning any failing results.
+    #[cfg(feature = "en")]
     pub fn run_tests(&mut self) -> Vec<TestResult> {
         fn apply_nth_suggestion(text: &str, lint: &Lint, n: usize) -> Option<String> {
             let suggestion = lint.suggestions.get(n)?;
@@ -402,7 +403,7 @@ fn resolve_exprs(ast: &Ast) -> Result<HashMap<String, Lrc<Box<dyn Expr>>>, Error
     Ok(resolved_exprs)
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 pub mod tests {
     use quickcheck_macros::quickcheck;
 

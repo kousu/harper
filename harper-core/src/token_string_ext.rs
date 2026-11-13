@@ -303,7 +303,7 @@ impl TokenStringExt for [Token] {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::{Document, TokenStringExt};
 

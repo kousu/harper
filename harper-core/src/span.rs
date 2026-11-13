@@ -238,7 +238,7 @@ impl<T> Clone for Span<T> {
 }
 impl<T> Copy for Span<T> {}
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use crate::{
         Document,

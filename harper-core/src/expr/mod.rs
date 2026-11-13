@@ -31,6 +31,7 @@ mod step;
 mod unless_step;
 mod word_expr_group;
 
+#[cfg(feature = "en")]
 use crate::lang::en::expr as en;
 
 #[cfg(not(feature = "concurrent"))]
@@ -56,16 +57,22 @@ pub use unless_step::UnlessStep;
 pub use word_expr_group::WordExprGroup;
 
 // English expressions used to live here. They are in `lang::en::expr` now.
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::expr::DurationExpr`")]
 pub type DurationExpr = en::DurationExpr;
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::expr::MergeableWords`")]
 pub type MergeableWords = en::MergeableWords;
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::expr::PronounBe`")]
 pub type PronounBe = en::PronounBe;
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::expr::ReflexivePronoun`")]
 pub type ReflexivePronoun = en::ReflexivePronoun;
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::expr::SpelledNumberExpr`")]
 pub type SpelledNumberExpr = en::SpelledNumberExpr;
+#[cfg(feature = "en")]
 #[deprecated(note = "English only: use `harper_core::lang::en::expr::TimeUnitExpr`")]
 pub type TimeUnitExpr = en::TimeUnitExpr;
 

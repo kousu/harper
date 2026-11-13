@@ -2,6 +2,7 @@ use super::{ExprLinter, Lint, LintKind};
 use crate::expr::Expr;
 use crate::expr::FixedPhrase;
 use crate::expr::LongestMatchOf;
+#[cfg(feature = "en")]
 use crate::expr::SimilarToPhrase;
 use crate::linting::Suggestion;
 use crate::linting::expr_linter::Chunk;
@@ -36,6 +37,7 @@ impl MapPhraseLinter {
     #[deprecated(
         note = "use `MapPhraseLinter::new_similar_to_phrase_for` with the phrase's language"
     )]
+    #[cfg(feature = "en")]
     pub fn new_similar_to_phrase(phrase: &'static str, detectable_distance: u8) -> Self {
         Self::similar_to(
             SimilarToPhrase::from_phrase_for(phrase, detectable_distance, LanguageFamily::English),
@@ -87,6 +89,7 @@ impl MapPhraseLinter {
     }
 
     #[deprecated(note = "use `MapPhraseLinter::new_fixed_phrase_for` with the phrase's language")]
+    #[cfg(feature = "en")]
     pub fn new_fixed_phrase(
         phrase: impl AsRef<str>,
         correct_forms: impl IntoIterator<Item = impl ToString>,

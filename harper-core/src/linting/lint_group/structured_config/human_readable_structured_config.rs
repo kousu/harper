@@ -156,7 +156,7 @@ impl HumanReadableSetting {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::{HumanReadableSetting, HumanReadableStructuredConfig};
     use crate::linting::FlatConfig;

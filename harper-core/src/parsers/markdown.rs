@@ -2,10 +2,10 @@ use std::collections::VecDeque;
 
 use serde::{Deserialize, Serialize};
 
-use super::{Parser, PlainEnglish};
+use super::{PROSE_PARSER, Parser};
 use crate::{Span, Token, TokenKind, TokenStringExt, VecExt, offsets::build_byte_to_char_map};
 
-/// A parser that wraps the [`PlainEnglish`] parser that allows one to parse
+/// A parser that wraps the `PlainEnglish` parser that allows one to parse
 /// CommonMark files.
 ///
 /// Will ignore code blocks and tables.
@@ -138,7 +138,7 @@ impl Parser for Markdown {
     /// This implementation is quite gross to look at, but it works.
     /// If any issues arise, it would likely help to refactor this out first.
     fn parse(&self, source: &[char]) -> Vec<Token> {
-        let english_parser = PlainEnglish;
+        let english_parser = PROSE_PARSER;
 
         let source_str: String = source.iter().collect();
         let md_parser = pulldown_cmark::Parser::new_ext(

@@ -108,7 +108,7 @@ fn get_singular_candidates(plural: &[char]) -> Vec<Vec<char>> {
     candidates
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::{get_plurals, get_singulars};
 

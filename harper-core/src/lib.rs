@@ -50,9 +50,12 @@ pub use ignored_lints::{IgnoredLints, LintContext};
 pub use lang::en::{
     dialect::{EnglishDialect, EnglishDialectFlags},
     indefinite_article::{InitialSound, starts_with_vowel},
+    regular_nouns::{get_plurals, get_singulars},
+};
+#[cfg(feature = "en")]
+pub use lang::en::{
     irregular_nouns::IrregularNouns,
     irregular_verbs::IrregularVerbs,
-    regular_nouns::{get_plurals, get_singulars},
     title_case::{make_title_case, make_title_case_str},
 };
 pub use lang::{Language, LanguageFamily, LanguageNameError};
@@ -208,7 +211,7 @@ pub fn remove_overlaps_map<K: Ord>(lint_map: &mut BTreeMap<K, Vec<Lint>>) {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use std::hash::DefaultHasher;
     use std::hash::{Hash, Hasher};

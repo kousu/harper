@@ -2,6 +2,7 @@
 //!
 //! See the [`Linter`] trait and the [documentation for authoring a rule](https://writewithharper.com/docs/contributors/author-a-rule) for more information.
 
+#[cfg(feature = "en")]
 pub(crate) use crate::lang::en::linting as en;
 pub(crate) mod expr_linter;
 mod initialism_linter;
@@ -16,6 +17,7 @@ pub(crate) mod spell_check;
 mod suggestion;
 
 /// Whether `b` is `a` with an "h" added after a "t".
+#[cfg(feature = "en")]
 #[doc(hidden)]
 #[deprecated(note = "English only: use `harper_core::lang::en::is_th_h_missing`")]
 pub fn is_th_h_missing(a: &[char], b: &[char]) -> bool {
@@ -31,9 +33,9 @@ pub use lint_group::{
 pub use lint_kind::LintKind;
 pub use map_phrase_linter::MapPhraseLinter;
 pub use map_phrase_set_linter::MapPhraseSetLinter;
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 pub(crate) use pooled_linter::PooledLinter;
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 pub(crate) use pooled_linter::for_tests::create_test_pool;
 pub use suggestion::{Suggestion, SuggestionCollectionExt};
 
@@ -118,7 +120,7 @@ pub mod debug {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 pub mod tests {
     use crate::{Document, Span, Token, linting::Linter};
     use hashbrown::HashSet;

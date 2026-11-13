@@ -11,8 +11,11 @@ use crate::{
         {ExprLinter, HtmlDescriptionLinter, Lint, Linter},
     },
     spell::Dictionary,
-    {Document, EnglishDialect, Language, Span, TokenStringExt},
+    {Document, Language, Span, TokenStringExt},
 };
+
+#[cfg(feature = "en")]
+use crate::EnglishDialect;
 
 pub use flat_config::FlatConfig;
 pub use structured_config::{
@@ -237,6 +240,7 @@ impl LintGroup {
         language: Language,
     ) -> Self {
         match language {
+            #[cfg(feature = "en")]
             Language::English(dialect) => {
                 crate::lang::en::linting::new_curated(dictionary, dialect)
             }
@@ -244,6 +248,7 @@ impl LintGroup {
     }
 
     /// Create the curated group of English rules.
+    #[cfg(feature = "en")]
     #[deprecated(
         note = "use `LintGroup::new_curated_for_language(dictionary, Language::English(dialect))`"
     )]
@@ -255,6 +260,7 @@ impl LintGroup {
     }
 
     /// Create a new curated group of English rules with all config values cleared out.
+    #[cfg(feature = "en")]
     #[deprecated(
         note = "use `LintGroup::new_curated_empty_config_for_language(dictionary, Language::English(dialect))`"
     )]
@@ -389,7 +395,7 @@ impl Linter for LintGroup {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use std::sync::Arc;
 

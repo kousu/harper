@@ -30,7 +30,7 @@ foldhash = "0.2.0"
 strum_macros = "0.28.0"
 strum = "0.28.0"
 ammonia = "4.1.2"
-harper-brill = { path = "../harper-brill", version = "3.0.0" }
+harper-brill = { path = "../harper-brill", version = "3.0.0", default-features = false }
 harper-thesaurus = { path = "../harper-thesaurus", version = "3.0.0", optional = true }
 bitflags = { version = "2.11.0", features = ["serde"] }
 trie-rs = "0.4.2"
@@ -49,12 +49,21 @@ rayon = "1.12.0"
 [[bench]]
 name = "parse_essay"
 harness = false
+required-features = ["en"]
 
 [[bench]]
 name = "spellcheck"
 harness = false
+required-features = ["en"]
 
 [features]
-default = ["thesaurus", "concurrent"]
+default = ["en", "thesaurus", "concurrent"]
+# English: its dictionary, rules, tagger and chunkers.
+en = ["harper-brill/en"]
 concurrent = ["dep:boxcar"]
-thesaurus = ["dep:harper-thesaurus"]
+# Synonym suggestions for the English rules.
+thesaurus = ["en", "dep:harper-thesaurus"]
+
+[[example]]
+name = "alloc_profile"
+required-features = ["en"]
