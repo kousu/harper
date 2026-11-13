@@ -1,7 +1,56 @@
-//! This module implements rudimentary, dictionary-based English language detection.
+//! This module implements rudimentary, dictionary-based language detection.
+//!
+//! harper-core never guesses a language itself: whoever calls it says which language the text is
+//! in. [`guess_language`] is for front ends that want to offer automatic detection.
 
-use crate::spell::Dictionary;
-use crate::{Document, Token, TokenKind};
+use strum::IntoEnumIterator;
+
+use crate::spell::{Dictionary, FstDictionary};
+use crate::{Document, LanguageFamily, Token, TokenKind};
+
+/// How much of a text [`guess_language`] reads.
+pub const GUESS_SAMPLE_CHARS: usize = 4000;
+
+/// Guess which of the languages built into Harper `text` is written in.
+///
+/// Each language lexes `text` with its lexer and checks it against its curated dictionary,
+/// as [`is_likely_english`] does for English. Among the languages that pass, the one whose
+/// dictionary knows the largest share of the words wins. Returns `None` when no language passes:
+/// for text that is too short, mostly code, or in a language this build doesn't include.
+///
+/// It only picks the language. To guess an English dialect as well, see
+/// [`EnglishDialect::try_guess_from_document`](crate::EnglishDialect::try_guess_from_document).
+///
+/// Guess once, on a whole document: short pieces such as a single heading or comment guess badly.
+/// Only the first [`GUESS_SAMPLE_CHARS`] characters are read, so guessing stays cheap on long
+/// documents.
+pub fn guess_language(text: &str) -> Option<LanguageFamily> {
+    let source: Vec<char> = text.chars().take(GUESS_SAMPLE_CHARS).collect();
+
+    LanguageFamily::iter()
+        .filter_map(|language| {
+            let tokens = language.lexer().lex(&source);
+            let dictionary = FstDictionary::curated_for(language);
+            let has_words = tokens.iter().any(|t| t.kind.is_word());
+            (has_words && is_likely_english(&tokens, &source, &dictionary))
+                .then(|| (language, known_word_share(&tokens, &source, &dictionary)))
+        })
+        .max_by(|(_, a), (_, b)| a.total_cmp(b))
+        .map(|(language, _)| language)
+}
+
+/// The share of the words in `toks` that `dict` knows, from 0 to 1.
+fn known_word_share(toks: &[Token], source: &[char], dict: &impl Dictionary) -> f64 {
+    let words: Vec<_> = toks.iter().filter(|t| t.kind.is_word()).collect();
+    if words.is_empty() {
+        return 0.0;
+    }
+    let known = words
+        .iter()
+        .filter(|t| dict.contains_word(t.get_ch(source)))
+        .count();
+    known as f64 / words.len() as f64
+}
 
 /// Check if the contents of the document are likely intended to represent
 /// English.
@@ -10,6 +59,9 @@ pub fn is_doc_likely_english(doc: &Document, dict: &impl Dictionary) -> bool {
 }
 
 /// Check if given tokens are likely intended to represent English.
+///
+/// Nothing here is specific to English except the dictionary: given another language's tokens and
+/// dictionary, it checks for that language instead (see [`guess_language`]).
 pub fn is_likely_english(toks: &[Token], source: &[char], dict: &impl Dictionary) -> bool {
     let mut total_words = 0;
     let mut valid_words = 0;
@@ -142,5 +194,42 @@ def fibIter(n):
     #[test]
     fn english_motto() {
         assert_english("I have a simple motto in life");
+    }
+}
+
+#[cfg(all(test, feature = "en"))]
+mod guess_tests {
+    use super::guess_language;
+    use crate::LanguageFamily;
+
+    #[test]
+    fn guesses_english() {
+        assert_eq!(
+            guess_language("This is a sentence written in plain English, with nothing unusual."),
+            Some(LanguageFamily::English)
+        );
+    }
+
+    #[test]
+    fn does_not_guess_code() {
+        assert_eq!(guess_language("fn main() { let x = vec![1, 2, 3]; }"), None);
+    }
+
+    #[test]
+    fn does_not_guess_empty_text() {
+        assert_eq!(guess_language(""), None);
+    }
+}
+
+#[cfg(all(test, not(feature = "en")))]
+mod guess_without_english_tests {
+    use super::guess_language;
+
+    #[test]
+    fn english_is_not_guessed_without_the_feature() {
+        assert_eq!(
+            guess_language("This is a sentence written in plain English, with nothing unusual."),
+            None
+        );
     }
 }
