@@ -6,6 +6,7 @@ mod markdown;
 mod mask;
 mod oops_all_headings;
 mod org_mode;
+mod prose;
 
 #[cfg(feature = "en")]
 pub use crate::lexers::PlainEnglish;
@@ -14,18 +15,10 @@ use blanket::blanket;
 pub use collapse_identifiers::CollapseIdentifiers;
 pub use isolate_english::IsolateEnglish;
 pub use markdown::{Markdown, MarkdownOptions};
-pub use mask::Mask;
+pub use mask::{Mask, masked_text, parse_masked};
 pub use oops_all_headings::OopsAllHeadings;
 pub use org_mode::OrgMode;
-
-/// The lexer that file-format parsers hand their prose to unless they are built with one:
-/// English's, or [`PlainText`] in a build without English.
-pub(crate) fn default_prose() -> crate::Lrc<dyn crate::lexers::Lexer> {
-    #[cfg(feature = "en")]
-    return crate::Lrc::new(PlainEnglish);
-    #[cfg(not(feature = "en"))]
-    return crate::Lrc::new(PlainText);
-}
+pub use prose::ProseLexer;
 
 use crate::{LSend, Token, TokenStringExt};
 
