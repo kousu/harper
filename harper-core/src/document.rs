@@ -164,7 +164,7 @@ impl Document {
     pub fn new_markdown_curated(text: &str, markdown_options: MarkdownOptions) -> Self {
         Self::new(
             text,
-            &Markdown::new(markdown_options),
+            &Markdown::with_language(markdown_options, LanguageFamily::English),
             &crate::lang::en::dictionary::dictionary(),
         )
     }
@@ -175,7 +175,7 @@ impl Document {
     pub fn new_markdown_default_curated_chars(chars: &[char]) -> Self {
         Self::new_from_chars(
             chars.to_vec().into(),
-            &Markdown::default(),
+            &Markdown::with_language(MarkdownOptions::default(), LanguageFamily::English),
             &crate::lang::en::dictionary::dictionary(),
         )
     }
@@ -195,7 +195,11 @@ impl Document {
         markdown_options: MarkdownOptions,
         dictionary: &impl Dictionary,
     ) -> Self {
-        Self::new(text, &Markdown::new(markdown_options), dictionary)
+        Self::new(
+            text,
+            &Markdown::with_language(markdown_options, LanguageFamily::English),
+            dictionary,
+        )
     }
 
     #[cfg(feature = "en")]

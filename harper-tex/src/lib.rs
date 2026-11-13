@@ -1,40 +1,62 @@
 mod masker;
 
+use harper_core::LanguageFamily;
 use harper_core::Lrc;
 use harper_core::lexers::Lexer;
-use harper_core::parsers::{Mask, Parser, PlainEnglish};
+use harper_core::parsers::{self, Parser, ProseLexer};
 use harper_core::{Punctuation, Span, Token, TokenKind};
 
 use self::masker::Masker;
 
-/// A parser for Harper that wraps a prose parser (`PlainEnglish` by default), allowing one use Harper on
+/// A parser for Harper that wraps a lexer (guessed per document by default), allowing one use Harper on
 /// documents written in TeX, LaTeX, or any other TeX derivative.
 ///
 /// This parser is crude, and could definitely use work if all features of Harper wish to be
 /// supported for the language.
 pub struct TeX {
-    inner: Mask<Masker, Lrc<dyn Lexer>>,
+    masker: Masker,
+    prose: ProseLexer,
 }
 
+/// The same as [`TeX::new`]: it guesses each document's language.
 impl Default for TeX {
-    /// A parser whose prose is English.
     fn default() -> Self {
-        Self::with_lexer(Lrc::new(PlainEnglish))
+        Self::new()
     }
 }
 
 impl TeX {
+    /// A parser that guesses each document's language (see [`ProseLexer::Guess`]). Use
+    /// [`Self::with_language`] when you know the language.
+    pub fn new() -> Self {
+        Self::with(ProseLexer::Guess)
+    }
+
+    /// A parser for prose in `language`.
+    pub fn with_language(language: LanguageFamily) -> Self {
+        Self::with(ProseLexer::for_language(language))
+    }
+
     /// A parser that hands its prose to `prose`.
     pub fn with_lexer(prose: Lrc<dyn Lexer>) -> Self {
+        Self::with(ProseLexer::Given(prose))
+    }
+
+    fn with(prose: ProseLexer) -> Self {
         Self {
-            inner: Mask::new(Default::default(), prose),
+            masker: Default::default(),
+            prose,
         }
     }
 }
 
 impl Parser for TeX {
     fn parse(&self, source: &[char]) -> Vec<Token> {
-        let tokens = self.inner.parse(source);
+        let tokens = parsers::parse_masked(
+            &self.masker,
+            &self.prose.for_masked(&self.masker, source),
+            source,
+        );
         collapse_tex_dashes(tokens)
     }
 }

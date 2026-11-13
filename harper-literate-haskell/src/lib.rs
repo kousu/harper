@@ -1,8 +1,8 @@
 use harper_comments::CommentParser;
 use harper_core::lexers::Lexer;
 use harper_core::{
-    Lrc, Masker, Token,
-    parsers::{Markdown, MarkdownOptions, Mask, Parser},
+    LanguageFamily, Lrc, Masker, Token,
+    parsers::{self, Markdown, MarkdownOptions, Mask, Parser, ProseLexer},
 };
 
 mod masker;
@@ -12,17 +12,38 @@ use masker::LiterateHaskellMasker;
 
 /// Parses a Literate Haskell document by masking out the code and considering text as Markdown.
 pub struct LiterateHaskellParser {
-    inner: Lrc<dyn Parser>,
+    inner: Inner,
+}
+
+/// What parses the text between the code.
+enum Inner {
+    Parser(Lrc<dyn Parser>),
+    Markdown(MarkdownOptions, ProseLexer),
 }
 
 impl LiterateHaskellParser {
+    /// A parser that hands the text between the code to `inner`.
     pub fn new(inner: Lrc<dyn Parser>) -> Self {
-        Self { inner }
+        Self {
+            inner: Inner::Parser(inner),
+        }
     }
 
+    /// A parser that reads the text between the code as Markdown, and guesses each document's
+    /// language (see [`ProseLexer::Guess`]). Use [`Self::new_markdown_with_language`] when you know it.
     pub fn new_markdown(markdown_options: MarkdownOptions) -> Self {
         Self {
-            inner: Lrc::new(Markdown::new(markdown_options)),
+            inner: Inner::Markdown(markdown_options, ProseLexer::Guess),
+        }
+    }
+
+    /// Like [`Self::new_markdown`], for text in `language`.
+    pub fn new_markdown_with_language(
+        markdown_options: MarkdownOptions,
+        language: LanguageFamily,
+    ) -> Self {
+        Self {
+            inner: Inner::Markdown(markdown_options, ProseLexer::for_language(language)),
         }
     }
 
@@ -31,7 +52,9 @@ impl LiterateHaskellParser {
         markdown_options: MarkdownOptions,
         prose: Lrc<dyn Lexer>,
     ) -> Self {
-        Self::new(Lrc::new(Markdown::with_lexer(markdown_options, prose)))
+        Self {
+            inner: Inner::Markdown(markdown_options, ProseLexer::Given(prose)),
+        }
     }
 
     pub fn create_ident_dict(
@@ -52,6 +75,13 @@ impl LiterateHaskellParser {
 
 impl Parser for LiterateHaskellParser {
     fn parse(&self, source: &[char]) -> Vec<Token> {
-        Mask::new(LiterateHaskellMasker::text_only(), self.inner.clone()).parse(source)
+        let masker = LiterateHaskellMasker::text_only();
+        match &self.inner {
+            Inner::Parser(inner) => Mask::new(masker, inner.clone()).parse(source),
+            Inner::Markdown(options, prose) => {
+                let markdown = Markdown::with_lexer(*options, prose.for_masked(&masker, source));
+                parsers::parse_masked(&masker, &markdown, source)
+            }
+        }
     }
 }

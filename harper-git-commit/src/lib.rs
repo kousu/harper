@@ -1,11 +1,13 @@
 use harper_core::lexers::Lexer;
-use harper_core::parsers::{self, Markdown, MarkdownOptions, Parser, PlainEnglish};
-use harper_core::{Lrc, Mask, Masker, Span, Token, TokenKind};
+use harper_core::parsers::{self, Markdown, MarkdownOptions, Parser, ProseLexer};
+use harper_core::{LanguageFamily, Lrc, Mask, Masker, Span, Token, TokenKind};
 use harper_tree_sitter::TreeSitterMasker;
 use tree_sitter::Node;
 
 pub struct GitCommitParser {
-    inner: parsers::Mask<GitCommitMasker, Markdown>,
+    masker: GitCommitMasker,
+    markdown_options: MarkdownOptions,
+    prose: ProseLexer,
 }
 
 struct GitCommitMasker {
@@ -47,34 +49,40 @@ impl Masker for GitCommitMasker {
 }
 
 impl GitCommitParser {
-    /// A parser whose prose is English.
+    /// A parser that guesses each document's language (see [`ProseLexer::Guess`]). Use
+    /// [`Self::with_language`] when you know the language.
     pub fn new(markdown_options: MarkdownOptions) -> Self {
-        Self::with_lexer(markdown_options, Lrc::new(PlainEnglish))
+        Self::with(markdown_options, ProseLexer::Guess)
+    }
+
+    /// A parser for prose in `language`.
+    pub fn with_language(markdown_options: MarkdownOptions, language: LanguageFamily) -> Self {
+        Self::with(markdown_options, ProseLexer::for_language(language))
     }
 
     /// A parser whose Markdown hands its prose to `prose`.
     pub fn with_lexer(markdown_options: MarkdownOptions, prose: Lrc<dyn Lexer>) -> Self {
+        Self::with(markdown_options, ProseLexer::Given(prose))
+    }
+
+    fn with(markdown_options: MarkdownOptions, prose: ProseLexer) -> Self {
         Self {
-            inner: parsers::Mask::new(
-                GitCommitMasker {
-                    content: TreeSitterMasker::new(
-                        tree_sitter_gitcommit::LANGUAGE.into(),
-                        |node: &Node| {
-                            matches!(node.kind(), "subject" | "message_line" | "breaking_change")
-                        },
-                    ),
-                    prefixes: TreeSitterMasker::new(
-                        tree_sitter_gitcommit::LANGUAGE.into(),
-                        |node| {
-                            node.kind() == "prefix"
-                                && node
-                                    .parent()
-                                    .is_some_and(|parent| parent.kind() == "subject")
-                        },
-                    ),
-                },
-                Markdown::with_lexer(markdown_options, prose),
-            ),
+            masker: GitCommitMasker {
+                content: TreeSitterMasker::new(
+                    tree_sitter_gitcommit::LANGUAGE.into(),
+                    |node: &Node| {
+                        matches!(node.kind(), "subject" | "message_line" | "breaking_change")
+                    },
+                ),
+                prefixes: TreeSitterMasker::new(tree_sitter_gitcommit::LANGUAGE.into(), |node| {
+                    node.kind() == "prefix"
+                        && node
+                            .parent()
+                            .is_some_and(|parent| parent.kind() == "subject")
+                }),
+            },
+            markdown_options,
+            prose,
         }
     }
 }
@@ -87,7 +95,11 @@ impl Default for GitCommitParser {
 
 impl Parser for GitCommitParser {
     fn parse(&self, source: &[char]) -> Vec<Token> {
-        let mut tokens = self.inner.parse(source);
+        let mut tokens = {
+            let prose = self.prose.for_masked(&self.masker, source);
+            let markdown = Markdown::with_lexer(self.markdown_options, prose);
+            parsers::parse_masked(&self.masker, &markdown, source)
+        };
 
         for token in &mut tokens {
             if let TokenKind::Space(v) = &mut token.kind {

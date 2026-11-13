@@ -5,8 +5,8 @@ use harper_core::lexers::Lexer;
 use typst_translator::TypstTranslator;
 
 use harper_core::{
-    Lrc, Token,
-    parsers::{Parser, PlainEnglish},
+    LanguageFamily, Lrc, Token,
+    parsers::{Parser, ProseLexer},
 };
 use itertools::Itertools;
 use typst_syntax::{
@@ -14,24 +14,42 @@ use typst_syntax::{
     ast::{AstNode, Expr, Markup},
 };
 
-/// A parser for Typst files. It hands the prose it finds to an inner parser, which is
-/// [`PlainEnglish`] unless it was built with [`Typst::with_lexer`].
+/// A parser for Typst files. It hands the prose it finds to a lexer: the one for the
+/// language it guesses from each document (see [`ProseLexer::Guess`]), unless it was built for a
+/// language with [`Typst::with_language`] or given a lexer with [`Typst::with_lexer`].
 #[derive(Clone)]
 pub struct Typst {
-    prose: Lrc<dyn Lexer>,
+    prose: ProseLexer,
 }
 
 impl Typst {
+    /// A Typst parser that guesses each document's language. Use [`Self::with_language`] when you know
+    /// the language.
+    pub fn new() -> Self {
+        Self {
+            prose: ProseLexer::Guess,
+        }
+    }
+
+    /// A Typst parser for prose in `language`.
+    pub fn with_language(language: LanguageFamily) -> Self {
+        Self {
+            prose: ProseLexer::for_language(language),
+        }
+    }
+
     /// A Typst parser that hands its prose to `prose`.
     pub fn with_lexer(prose: Lrc<dyn Lexer>) -> Self {
-        Self { prose }
+        Self {
+            prose: ProseLexer::Given(prose),
+        }
     }
 }
 
-/// A Typst parser whose prose is English.
+/// The same as [`Typst::new`]: it guesses each document's language.
 impl Default for Typst {
     fn default() -> Self {
-        Self::with_lexer(Lrc::new(PlainEnglish))
+        Self::new()
     }
 }
 
@@ -45,7 +63,8 @@ impl Parser for Typst {
             .expect("Unable to create typst document from parsed tree!");
 
         // Recurse through AST to create tokens
-        let parse_helper = TypstTranslator::new(&typst_document, self.prose.as_ref());
+        let prose = self.prose.for_text(source);
+        let parse_helper = TypstTranslator::new(&typst_document, prose.as_ref());
         let mut buf = Vec::new();
         let exprs = typst_tree.exprs().collect_vec();
         let exprs = convert_parbreaks(&mut buf, &exprs);
