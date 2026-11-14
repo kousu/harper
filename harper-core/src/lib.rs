@@ -59,6 +59,8 @@ pub use lang::en::{
 };
 #[cfg(feature = "fr")]
 pub use lang::fr::dialect::{FrenchDialect, FrenchDialectFlags};
+#[cfg(feature = "fr")]
+pub use lang::fr::ordinal::FrenchOrdinalSuffix;
 pub use lang::{Language, LanguageFamily, LanguageNameError};
 
 /// The old name of [`EnglishDialect`].

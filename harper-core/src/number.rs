@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "en")]
 use crate::EnglishOrdinalSuffix;
+#[cfg(feature = "fr")]
+use crate::FrenchOrdinalSuffix;
 
 /// Represents a written number.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, Default, PartialEq, Eq, Hash, PartialOrd)]
@@ -46,6 +48,8 @@ impl Display for Number {
 pub enum OrdinalSuffix {
     #[cfg(feature = "en")]
     English(EnglishOrdinalSuffix),
+    #[cfg(feature = "fr")]
+    French(FrenchOrdinalSuffix),
 }
 
 impl OrdinalSuffix {
@@ -54,6 +58,8 @@ impl OrdinalSuffix {
         match self {
             #[cfg(feature = "en")]
             Self::English(suffix) => suffix.to_chars(),
+            #[cfg(feature = "fr")]
+            Self::French(suffix) => suffix.to_chars(),
         }
     }
 }
@@ -86,6 +92,13 @@ impl OrdinalSuffix {
 impl From<EnglishOrdinalSuffix> for OrdinalSuffix {
     fn from(suffix: EnglishOrdinalSuffix) -> Self {
         Self::English(suffix)
+    }
+}
+
+#[cfg(feature = "fr")]
+impl From<FrenchOrdinalSuffix> for OrdinalSuffix {
+    fn from(suffix: FrenchOrdinalSuffix) -> Self {
+        Self::French(suffix)
     }
 }
 
