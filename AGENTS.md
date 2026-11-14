@@ -172,7 +172,7 @@ Read the [Desktop contributor documentation](packages/web/src/routes/docs/contri
 
 - Tauri app state lives in `harper-desktop/src-tauri/src/config.rs`.
 - `Config` currently stores `mutable_dictionary: MutableDictionary`, `dialect: EnglishDialect`, `ignored_lints: IgnoredLints`, `lint_config: FlatConfig`, and `integrations: Vec<Integration>`.
-- `Config::new()` uses `MutableDictionary::new()`, `EnglishDialect::American`, `IgnoredLints::new()`, `FlatConfig::new_curated()`, and curated default integrations.
+- `Config::new()` uses `MutableDictionary::new()`, `EnglishDialect::American`, `IgnoredLints::new()`, `FlatConfig::new_curated_for(LanguageFamily::English)`, and curated default integrations.
 - Config is persisted under the system config directory in a `harper-desktop` folder. Main settings are serialized to `config.json`; the mutable dictionary is stored separately as `dictionary.txt`.
 - `Config::load_from_system()` loads the serialized config and then hydrates the mutable dictionary with the selected dialect.
 - The Tauri app owns shared config as `Arc<Mutex<Config>>`.
@@ -194,7 +194,7 @@ Read the [Desktop contributor documentation](packages/web/src/routes/docs/contri
 
 - Keep dictionary construction centralized through `Config::dictionary_from_user_dictionary(user_dictionary: MutableDictionary) -> Arc<MergedDictionary>` and `Config::create_dictionary()`.
 - Keep linter construction centralized through `Config::create_linter()`.
-- The same merged dictionary source must be used for both `Document::new_markdown_default(text, &dictionary)` and `LintGroup::new_curated(dictionary, dialect)`.
+- The same merged dictionary source must be used for both `Document::new_markdown_default(text, &dictionary)` and `LintGroup::new_curated_for_language(dictionary, Language::English(dialect))`.
 - Do not use `Document::new_markdown_default_curated(text)` in the main highlighter lint callback when user dictionary words should suppress spelling lints.
 - Harper spelling lint behavior depends on document token metadata, so a linter with the updated dictionary is not enough if the `Document` was built with the curated dictionary only.
 - `RenderState` may still use curated document construction for localized source extraction where dictionary membership does not matter.

@@ -56,7 +56,7 @@ pub fn application_message_handler<R: Runtime>() -> impl Fn(Invoke<R>) -> bool {
 #[tauri::command]
 async fn get_lint_config(config: State<'_, Arc<Mutex<Config>>>) -> Result<FlatConfig, String> {
     let mut lint_config = config.lock().await.lint_config.clone();
-    lint_config.fill_with_curated();
+    lint_config.fill_with_curated_for(harper_core::LanguageFamily::English);
 
     Ok(lint_config)
 }
@@ -172,7 +172,7 @@ async fn set_lint_config(
     config: State<'_, Arc<Mutex<Config>>>,
 ) -> Result<(), String> {
     let mut lint_config = lint_config;
-    lint_config.fill_with_curated();
+    lint_config.fill_with_curated_for(harper_core::LanguageFamily::English);
 
     let mut config = config.lock().await;
     config.lint_config = lint_config;

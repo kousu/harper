@@ -20,7 +20,7 @@ impl PreparedWords {
                 .filter(|l| !l.is_empty())
                 .map(|l| l.chars().collect())
                 .collect(),
-            dict: FstDictionary::curated(),
+            dict: FstDictionary::curated_for(harper_core::LanguageFamily::English),
         }
     }
 

@@ -19,15 +19,16 @@ Here's what a full end-to-end linting pipeline could look like using `harper-cor
 use harper_core::linting::{LintGroup, Linter};
 use harper_core::parsers::PlainEnglish;
 use harper_core::spell::FstDictionary;
-use harper_core::{EnglishDialect, Document};
+use harper_core::{Document, EnglishDialect, Language, LanguageFamily};
 
 let text = "This is an test.";
 let parser = PlainEnglish;
+let language = Language::English(EnglishDialect::American);
 
 let document = Document::new_curated(text, &parser);
 
-let dict = FstDictionary::curated();
-let mut linter = LintGroup::new_curated(dict, EnglishDialect::American);
+let dict = FstDictionary::curated_for(LanguageFamily::English);
+let mut linter = LintGroup::new_curated_for_language(dict, language);
 
 let lints = linter.lint(&document);
 

@@ -4,7 +4,7 @@ use std::sync::{Arc, LazyLock};
 use trie_rs::Trie;
 use trie_rs::iter::{Keys, PrefixIter, SearchIter};
 
-use crate::DictWordMetadata;
+use crate::{DictWordMetadata, LanguageFamily};
 
 use super::{CanonicalWordId, Dictionary, FstDictionary, FuzzyMatchResult};
 
@@ -15,14 +15,20 @@ pub struct TrieDictionary<D: Dictionary> {
     inner: D,
 }
 
+/// The curated English dictionary, as a [`TrieDictionary`].
 pub static DICT: LazyLock<Arc<TrieDictionary<Arc<FstDictionary>>>> =
-    LazyLock::new(|| Arc::new(TrieDictionary::new(FstDictionary::curated())));
+    LazyLock::new(crate::lang::en::dictionary::trie_dictionary);
 
 impl TrieDictionary<Arc<FstDictionary>> {
-    /// Create a dictionary from the curated dictionary included
+    /// Create a dictionary from the curated English dictionary included
     /// in the Harper binary.
     pub fn curated() -> Arc<Self> {
-        (*DICT).clone()
+        Self::curated_for(LanguageFamily::English)
+    }
+
+    /// The curated dictionary for `language`, as a [`TrieDictionary`].
+    pub fn curated_for(language: LanguageFamily) -> Arc<Self> {
+        language.data().trie_dictionary()
     }
 }
 

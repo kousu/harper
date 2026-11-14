@@ -256,7 +256,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     let markdown_options = MarkdownOptions::default();
-    let curated_dictionary = FstDictionary::curated();
+    let curated_dictionary = FstDictionary::curated_for(harper_core::LanguageFamily::English);
 
     match cli.command {
         Args::Lint {
@@ -516,7 +516,11 @@ fn main() -> anyhow::Result<()> {
 
                 if let Some((dict_word, dict_annot)) = &entry_in_dict {
                     println!("Old, from the dictionary:");
-                    print_word_derivations(dict_word, dict_annot, &FstDictionary::curated());
+                    print_word_derivations(
+                        dict_word,
+                        dict_annot,
+                        &FstDictionary::curated_for(harper_core::LanguageFamily::English),
+                    );
                 };
 
                 if !annot.is_empty() {
@@ -540,7 +544,10 @@ fn main() -> anyhow::Result<()> {
                 description: String,
             }
 
-            let linter = LintGroup::new_curated(curated_dictionary, EnglishDialect::American);
+            let linter = LintGroup::new_curated_for_language(
+                curated_dictionary,
+                harper_core::Language::English(EnglishDialect::American),
+            );
 
             let default_config: HashMap<String, bool> =
                 serde_json::from_str(&serde_json::to_string(&linter.config).unwrap()).unwrap();

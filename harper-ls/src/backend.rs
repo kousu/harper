@@ -203,7 +203,9 @@ impl Backend {
 
     async fn generate_global_dictionary(&self) -> Result<MergedDictionary> {
         let mut dict = MergedDictionary::new();
-        dict.add_dictionary(FstDictionary::curated());
+        dict.add_dictionary(FstDictionary::curated_for(
+            harper_core::LanguageFamily::English,
+        ));
         let user_dict = self.load_user_dictionary().await;
         dict.add_dictionary(Arc::new(user_dict));
         let ws_dict = self.load_workspace_dictionary().await;
@@ -292,6 +294,7 @@ impl Backend {
                 ignored_lints,
                 linter: LintGroup::new_curated_for_language(dict.clone(), language)
                     .with_lint_config(lint_config.clone()),
+                language,
                 language_id: language_id.map(|v| v.to_string()),
                 dict: dict.clone(),
                 uri: uri.clone(),
@@ -304,6 +307,7 @@ impl Backend {
             info!("Constructing new linter because of modified dictionary.");
             doc_state.linter = LintGroup::new_curated_for_language(dict.clone(), language)
                 .with_lint_config(lint_config.clone());
+            doc_state.language = language;
         }
 
         let Some(language_id) = &doc_state.language_id else {
@@ -330,6 +334,8 @@ impl Backend {
 
                 doc_state.linter = LintGroup::new_curated_for_language(merged.clone(), language)
                     .with_lint_config(lint_config.clone());
+
+                doc_state.language = language;
                 doc_state.dict = merged.clone();
             }
 
@@ -872,6 +878,7 @@ impl LanguageServer for Backend {
                 doc.linter =
                     LintGroup::new_curated_for_language(doc.dict.clone(), config_lock.language)
                         .with_lint_config(config_lock.lint_config.clone());
+                doc.language = config_lock.language;
             }
 
             doc_lock.keys().cloned().collect()
