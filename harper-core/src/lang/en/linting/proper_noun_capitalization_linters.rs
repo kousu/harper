@@ -27,7 +27,11 @@ impl ProperNounCapitalizationLinter {
         let mut expr_map = ExprMap::default();
 
         for can_vers in canonical_versions {
-            let doc = Document::new_basic_tokenize(can_vers.as_ref(), &PlainEnglish);
+            let doc = Document::new_basic_tokenize(
+                can_vers.as_ref(),
+                &PlainEnglish,
+                crate::LanguageFamily::English,
+            );
 
             let expr = FixedPhrase::from_document(&doc);
 
