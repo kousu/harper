@@ -268,6 +268,7 @@ impl LintGroup {
         );
         out.add("FrenchElision", super::fr::Elision);
         out.add("FrenchArticleGender", super::fr::ArticleGender);
+        out.add("FrenchCorrectNumberSuffix", super::fr::CorrectNumberSuffix);
         out.set_all_rules_to(Some(true));
 
         out
