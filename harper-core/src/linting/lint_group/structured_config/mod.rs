@@ -21,6 +21,11 @@ impl StructuredConfig {
         crate::lang::en::linting::default_config()
     }
 
+    /// Build the curated structured config of `language`'s rules, including labels.
+    pub fn curated_for(language: crate::LanguageFamily) -> Self {
+        language.data().default_config()
+    }
+
     /// Validate that the structure of the settings is valid.
     /// Returns `true` if it is valid and `false` otherwise.
     pub fn validate(&self) -> bool {

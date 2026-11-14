@@ -53,7 +53,7 @@ impl Config {
             mutable_dictionary: MutableDictionary::new(),
             dialect: Self::detect_system_dialect(),
             ignored_lints: IgnoredLints::new(),
-            lint_config: FlatConfig::new_curated(),
+            lint_config: FlatConfig::new_curated_for(harper_core::LanguageFamily::English),
             integrations: Integration::curated_integrations(),
             auto_enable_new_apps: false,
             onboarding_state: OnboardingState::Welcome,
@@ -161,7 +161,9 @@ impl Config {
         let dictionary_path = Self::dictionary_path().ok_or(Error::ConfigDirUnavailable)?;
         let serialized = fs::read_to_string(main_path)?;
         let mut config = Self::deserialize_main(&serialized)?;
-        config.lint_config.fill_with_curated();
+        config
+            .lint_config
+            .fill_with_curated_for(harper_core::LanguageFamily::English);
         config.mutable_dictionary =
             load_dict(dictionary_path, Language::English(config.dialect)).await?;
 
@@ -172,7 +174,9 @@ impl Config {
         user_dictionary: MutableDictionary,
     ) -> Arc<MergedDictionary> {
         let mut dictionary = MergedDictionary::new();
-        dictionary.add_dictionary(FstDictionary::curated());
+        dictionary.add_dictionary(FstDictionary::curated_for(
+            harper_core::LanguageFamily::English,
+        ));
         dictionary.add_dictionary(Arc::new(user_dictionary));
 
         Arc::new(dictionary)
@@ -199,7 +203,10 @@ impl Config {
 
     /// Rebuild from enabled packs so removed rules cannot remain active. Explicit rule settings win.
     pub fn create_linter(&self) -> LintGroup {
-        let mut linter = LintGroup::new_curated(self.create_dictionary(), self.dialect);
+        let mut linter = LintGroup::new_curated_for_language(
+            self.create_dictionary(),
+            harper_core::Language::English(self.dialect),
+        );
         for pack in self.weirpacks.iter().filter(|pack| pack.enabled) {
             match pack
                 .unpack()

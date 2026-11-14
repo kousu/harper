@@ -1,14 +1,9 @@
 use std::collections::BTreeMap;
 use std::hash::{Hash, Hasher};
 use std::mem;
-use std::sync::OnceLock;
 
 use hashbrown::HashMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-use super::LintGroup;
-use crate::EnglishDialect;
-use crate::spell::MutableDictionary;
 
 fn ser_ordered<S>(map: &HashMap<String, Option<bool>>, ser: S) -> Result<S::Ok, S::Error>
 where
@@ -26,10 +21,10 @@ where
     Ok(ordered.into_iter().collect())
 }
 
-/// The rule-level configuration for a [`LintGroup`].
+/// The rule-level configuration for a [`LintGroup`](super::LintGroup).
 /// Previously named `LintGroupConfig`.
 /// Each child linter can be enabled, disabled, or set to a curated value.
-/// So named because it represents the structure of a [`LintGroup`] exactly: it's flat.
+/// So named because it represents the structure of a [`LintGroup`](super::LintGroup) exactly: it's flat.
 #[derive(Debug, Serialize, Deserialize, Default, Clone, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct FlatConfig {
@@ -39,21 +34,6 @@ pub struct FlatConfig {
 }
 
 impl FlatConfig {
-    fn curated() -> Self {
-        static CURATED: OnceLock<FlatConfig> = OnceLock::new();
-
-        CURATED
-            .get_or_init(|| {
-                // The Dictionary and EnglishDialect do not matter, we're just after the config.
-                let group = LintGroup::new_curated(
-                    MutableDictionary::new().into(),
-                    EnglishDialect::American,
-                );
-                group.config
-            })
-            .clone()
-    }
-
     /// Check if a rule exists in the configuration.
     pub fn has_rule(&self, key: impl AsRef<str>) -> bool {
         self.inner.contains_key(key.as_ref())
@@ -100,15 +80,26 @@ impl FlatConfig {
         }
     }
 
-    /// Fill the group with the values for the curated lint group.
+    /// Fill the group with the values for the curated English lint group.
     pub fn fill_with_curated(&mut self) {
-        let mut temp = Self::new_curated();
+        self.fill_with_curated_for(crate::LanguageFamily::English);
+    }
+
+    /// Fill the group with the values for the curated lint group of `language`, keeping the
+    /// values already set.
+    pub fn fill_with_curated_for(&mut self, language: crate::LanguageFamily) {
+        let mut temp = Self::new_curated_for(language);
         mem::swap(self, &mut temp);
         self.merge_from(temp);
     }
 
     pub fn new_curated() -> Self {
-        Self::curated()
+        Self::new_curated_for(crate::LanguageFamily::English)
+    }
+
+    /// The config of the curated lint group of `language`.
+    pub fn new_curated_for(language: crate::LanguageFamily) -> Self {
+        language.data().default_flat_config()
     }
 }
 

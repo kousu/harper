@@ -6,7 +6,7 @@ use itertools::Itertools;
 use std::borrow::Cow;
 use std::sync::Arc;
 
-use crate::{CharString, CharStringExt, DictWordMetadata};
+use crate::{CharString, CharStringExt, DictWordMetadata, LanguageFamily};
 
 use super::dictionary::Dictionary;
 
@@ -37,11 +37,18 @@ impl MutableDictionary {
         })
     }
 
-    /// Create a dictionary from the curated dictionary included
+    /// Create a dictionary from the curated English dictionary included
     /// in the Harper binary.
     /// Consider using [`super::FstDictionary::curated()`] instead, as it is more performant for spellchecking.
     pub fn curated() -> Arc<Self> {
         crate::lang::en::dictionary::mutable_dictionary()
+    }
+
+    /// The curated dictionary for `language`.
+    /// Consider using [`super::FstDictionary::curated_for`] instead, as it is more performant for
+    /// spellchecking.
+    pub fn curated_for(language: LanguageFamily) -> Arc<Self> {
+        language.data().mutable_dictionary()
     }
 
     /// Appends words to the dictionary.

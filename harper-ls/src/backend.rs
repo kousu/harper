@@ -206,7 +206,9 @@ impl Backend {
 
     async fn generate_global_dictionary(&self) -> Result<MergedDictionary> {
         let mut dict = MergedDictionary::new();
-        dict.add_dictionary(FstDictionary::curated());
+        dict.add_dictionary(FstDictionary::curated_for(
+            harper_core::LanguageFamily::English,
+        ));
         let user_dict = self.load_user_dictionary().await;
         dict.add_dictionary(Arc::new(user_dict));
         let ws_dict = self.load_workspace_dictionary().await;
@@ -267,6 +269,7 @@ impl Backend {
                 config.exclude_patterns.clone(),
             )
         };
+        let language = Language::English(dialect);
 
         let mut doc_lock = self.doc_state.lock().await;
 
@@ -293,8 +296,9 @@ impl Backend {
 
             DocumentState {
                 ignored_lints,
-                linter: LintGroup::new_curated(dict.clone(), dialect)
+                linter: LintGroup::new_curated_for_language(dict.clone(), language)
                     .with_lint_config(lint_config.clone()),
+                language,
                 language_id: language_id.map(|v| v.to_string()),
                 dict: dict.clone(),
                 uri: uri.clone(),
@@ -305,8 +309,9 @@ impl Backend {
         if doc_state.dict != dict {
             doc_state.dict = dict.clone();
             info!("Constructing new linter because of modified dictionary.");
-            doc_state.linter =
-                LintGroup::new_curated(dict.clone(), dialect).with_lint_config(lint_config.clone());
+            doc_state.linter = LintGroup::new_curated_for_language(dict.clone(), language)
+                .with_lint_config(lint_config.clone());
+            doc_state.language = language;
         }
 
         let Some(language_id) = &doc_state.language_id else {
@@ -323,6 +328,7 @@ impl Backend {
             lint_config: &FlatConfig,
             dialect: EnglishDialect,
         ) -> Result<Box<dyn Parser>> {
+            let language = Language::English(dialect);
             if doc_state.ident_dict != new_dict {
                 info!("Constructing new linter because of modified ident dictionary.");
                 doc_state.ident_dict = new_dict.clone();
@@ -331,8 +337,10 @@ impl Backend {
                 merged.add_dictionary(new_dict);
                 let merged = Arc::new(merged);
 
-                doc_state.linter = LintGroup::new_curated(merged.clone(), dialect)
+                doc_state.linter = LintGroup::new_curated_for_language(merged.clone(), language)
                     .with_lint_config(lint_config.clone());
+
+                doc_state.language = language;
                 doc_state.dict = merged.clone();
             }
 
@@ -872,8 +880,12 @@ impl LanguageServer for Backend {
 
             for doc in doc_lock.values_mut() {
                 info!("Constructing new LintGroup for updated configuration.");
-                doc.linter = LintGroup::new_curated(doc.dict.clone(), config_lock.dialect)
-                    .with_lint_config(config_lock.lint_config.clone());
+                doc.linter = LintGroup::new_curated_for_language(
+                    doc.dict.clone(),
+                    Language::English(config_lock.dialect),
+                )
+                .with_lint_config(config_lock.lint_config.clone());
+                doc.language = Language::English(config_lock.dialect);
             }
 
             doc_lock.keys().cloned().collect()

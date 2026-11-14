@@ -21,7 +21,7 @@ pub struct SplitWords {
 impl SplitWords {
     pub fn new() -> Self {
         Self {
-            dict: TrieDictionary::curated(),
+            dict: TrieDictionary::curated_for(crate::LanguageFamily::English),
             expr: Box::new(|tok: &Token, _: &[char]| tok.kind.is_word()),
         }
     }
