@@ -126,10 +126,9 @@ mod tests {
     #[test]
     fn by_default_one_must_be_enabled_and_one_must_be_disabled() {
         use crate::EnglishDialect;
-        use crate::spell::FstDictionary;
 
-        let mut lg = crate::linting::LintGroup::new_curated(
-            FstDictionary::curated(),
+        let mut lg = crate::lang::en::linting::new_curated(
+            crate::lang::en::dictionary::dictionary(),
             EnglishDialect::American,
         );
         lg.config.unset_rule_enabled("SpellCheck");

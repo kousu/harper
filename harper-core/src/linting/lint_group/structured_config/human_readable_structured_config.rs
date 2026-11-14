@@ -380,9 +380,9 @@ mod tests {
 
     #[test]
     fn default_config_matches_curated_flat_config() {
-        let settings = StructuredConfig::curated();
+        let settings = crate::lang::en::linting::default_config();
         let actual = settings.to_flat_config().unwrap();
-        let curated = FlatConfig::new_curated();
+        let curated = FlatConfig::new_curated_for(crate::LanguageFamily::English);
 
         assert!(settings.validate());
 

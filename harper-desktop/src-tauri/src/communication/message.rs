@@ -102,7 +102,7 @@ mod tests {
     #[test]
     fn set_lint_config_request_serializes_as_json() {
         let request = Request::SetLintConfig {
-            config: FlatConfig::new_curated(),
+            config: FlatConfig::new_curated_for(harper_core::LanguageFamily::English),
         };
         let encoded = serde_json::to_string(&request).unwrap();
         let decoded: Request = serde_json::from_str(&encoded).unwrap();
@@ -171,7 +171,7 @@ mod tests {
     #[test]
     fn response_serializes_as_json() {
         let response = Response::GetLintConfig {
-            config: FlatConfig::new_curated(),
+            config: FlatConfig::new_curated_for(harper_core::LanguageFamily::English),
         };
         let encoded = serde_json::to_string(&response).unwrap();
         let decoded: Response = serde_json::from_str(&encoded).unwrap();

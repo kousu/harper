@@ -191,15 +191,15 @@ fn print_error(lines: &Lines, start: usize, end: usize, message: &str) -> String
 #[test]
 fn test_most_lints() {
     snapshot::snapshot_all_text_files("linters", ".snap.yml", |source, dialect_override| {
-        let dict = FstDictionary::curated();
+        let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
         let document = Document::new_markdown_default(source, &dict);
 
-        let mut linter = LintGroup::new_curated(
+        let mut linter = LintGroup::new_curated_for_language(
             dict,
-            dialect_override.unwrap_or_else(|| {
+            harper_core::Language::English(dialect_override.unwrap_or_else(|| {
                 EnglishDialect::try_guess_from_document(&document)
                     .unwrap_or(EnglishDialect::American)
-            }),
+            })),
         );
 
         let mut lints = linter.lint(&document);

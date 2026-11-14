@@ -144,16 +144,13 @@ impl<D: Dictionary> ExprLinter for DisjointPrefixes<D> {
 #[cfg(test)]
 mod tests {
     use super::DisjointPrefixes;
-    use crate::{
-        linting::tests::{assert_no_lints, assert_suggestion_result},
-        spell::FstDictionary,
-    };
+    use crate::linting::tests::{assert_no_lints, assert_suggestion_result};
 
     #[test]
     fn fix_hyphenated_to_joined() {
         assert_suggestion_result(
             "Download pre-built binaries or build from source.",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
             "Download prebuilt binaries or build from source.",
         );
     }
@@ -162,7 +159,7 @@ mod tests {
     fn fix_open_to_joined() {
         assert_suggestion_result(
             "Advanced Nginx configuration available for super users",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
             "Advanced Nginx configuration available for superusers",
         );
     }
@@ -171,7 +168,7 @@ mod tests {
     fn dont_join_contraction_suffix_after_ascii_apostrophe() {
         assert_no_lints(
             "you 're fresh so you don't neglect them",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -179,7 +176,7 @@ mod tests {
     fn dont_join_contraction_suffix_after_typographic_apostrophe() {
         assert_no_lints(
             "you ’re fresh so you don’t neglect them",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -187,7 +184,7 @@ mod tests {
     fn dont_join_open_co_op() {
         assert_no_lints(
             "They are cheaper at the co op.",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -195,7 +192,7 @@ mod tests {
     fn dont_join_hyphenated_co_op() {
         assert_no_lints(
             "Almost everything is cheaper at the co-op.",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -203,7 +200,7 @@ mod tests {
     fn fix_open_to_hyphenated() {
         assert_suggestion_result(
             "My hobby is de extinction of the dinosaurs.",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
             "My hobby is de-extinction of the dinosaurs.",
         );
     }
@@ -212,7 +209,7 @@ mod tests {
     fn dont_join_hyphenated_re_execute_3954() {
         assert_no_lints(
             "I saw re-execute flagged with DisjointPrefixes.",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -220,7 +217,7 @@ mod tests {
     fn dont_join_out_guesses_4853() {
         assert_no_lints(
             "Leave out guesses about how people felt.",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -228,7 +225,7 @@ mod tests {
     fn fix_title_case_hyphenated_to_joined_4381() {
         assert_suggestion_result(
             "Pre-Requisite",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
             "Prerequisite",
         );
     }
@@ -237,7 +234,7 @@ mod tests {
     fn fix_all_caps_hyphenated_to_joined() {
         assert_suggestion_result(
             "PRE-REQUISITE",
-            DisjointPrefixes::new(FstDictionary::curated()),
+            DisjointPrefixes::new(crate::lang::en::dictionary::dictionary()),
             "PREREQUISITE",
         );
     }

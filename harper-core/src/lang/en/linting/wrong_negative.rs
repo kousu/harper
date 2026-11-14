@@ -104,7 +104,6 @@ mod tests {
             tests::{assert_no_lints, assert_suggestion_result},
         },
         remove_overlaps,
-        spell::FstDictionary,
     };
 
     use super::WrongNegative;
@@ -113,7 +112,7 @@ mod tests {
     fn fix_insecured() {
         assert_suggestion_result(
             "Problem with insecured chart repositories",
-            WrongNegative::new(FstDictionary::curated()),
+            WrongNegative::new(crate::lang::en::dictionary::dictionary()),
             "Problem with unsecured chart repositories",
         );
     }
@@ -122,7 +121,7 @@ mod tests {
     fn fix_unsecure() {
         assert_suggestion_result(
             "Our one and only host is showing up as unsecure, but connected.",
-            WrongNegative::new(FstDictionary::curated()),
+            WrongNegative::new(crate::lang::en::dictionary::dictionary()),
             "Our one and only host is showing up as insecure, but connected.",
         );
     }
@@ -131,7 +130,7 @@ mod tests {
     fn fix_unpossible() {
         assert_suggestion_result(
             "This System makes a individual design unpossible.",
-            WrongNegative::new(FstDictionary::curated()),
+            WrongNegative::new(crate::lang::en::dictionary::dictionary()),
             "This System makes a individual design impossible.",
         );
     }
@@ -140,14 +139,14 @@ mod tests {
     fn fix_unvisible() {
         assert_suggestion_result(
             "Sure, I'm using \"deleted\" here to mean a third state more unvisible than \"yanked\"",
-            WrongNegative::new(FstDictionary::curated()),
+            WrongNegative::new(crate::lang::en::dictionary::dictionary()),
             "Sure, I'm using \"deleted\" here to mean a third state more invisible than \"yanked\"",
         );
     }
 
     #[test]
     fn wrong_negative_wins_over_spell_check() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
         let mut lint_group = LintGroup::empty();
 
         // Add both linters
@@ -183,7 +182,7 @@ mod tests {
     fn dont_flag_defo() {
         assert_no_lints(
             "I defo used MSVC back then too",
-            WrongNegative::new(FstDictionary::curated()),
+            WrongNegative::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -191,7 +190,7 @@ mod tests {
     fn dont_flag_deus() {
         assert_no_lints(
             "That deus ex machine stuff seems like enormous cope to me",
-            WrongNegative::new(FstDictionary::curated()),
+            WrongNegative::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 }

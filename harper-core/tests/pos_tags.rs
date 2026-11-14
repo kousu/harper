@@ -378,7 +378,7 @@ impl Formatter {
 #[test]
 fn test_pos_tagger() {
     snapshot::snapshot_all_text_files("tagged", ".md", |source, _| {
-        let dict = FstDictionary::curated();
+        let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
         let document = Document::new_markdown_default(source, &dict);
 
         let mut formatter = Formatter::new();

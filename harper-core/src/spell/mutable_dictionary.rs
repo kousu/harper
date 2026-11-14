@@ -289,13 +289,13 @@ mod tests {
 
     #[test]
     fn curated_contains_no_duplicates() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
         assert!(dict.words_iter().all_unique());
     }
 
     #[test]
     fn curated_matches_capitalized() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
         assert!(dict.contains_word_str("this"));
         assert!(dict.contains_word_str("This"));
     }
@@ -305,14 +305,14 @@ mod tests {
     // Harper previously wrongly classified it as a noun.
     #[test]
     fn this_is_determiner() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
         assert!(dict.get_word_metadata_str("this").unwrap().is_determiner());
         assert!(dict.get_word_metadata_str("This").unwrap().is_determiner());
     }
 
     #[test]
     fn several_is_quantifier() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
         assert!(
             dict.get_word_metadata_str("several")
                 .unwrap()
@@ -322,45 +322,45 @@ mod tests {
 
     #[test]
     fn few_is_quantifier() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
         assert!(dict.get_word_metadata_str("few").unwrap().is_quantifier());
     }
 
     #[test]
     fn fewer_is_quantifier() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
         assert!(dict.get_word_metadata_str("fewer").unwrap().is_quantifier());
     }
 
     #[test]
     fn than_is_conjunction() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
         assert!(dict.get_word_metadata_str("than").unwrap().is_conjunction());
         assert!(dict.get_word_metadata_str("Than").unwrap().is_conjunction());
     }
 
     #[test]
     fn herself_is_pronoun() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
         assert!(dict.get_word_metadata_str("herself").unwrap().is_pronoun());
         assert!(dict.get_word_metadata_str("Herself").unwrap().is_pronoun());
     }
 
     #[test]
     fn discussion_171() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
         assert!(dict.contains_word_str("natively"));
     }
 
     #[test]
     fn im_is_common() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
         assert!(dict.get_word_metadata_str("I'm").unwrap().common);
     }
 
     #[test]
     fn fuzzy_result_sorted_by_edit_distance() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
 
         let results = dict.fuzzy_match_str("hello", 3, 100);
         let is_sorted_by_dist = results
@@ -374,7 +374,7 @@ mod tests {
 
     #[test]
     fn there_is_not_a_pronoun() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
 
         assert!(!dict.get_word_metadata_str("there").unwrap().is_nominal());
         assert!(!dict.get_word_metadata_str("there").unwrap().is_pronoun());
@@ -382,17 +382,17 @@ mod tests {
 
     #[test]
     fn expanded_contains_giants() {
-        assert!(MutableDictionary::curated().contains_word_str("giants"));
+        assert!(crate::lang::en::dictionary::mutable_dictionary().contains_word_str("giants"));
     }
 
     #[test]
     fn expanded_contains_deallocate() {
-        assert!(MutableDictionary::curated().contains_word_str("deallocate"));
+        assert!(crate::lang::en::dictionary::mutable_dictionary().contains_word_str("deallocate"));
     }
 
     #[test]
     fn curated_contains_repo() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
 
         assert!(dict.contains_word_str("repo"));
         assert!(dict.contains_word_str("repos"));
@@ -402,7 +402,7 @@ mod tests {
     #[test]
     fn curated_contains_possessive_abandonment() {
         assert!(
-            MutableDictionary::curated()
+            crate::lang::en::dictionary::mutable_dictionary()
                 .get_word_metadata_str("abandonment's")
                 .unwrap()
                 .is_possessive_noun()
@@ -411,12 +411,14 @@ mod tests {
 
     #[test]
     fn contains_inexperienced() {
-        assert!(MutableDictionary::curated().contains_word_str("inexperienced"))
+        assert!(
+            crate::lang::en::dictionary::mutable_dictionary().contains_word_str("inexperienced")
+        )
     }
 
     #[test]
     fn has_is_not_a_nominal() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
 
         let has = dict.get_word_metadata_str("has");
         assert!(has.is_some());
@@ -426,7 +428,7 @@ mod tests {
 
     #[test]
     fn is_is_linking_verb() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
 
         let is = dict.get_word_metadata_str("is");
 
@@ -450,14 +452,14 @@ mod tests {
 
     #[test]
     fn apart_is_not_noun() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
 
         assert!(!dict.get_word_metadata_str("apart").unwrap().is_noun());
     }
 
     #[test]
     fn be_is_verb_lemma() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
 
         let is = dict.get_word_metadata_str("be");
 
@@ -467,7 +469,7 @@ mod tests {
 
     #[test]
     fn trilemma_in_curated_dictionary() {
-        let dict = MutableDictionary::curated();
+        let dict = crate::lang::en::dictionary::mutable_dictionary();
 
         assert!(dict.contains_word_str("trilemma"));
         assert!(dict.contains_word_str("trilemmas"));

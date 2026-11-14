@@ -314,7 +314,7 @@ mod tests {
 
     #[test]
     fn fst_map_contains_all_in_mutable_dict() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
 
         for word in dict.words_iter() {
             let misspelled_normalized = word.normalized();
@@ -330,7 +330,7 @@ mod tests {
 
     #[test]
     fn fst_contains_hello() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
 
         let word: Vec<_> = "hello".chars().collect();
         let misspelled_normalized = word.normalized();
@@ -346,14 +346,14 @@ mod tests {
 
     #[test]
     fn on_is_not_nominal() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
 
         assert!(!dict.get_word_metadata_str("on").unwrap().is_nominal());
     }
 
     #[test]
     fn dickens_is_not_a_swear_1656() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
         let metadata = dict.get_word_metadata_str("Dickens").unwrap();
 
         assert!(metadata.is_proper_noun());
@@ -365,7 +365,7 @@ mod tests {
 
     #[test]
     fn fuzzy_result_sorted_by_edit_distance() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
 
         let results = dict.fuzzy_match_str("hello", 3, 100);
         let is_sorted_by_dist = results
@@ -379,7 +379,7 @@ mod tests {
 
     #[test]
     fn contractions_not_derived() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
 
         let contractions = ["there's", "we're", "here's"];
 
@@ -396,7 +396,7 @@ mod tests {
 
     #[test]
     fn plural_llamas_derived_from_llama() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
 
         assert!(
             dict.get_word_metadata_str("llamas")
@@ -408,7 +408,7 @@ mod tests {
 
     #[test]
     fn plural_cats_derived_from_cat() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
 
         assert!(
             dict.get_word_metadata_str("cats")
@@ -420,7 +420,7 @@ mod tests {
 
     #[test]
     fn unhappy_derived_from_happy() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
 
         assert!(
             dict.get_word_metadata_str("unhappy")
@@ -432,7 +432,7 @@ mod tests {
 
     #[test]
     fn quickly_derived_from_quick() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
 
         assert!(
             dict.get_word_metadata_str("quickly")

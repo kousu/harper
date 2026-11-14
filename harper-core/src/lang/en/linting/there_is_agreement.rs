@@ -500,7 +500,7 @@ mod tests {
     create_test_pool!(
         ThereIsAgreement,
         ThereIsAgreement<Arc<FstDictionary>>,
-        ThereIsAgreement::new(FstDictionary::curated())
+        ThereIsAgreement::new(crate::lang::en::dictionary::dictionary())
     );
 
     // basic functionality
@@ -732,7 +732,7 @@ mod tests {
         // TODO it hasn't been converted to the new logic in `assert_suggestion_result`
         // assert_good_and_bad_suggestions(
         //     "there is people making projects, there is people doing tutorials",
-        //     ThereIsAgreement::new(FstDictionary::curated(),
+        //     ThereIsAgreement::new(crate::lang::en::dictionary::dictionary(),
         //     &[
         //         "there are people making projects, there are people doing tutorials",
         //         "there is a person making projects, there is a person doing tutorials",

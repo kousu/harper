@@ -252,7 +252,7 @@ mod lints {
     create_test_pool!(
         PronounVerbAgreement,
         PronounVerbAgreement<Arc<FstDictionary>>,
-        PronounVerbAgreement::new(FstDictionary::curated())
+        PronounVerbAgreement::new(crate::lang::en::dictionary::dictionary())
     );
 
     #[test]

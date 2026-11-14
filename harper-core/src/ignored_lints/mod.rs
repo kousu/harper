@@ -62,7 +62,7 @@ mod tests {
 
     use super::IgnoredLints;
     use crate::linting::create_test_pool;
-    use crate::spell::FstDictionary;
+
     use crate::{
         Document, EnglishDialect,
         linting::{LintGroup, Linter},
@@ -71,7 +71,10 @@ mod tests {
     create_test_pool!(
         LintGroup,
         LintGroup,
-        LintGroup::new_curated(FstDictionary::curated(), EnglishDialect::American)
+        crate::lang::en::linting::new_curated(
+            crate::lang::en::dictionary::dictionary(),
+            EnglishDialect::American
+        )
     );
 
     #[quickcheck]

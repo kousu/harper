@@ -91,13 +91,13 @@ impl<D: Dictionary> ExprLinter for WorthToDo<D> {
 #[cfg(test)]
 mod tests {
     use super::WorthToDo;
-    use crate::{linting::tests::assert_suggestion_result, spell::FstDictionary};
+    use crate::linting::tests::assert_suggestion_result;
 
     #[test]
     fn worth_to_add() {
         assert_suggestion_result(
             "Is it worth to add those files?",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "Is it worth adding those files?",
         );
     }
@@ -106,7 +106,7 @@ mod tests {
     fn worth_to_adjust() {
         assert_suggestion_result(
             "If yes, it would be worth to adjust the description to make it easier to understand",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "If yes, it would be worth adjusting the description to make it easier to understand",
         );
     }
@@ -115,7 +115,7 @@ mod tests {
     fn worth_to_ask() {
         assert_suggestion_result(
             "So it is worth to ask for this there or take a look at their wiki pages. ",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "So it is worth asking for this there or take a look at their wiki pages. ",
         );
     }
@@ -124,7 +124,7 @@ mod tests {
     fn worth_to_buy() {
         assert_suggestion_result(
             "and it makes it really worth to buy the software",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "and it makes it really worth buying the software",
         );
     }
@@ -133,7 +133,7 @@ mod tests {
     fn worth_to_deal() {
         assert_suggestion_result(
             "CC2531 is considered as crap in 2024 and its not worth to deal with it.",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "CC2531 is considered as crap in 2024 and its not worth dealing with it.",
         );
     }
@@ -142,7 +142,7 @@ mod tests {
     fn worth_to_do() {
         assert_suggestion_result(
             "Is it worth to do the credit-card-balance-transfer?",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "Is it worth doing the credit-card-balance-transfer?",
         );
     }
@@ -151,7 +151,7 @@ mod tests {
     fn worth_to_experiment() {
         assert_suggestion_result(
             "Hello @tkchia, thanks for the hint, I agree it is worth to experiment.",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "Hello @tkchia, thanks for the hint, I agree it is worth experimenting.",
         );
     }
@@ -160,7 +160,7 @@ mod tests {
     fn worth_to_fix() {
         assert_suggestion_result(
             "i dont know if this is worth to fix, i just wanted to point this and start a discussion about this.",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "i dont know if this is worth fixing, i just wanted to point this and start a discussion about this.",
         );
     }
@@ -169,7 +169,7 @@ mod tests {
     fn worth_to_get_published() {
         assert_suggestion_result(
             "think that would be worth to get published in my Thesis.",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "think that would be worth getting published in my Thesis.",
         );
     }
@@ -178,7 +178,7 @@ mod tests {
     fn worth_to_imagine() {
         assert_suggestion_result(
             "Might be worth to imagine how the current Nu style would look like in other programming languages.",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "Might be worth imagining how the current Nu style would look like in other programming languages.",
         );
     }
@@ -187,7 +187,7 @@ mod tests {
     fn worth_to_invest() {
         assert_suggestion_result(
             "It doesn't seem worth to invest much effort in this though...",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "It doesn't seem worth investing much effort in this though...",
         );
     }
@@ -196,7 +196,7 @@ mod tests {
     fn worth_to_investigate() {
         assert_suggestion_result(
             "to get a feeling how CP-SAT works and what are directions worth to investigate i wanted to ask",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "to get a feeling how CP-SAT works and what are directions worth investigating i wanted to ask",
         );
     }
@@ -205,7 +205,7 @@ mod tests {
     fn worth_to_play() {
         assert_suggestion_result(
             "Is worth to play with thread count if there are no issues?",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "Is worth playing with thread count if there are no issues?",
         );
     }
@@ -214,7 +214,7 @@ mod tests {
     fn worth_to_put() {
         assert_suggestion_result(
             "Do you think it would be worth to put a suggestion to remove the kind network if cluster creation fails",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "Do you think it would be worth putting a suggestion to remove the kind network if cluster creation fails",
         );
     }
@@ -223,7 +223,7 @@ mod tests {
     fn worth_to_read() {
         assert_suggestion_result(
             "Stored books worth to read.",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "Stored books worth reading.",
         );
     }
@@ -232,7 +232,7 @@ mod tests {
     fn worth_to_revisit() {
         assert_suggestion_result(
             "we've had discussions before #260 and it maybe worth to revisit again",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "we've had discussions before #260 and it maybe worth revisiting again",
         );
     }
@@ -241,7 +241,7 @@ mod tests {
     fn worth_to_rewrite() {
         assert_suggestion_result(
             "is puppet so bad that it is worth to rewrite everything?",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "is puppet so bad that it is worth rewriting everything?",
         );
     }
@@ -250,7 +250,7 @@ mod tests {
     fn worth_to_try() {
         assert_suggestion_result(
             "is it really worth to try and what are facebook long-term plans about this engine.",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "is it really worth trying and what are facebook long-term plans about this engine.",
         );
     }
@@ -259,7 +259,7 @@ mod tests {
     fn worth_to_update() {
         assert_suggestion_result(
             "Hi, maybe it's worth to update doc with the script for Bullseye given by @frenchfaso ?",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "Hi, maybe it's worth updating doc with the script for Bullseye given by @frenchfaso ?",
         );
     }
@@ -268,7 +268,7 @@ mod tests {
     fn worth_to_upgrade() {
         assert_suggestion_result(
             "Your PR should've fixed that issue so I think it's worth to upgrade to 10.33 and see if that brings the delta down.",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "Your PR should've fixed that issue so I think it's worth upgrading to 10.33 and see if that brings the delta down.",
         );
     }
@@ -277,7 +277,7 @@ mod tests {
     fn worth_to_use_and_develop() {
         assert_suggestion_result(
             "I think It worth to use and worth to develop further",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "I think It worth using and worth developing further",
         );
     }
@@ -286,7 +286,7 @@ mod tests {
     fn works_with_uppercase_glom() {
         assert_suggestion_result(
             " YES IT IS WORTH TO DO",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             " YES IT IS WORTH DOING",
         );
     }
@@ -295,7 +295,7 @@ mod tests {
     fn works_with_uppercase_final_e() {
         assert_suggestion_result(
             "THIS LINTER WAS WORTH TO MAKE",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "THIS LINTER WAS WORTH MAKING",
         );
     }
@@ -304,7 +304,7 @@ mod tests {
     fn works_with_uppercase_double_consonant() {
         assert_suggestion_result(
             "SO YEAH IT WAS WORTH TO GET THIS DONE",
-            WorthToDo::new(FstDictionary::curated()),
+            WorthToDo::new(crate::lang::en::dictionary::dictionary()),
             "SO YEAH IT WAS WORTH GETTING THIS DONE",
         );
     }

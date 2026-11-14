@@ -203,7 +203,7 @@ impl<T: Dictionary, C: SpellingConventions> Linter for SpellCheck<T, C> {
 mod tests {
     use super::{SpellCheck, SpellingConventions};
     use crate::linting::{Lint, Linter};
-    use crate::spell::FstDictionary;
+
     use crate::{Document, EnglishDialect, Language};
 
     /// Ignores "zzz", drops every lint on "qqq", and prefers suggestions starting with "w".
@@ -231,7 +231,7 @@ mod tests {
     fn flagged(text: &str, conventions: impl SpellingConventions) -> Vec<String> {
         let document = Document::new_plain_english_curated(text);
         let mut linter = SpellCheck::new(
-            FstDictionary::curated(),
+            crate::lang::en::dictionary::dictionary(),
             Language::English(EnglishDialect::American),
             conventions,
         );
@@ -265,7 +265,7 @@ mod tests {
     fn conventions_adjust_suggestion_order() {
         let document = Document::new_plain_english_curated("thw");
         let mut linter = SpellCheck::new(
-            FstDictionary::curated(),
+            crate::lang::en::dictionary::dictionary(),
             Language::English(EnglishDialect::American),
             TestSpelling,
         );
