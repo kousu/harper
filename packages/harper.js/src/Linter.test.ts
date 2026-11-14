@@ -1,3 +1,4 @@
+import { Dialect } from 'harper-wasm';
 import { expect, test } from 'vitest';
 import { binary } from './binaries/binary';
 import LocalLinter from './LocalLinter';
@@ -68,6 +69,37 @@ for (const [linterName, Linter] of Object.entries(linters)) {
 		const lints = await linter.lint('The the problem is');
 
 		expect(lints.length).toBe(1);
+
+		await linter.dispose();
+	});
+
+	test(`${linterName} checks English given its name or code`, async () => {
+		for (const naturalLanguage of ['en', 'English']) {
+			const linter = new Linter({ binary, naturalLanguage });
+
+			const lints = await linter.lint('The the problem is');
+
+			expect(lints.length).toBe(1);
+
+			await linter.dispose();
+		}
+	});
+
+	test(`${linterName} keeps its natural language when the dialect changes`, async () => {
+		const linter = new Linter({ binary, naturalLanguage: 'en' });
+
+		await linter.setDialect(Dialect.British);
+		const lints = await linter.lint('The the problem is');
+
+		expect(lints.length).toBe(1);
+
+		await linter.dispose();
+	});
+
+	test(`${linterName} gives the default lint config of its natural language`, async () => {
+		const linter = new Linter({ binary, naturalLanguage: 'en' });
+
+		expect(await linter.getDefaultLintConfig()).toEqual(await binary.getDefaultLintConfig());
 
 		await linter.dispose();
 	});
@@ -824,4 +856,10 @@ test('Linters have the same JSON config format', async () => {
 		expect(config).toEqual(configs[0]);
 		expect(config).toBeTypeOf('string');
 	}
+});
+
+test('LocalLinter rejects a natural language Harper does not know', async () => {
+	const linter = new LocalLinter({ binary, naturalLanguage: 'Klingon' });
+
+	await expect(linter.lint('Some text.')).rejects.toThrow('Unknown language');
 });

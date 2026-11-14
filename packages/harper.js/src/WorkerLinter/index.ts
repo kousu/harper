@@ -22,6 +22,7 @@ export default class WorkerLinter implements Linter {
 	private binary: BinaryModule;
 	private serializer: Serializer;
 	private dialect?: Dialect;
+	private naturalLanguage?: string;
 	private worker: Worker;
 	private requestQueue: RequestItem[];
 	private working = true;
@@ -31,6 +32,7 @@ export default class WorkerLinter implements Linter {
 		this.binary = init.binary;
 		this.serializer = new Serializer(this.binary);
 		this.dialect = init.dialect;
+		this.naturalLanguage = init.naturalLanguage;
 		this.worker = new Worker();
 		this.requestQueue = [];
 
@@ -38,7 +40,12 @@ export default class WorkerLinter implements Linter {
 		this.worker.onmessage = () => {
 			this.setupMainEventListeners();
 
-			this.worker.postMessage([this.binary.url, this.dialect, resolveWasmGlueFlavor(this.binary)]);
+			this.worker.postMessage([
+				this.binary.url,
+				this.dialect,
+				resolveWasmGlueFlavor(this.binary),
+				this.naturalLanguage,
+			]);
 
 			this.working = false;
 			this.submitRemainingRequests();
