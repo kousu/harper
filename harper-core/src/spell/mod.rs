@@ -211,7 +211,7 @@ mod tests {
 
     use crate::CharStringExt;
 
-    use super::{FstDictionary, suggest_correct_spelling_str_for};
+    use super::suggest_correct_spelling_str_for;
     use crate::LanguageFamily;
 
     const RESULT_LIMIT: usize = 200;
@@ -231,7 +231,7 @@ mod tests {
             "punctation",
             RESULT_LIMIT,
             MAX_EDIT_DIST,
-            &FstDictionary::curated(),
+            &crate::lang::en::dictionary::dictionary(),
             LanguageFamily::English,
         );
 
@@ -264,7 +264,7 @@ mod tests {
             "Semantical",
             RESULT_LIMIT,
             MAX_EDIT_DIST,
-            &FstDictionary::curated(),
+            &crate::lang::en::dictionary::dictionary(),
             LanguageFamily::English,
         );
 
@@ -282,7 +282,7 @@ mod tests {
             "hvllo",
             RESULT_LIMIT,
             MAX_EDIT_DIST,
-            &FstDictionary::curated(),
+            &crate::lang::en::dictionary::dictionary(),
             LanguageFamily::English,
         );
 
@@ -297,7 +297,7 @@ mod tests {
             misspelled_word,
             RESULT_LIMIT,
             MAX_EDIT_DIST,
-            &FstDictionary::curated(),
+            &crate::lang::en::dictionary::dictionary(),
             LanguageFamily::English,
         );
 
@@ -322,21 +322,21 @@ mod tests {
             "hello",
             RESULT_LIMIT,
             MAX_EDIT_DIST,
-            &FstDictionary::curated(),
+            &crate::lang::en::dictionary::dictionary(),
             LanguageFamily::English,
         );
         let results2 = suggest_correct_spelling_str_for(
             "hello",
             RESULT_LIMIT,
             MAX_EDIT_DIST,
-            &FstDictionary::curated(),
+            &crate::lang::en::dictionary::dictionary(),
             LanguageFamily::English,
         );
         let results3 = suggest_correct_spelling_str_for(
             "hello",
             RESULT_LIMIT,
             MAX_EDIT_DIST,
-            &FstDictionary::curated(),
+            &crate::lang::en::dictionary::dictionary(),
             LanguageFamily::English,
         );
 

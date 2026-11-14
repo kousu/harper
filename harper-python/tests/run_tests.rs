@@ -18,10 +18,10 @@ macro_rules! create_test {
                  );
 
                  let parser = PythonParser::default();
-                 let dict = FstDictionary::curated();
+                 let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
                  let document = Document::new(&source, &parser, &dict);
 
-                 let mut linter = LintGroup::new_curated(dict, EnglishDialect::American);
+                 let mut linter = LintGroup::new_curated_for_language(dict, harper_core::Language::English(EnglishDialect::American));
                  let lints = linter.lint(&document);
 
                  dbg!(&lints);

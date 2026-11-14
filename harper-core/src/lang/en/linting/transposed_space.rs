@@ -120,16 +120,13 @@ impl<D: Dictionary + 'static> ExprLinter for TransposedSpace<D> {
 #[cfg(test)]
 mod tests {
     use super::TransposedSpace;
-    use crate::{
-        linting::tests::{assert_suggestion_count, assert_suggestion_result},
-        spell::FstDictionary,
-    };
+    use crate::linting::tests::{assert_suggestion_count, assert_suggestion_result};
 
     #[test]
     fn space_too_early() {
         assert_suggestion_result(
             "Th ecat sat on the mat.",
-            TransposedSpace::sensitive(FstDictionary::curated()),
+            TransposedSpace::sensitive(crate::lang::en::dictionary::dictionary()),
             "The cat sat on the mat.",
         );
     }
@@ -138,7 +135,7 @@ mod tests {
     fn space_too_late() {
         assert_suggestion_result(
             "Thec at sat on the mat.",
-            TransposedSpace::sensitive(FstDictionary::curated()),
+            TransposedSpace::sensitive(crate::lang::en::dictionary::dictionary()),
             "The cat sat on the mat.",
         );
     }
@@ -147,7 +144,7 @@ mod tests {
     fn test_early() {
         assert_suggestion_result(
             "Sometimes the spac eis one character early.",
-            TransposedSpace::new(FstDictionary::curated()),
+            TransposedSpace::new(crate::lang::en::dictionary::dictionary()),
             "Sometimes the space is one character early.",
         );
     }
@@ -156,7 +153,7 @@ mod tests {
     fn test_late() {
         assert_suggestion_result(
             "Ands ometimes the space is a character late.",
-            TransposedSpace::new(FstDictionary::curated()),
+            TransposedSpace::new(crate::lang::en::dictionary::dictionary()),
             "And sometimes the space is a character late.",
         );
     }
@@ -165,7 +162,7 @@ mod tests {
     fn test_3355_result() {
         assert_suggestion_result(
             "cham peng",
-            TransposedSpace::new(FstDictionary::curated()),
+            TransposedSpace::new(crate::lang::en::dictionary::dictionary()),
             "champ eng",
         );
     }
@@ -174,7 +171,7 @@ mod tests {
     fn test_3355_count() {
         assert_suggestion_count(
             "cham peng",
-            TransposedSpace::new(FstDictionary::curated()),
+            TransposedSpace::new(crate::lang::en::dictionary::dictionary()),
             1,
         );
     }

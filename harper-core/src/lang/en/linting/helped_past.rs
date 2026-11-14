@@ -110,10 +110,7 @@ impl<D: Dictionary> ExprLinter for HelpedPast<D> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        linting::tests::{assert_no_lints, assert_suggestion_result},
-        spell::FstDictionary,
-    };
+    use crate::linting::tests::{assert_no_lints, assert_suggestion_result};
 
     use super::HelpedPast;
 
@@ -123,7 +120,7 @@ mod tests {
     fn that_i_helped_built() {
         assert_suggestion_result(
             "... as I have moved from CraftCMS into a startup that I helped built",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "... as I have moved from CraftCMS into a startup that I helped build",
         );
     }
@@ -132,7 +129,7 @@ mod tests {
     fn i_helped_built_some() {
         assert_suggestion_result(
             "Strangely, thru some form of \"magic\" I helped built some hundreds of commercial T2 targets",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "Strangely, thru some form of \"magic\" I helped build some hundreds of commercial T2 targets",
         );
     }
@@ -141,7 +138,7 @@ mod tests {
     fn has_helped_built() {
         assert_suggestion_result(
             "Dify is an LLM application development platform that has helped built over 100,000 applications.",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "Dify is an LLM application development platform that has helped build over 100,000 applications.",
         );
     }
@@ -150,7 +147,7 @@ mod tests {
     fn who_helped_made() {
         assert_suggestion_result(
             "our many amazing contributors who helped made this possible",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "our many amazing contributors who helped make this possible",
         );
     }
@@ -159,7 +156,7 @@ mod tests {
     fn has_helped_made() {
         assert_suggestion_result(
             "everyone who says that something I've worked on has helped made their lives easier",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "everyone who says that something I've worked on has helped make their lives easier",
         );
     }
@@ -168,7 +165,7 @@ mod tests {
     fn i_helped_made() {
         assert_suggestion_result(
             "This is a a video game I helped made for a national competition in high school.",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "This is a a video game I helped make for a national competition in high school.",
         );
     }
@@ -177,7 +174,7 @@ mod tests {
     fn helped_made_at_start() {
         assert_suggestion_result(
             "Spinner Tutorial - Helped made the roulette wheel come to life.",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "Spinner Tutorial - Helped make the roulette wheel come to life.",
         );
     }
@@ -188,7 +185,7 @@ mod tests {
     fn helped_chose() {
         assert_suggestion_result(
             "The 2018 analysis helped chose tires (as well as validated prior choices)",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "The 2018 analysis helped choose tires (as well as validated prior choices)",
         );
     }
@@ -197,7 +194,7 @@ mod tests {
     fn helped_created() {
         assert_suggestion_result(
             "React helped created a light weight dynamic webpage that can be implmented in various different applications.",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "React helped create a light weight dynamic webpage that can be implmented in various different applications.",
         );
     }
@@ -206,7 +203,7 @@ mod tests {
     fn helped_debugged() {
         assert_suggestion_result(
             "Someone helped debugged this issue.",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "Someone helped debug this issue.",
         );
     }
@@ -215,7 +212,7 @@ mod tests {
     fn helped_designed() {
         assert_suggestion_result(
             "when speaking with Ka Ming who has helped designed many of the UX/UI elements for the Security Plugin",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "when speaking with Ka Ming who has helped design many of the UX/UI elements for the Security Plugin",
         );
     }
@@ -224,7 +221,7 @@ mod tests {
     fn helped_implemented() {
         assert_suggestion_result(
             "The way to do that, that I have helped implemented in some other addons already",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "The way to do that, that I have helped implement in some other addons already",
         );
     }
@@ -233,7 +230,7 @@ mod tests {
     fn also_helped_improved() {
         assert_suggestion_result(
             "Also helped improved and scale billing infrastructure as customer growth accelerated especially in the enterprise space.",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "Also helped improve and scale billing infrastructure as customer growth accelerated especially in the enterprise space.",
         );
     }
@@ -242,7 +239,7 @@ mod tests {
     fn has_helped_improved() {
         assert_suggestion_result(
             "Thanks for making Psalm, it's a fantastic tool and has helped improved our code quality massively.",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "Thanks for making Psalm, it's a fantastic tool and has helped improve our code quality massively.",
         );
     }
@@ -251,7 +248,7 @@ mod tests {
     fn helped_picked() {
         assert_suggestion_result(
             "you helped picked the default",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "you helped pick the default",
         );
     }
@@ -260,7 +257,7 @@ mod tests {
     fn helped_wrote() {
         assert_suggestion_result(
             "Disclosure: I didn't find the bugs. I helped wrote the blog post.",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
             "Disclosure: I didn't find the bugs. I helped write the blog post.",
         );
     }
@@ -271,7 +268,7 @@ mod tests {
     fn dont_flag_shouldve_helped_given_that() {
         assert_no_lints(
             "However, it seems like 1 minute timeout should've helped given that default idle timeout is 10 minutes.",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -279,7 +276,7 @@ mod tests {
     fn dont_flag_be_helped_given_the() {
         assert_no_lints(
             "Major API breakages can't be helped given the nature of code generation",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -287,7 +284,7 @@ mod tests {
     fn dont_flag_helped_got() {
         assert_no_lints(
             "but along the way everyone who helped got +1 from me",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -295,7 +292,7 @@ mod tests {
     fn dont_flag_helped_did() {
         assert_no_lints(
             "So, that helped did it?",
-            HelpedPast::new(FstDictionary::curated()),
+            HelpedPast::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 }

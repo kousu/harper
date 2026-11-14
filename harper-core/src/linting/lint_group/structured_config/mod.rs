@@ -118,7 +118,7 @@ mod tests {
 
     use crate::EnglishDialect;
     use crate::linting::FlatConfig;
-    use crate::linting::LintGroup;
+
     use crate::spell::MutableDictionary;
 
     use super::{Setting, StructuredConfig};
@@ -304,19 +304,21 @@ mod tests {
 
     #[test]
     fn curated_is_valid() {
-        assert!(StructuredConfig::curated().validate());
+        assert!(crate::lang::en::linting::default_config().validate());
     }
 
     #[test]
     fn curated_default_config_lists_every_registered_rule() {
-        let curated = StructuredConfig::curated();
+        let curated = crate::lang::en::linting::default_config();
         let curated_rule_names = collect_rule_names(&curated);
 
-        let runtime_rule_names =
-            LintGroup::new_curated(MutableDictionary::new().into(), EnglishDialect::American)
-                .iter_keys()
-                .map(str::to_owned)
-                .collect::<BTreeSet<_>>();
+        let runtime_rule_names = crate::lang::en::linting::new_curated(
+            MutableDictionary::new().into(),
+            EnglishDialect::American,
+        )
+        .iter_keys()
+        .map(str::to_owned)
+        .collect::<BTreeSet<_>>();
 
         let missing_from_default_config = runtime_rule_names
             .difference(&curated_rule_names)

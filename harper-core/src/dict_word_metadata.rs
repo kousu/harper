@@ -1175,11 +1175,11 @@ impl DictWordMetadata {
 #[cfg(test)]
 pub mod tests {
     use crate::DictWordMetadata;
-    use crate::spell::{Dictionary, FstDictionary};
+    use crate::spell::Dictionary;
 
     // Helper function to get metadata from the curated dictionary
     pub fn md(word: &str) -> DictWordMetadata {
-        FstDictionary::curated()
+        crate::lang::en::dictionary::dictionary()
             .get_word_metadata_str(word)
             .unwrap_or_else(|| panic!("Word '{word}' not found in dictionary"))
             .into_owned()

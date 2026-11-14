@@ -28,7 +28,7 @@ mod tests {
     async fn client_receives_lint_config_from_server() {
         let (client_request_writer, server_request_reader) = duplex(16_384);
         let (server_response_writer, client_response_reader) = duplex(16_384);
-        let expected = FlatConfig::new_curated();
+        let expected = FlatConfig::new_curated_for(harper_core::LanguageFamily::English);
         let mut config = Config::new();
         config.lint_config = expected.clone();
         let config = Arc::new(Mutex::new(config));
@@ -178,7 +178,7 @@ mod tests {
             server_response_writer,
             config.clone(),
         );
-        let mut expected = FlatConfig::new_curated();
+        let mut expected = FlatConfig::new_curated_for(harper_core::LanguageFamily::English);
         expected.set_rule_enabled("SpellCheck", false);
 
         let (ack, request) =

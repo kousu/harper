@@ -112,10 +112,7 @@ impl<D: Dictionary> ExprLinter for DidPast<D> {
 #[cfg(test)]
 mod tests {
     use super::DidPast;
-    use crate::{
-        linting::tests::{assert_no_lints, assert_suggestion_result},
-        spell::FstDictionary,
-    };
+    use crate::linting::tests::{assert_no_lints, assert_suggestion_result};
 
     // Test basic 'true positive' regular verb cases
 
@@ -125,7 +122,7 @@ mod tests {
     fn ed_did_forked() {
         assert_suggestion_result(
             "Did they forked the repo?",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "Did they fork the repo?",
         );
     }
@@ -136,7 +133,7 @@ mod tests {
     fn d_did_used() {
         assert_suggestion_result(
             "It didn't used a macro.",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "It didn't use a macro.",
         );
     }
@@ -147,7 +144,7 @@ mod tests {
     fn y_did_fried() {
         assert_suggestion_result(
             "I hope that didn't fried any chips!",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "I hope that didn't fry any chips!",
         );
     }
@@ -158,7 +155,7 @@ mod tests {
     fn doubed_consonant_logged() {
         assert_suggestion_result(
             "There was a segfault but it did logged the error.",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "There was a segfault but it did log the error.",
         );
     }
@@ -167,14 +164,18 @@ mod tests {
 
     #[test]
     fn did_past() {
-        assert_suggestion_result("Did went", DidPast::new(FstDictionary::curated()), "Did go");
+        assert_suggestion_result(
+            "Did went",
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
+            "Did go",
+        );
     }
 
     #[test]
     fn did_past_with_apostrophe() {
         assert_suggestion_result(
             "Didn't saw",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "Didn't see",
         );
     }
@@ -183,7 +184,7 @@ mod tests {
     fn didnt_past_no_apostrophe() {
         assert_suggestion_result(
             "Didnt had",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "Didnt have",
         );
     }
@@ -192,7 +193,7 @@ mod tests {
     fn did_i_heard() {
         assert_suggestion_result(
             "Did I heard",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "Did I hear",
         );
     }
@@ -201,7 +202,7 @@ mod tests {
     fn did_i_heard_with_apostrophe() {
         assert_suggestion_result(
             "Didn't we heard",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "Didn't we hear",
         );
     }
@@ -210,7 +211,7 @@ mod tests {
     fn didnt_i_forgot_no_apostrophe() {
         assert_suggestion_result(
             "Didnt he forgot",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "Didnt he forget",
         );
     }
@@ -219,7 +220,10 @@ mod tests {
 
     #[test]
     fn ignore_lemma_same_as_past_tense() {
-        assert_no_lints("Did read", DidPast::new(FstDictionary::curated()));
+        assert_no_lints(
+            "Did read",
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
+        );
     }
 
     // Real-world examples
@@ -228,7 +232,7 @@ mod tests {
     fn fix_did_you_cmae() {
         assert_suggestion_result(
             "How did you came to this",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "How did you come to this",
         );
     }
@@ -237,7 +241,7 @@ mod tests {
     fn fix_did_you_wrote() {
         assert_suggestion_result(
             "I'm very interested in the script, if you did wrote it.",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "I'm very interested in the script, if you did write it.",
         );
     }
@@ -246,7 +250,7 @@ mod tests {
     fn fix_didnt_had() {
         assert_suggestion_result(
             "and i DO know that i didnt had any Terracota",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "and i DO know that i didnt have any Terracota",
         );
     }
@@ -255,7 +259,7 @@ mod tests {
     fn did_you_went() {
         assert_suggestion_result(
             "Did you went out of memory maybe?",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "Did you go out of memory maybe?",
         );
     }
@@ -264,7 +268,7 @@ mod tests {
     fn fix_did_needed() {
         assert_suggestion_result(
             "since our CI was broken this did needed to be done",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "since our CI was broken this did need to be done",
         );
     }
@@ -273,7 +277,7 @@ mod tests {
     fn fix_did_thought() {
         assert_suggestion_result(
             "I did thought of adding it as a tooltip on hover",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "I did think of adding it as a tooltip on hover",
         );
     }
@@ -282,7 +286,7 @@ mod tests {
     fn fix_did_wanted() {
         assert_suggestion_result(
             "I did wanted catch all errors in my previous example.",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "I did want catch all errors in my previous example.",
         );
     }
@@ -291,7 +295,7 @@ mod tests {
     fn fix_did_not_changed() {
         assert_suggestion_result(
             "freeing space and reboot frequently did not changed anything",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "freeing space and reboot frequently did not change anything",
         );
     }
@@ -300,7 +304,7 @@ mod tests {
     fn ignore_did_you_read() {
         assert_no_lints(
             "Did You Read the Instructions?",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -308,7 +312,7 @@ mod tests {
     fn issue_3916_didnt_understood() {
         assert_suggestion_result(
             "I didn't understood the problem.",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "I didn't understand the problem.",
         );
     }
@@ -317,7 +321,7 @@ mod tests {
     fn issue_3916_did_understood() {
         assert_suggestion_result(
             "I did understood the problem.",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
             "I did understand the problem.",
         );
     }
@@ -326,7 +330,7 @@ mod tests {
     fn issue_3916_correct_usage() {
         assert_no_lints(
             "I didn't understand the problem.",
-            DidPast::new(FstDictionary::curated()),
+            DidPast::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 }

@@ -47,7 +47,6 @@ impl<D: Dictionary + 'static> Linter for UseTitleCase<D> {
 #[cfg(test)]
 mod tests {
     use crate::linting::tests::{assert_markdown_suggestion_result, assert_no_lints};
-    use crate::spell::FstDictionary;
 
     use super::UseTitleCase;
 
@@ -55,7 +54,7 @@ mod tests {
     fn simple_correction() {
         assert_markdown_suggestion_result(
             "# This is a title",
-            UseTitleCase::new(FstDictionary::curated()),
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
             "# This Is a Title",
         );
     }
@@ -64,7 +63,7 @@ mod tests {
     fn double_correction() {
         assert_markdown_suggestion_result(
             "# This is a title\n\n## This is a subtitle",
-            UseTitleCase::new(FstDictionary::curated()),
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
             "# This Is a Title\n\n## This Is a Subtitle",
         );
     }
@@ -73,7 +72,7 @@ mod tests {
     fn doesnt_lowercase_this_in_github_template_title() {
         assert_no_lints(
             "# How Has This Been Tested?",
-            UseTitleCase::new(FstDictionary::curated()),
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -81,7 +80,7 @@ mod tests {
     fn shoud_uppercase_possessive_determiners() {
         assert_markdown_suggestion_result(
             "# my/our/your/his/her/its/their",
-            UseTitleCase::new(FstDictionary::curated()),
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
             "# My/Our/Your/His/Her/Its/Their",
         );
     }
@@ -90,7 +89,7 @@ mod tests {
     fn ignores_leading_number_list_marker_in_heading() {
         assert_no_lints(
             "### 1. To Do a Thing",
-            UseTitleCase::new(FstDictionary::curated()),
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -98,7 +97,7 @@ mod tests {
     fn still_fixes_non_first_small_words_after_leading_number() {
         assert_markdown_suggestion_result(
             "### 1. To do a thing",
-            UseTitleCase::new(FstDictionary::curated()),
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
             "### 1. To Do a Thing",
         );
     }
@@ -107,7 +106,7 @@ mod tests {
     fn preserves_camel_case_proper_nouns_in_heading() {
         assert_markdown_suggestion_result(
             "### apple launched icloud",
-            UseTitleCase::new(FstDictionary::curated()),
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
             "### Apple Launched iCloud",
         );
     }
@@ -116,7 +115,7 @@ mod tests {
     fn does_not_capitalize_am_in_time_expression() {
         assert_no_lints(
             "# Meeting at 9:05am",
-            UseTitleCase::new(FstDictionary::curated()),
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -124,7 +123,7 @@ mod tests {
     fn does_not_capitalize_pm_in_time_expression() {
         assert_no_lints(
             "# Dinner at 7pm",
-            UseTitleCase::new(FstDictionary::curated()),
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
@@ -132,12 +131,15 @@ mod tests {
     fn does_not_capitalize_standalone_x_between_words() {
         assert_no_lints(
             "# Project 1 x Project 2",
-            UseTitleCase::new(FstDictionary::curated()),
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
         );
     }
 
     #[test]
     fn capitalizes_standalone_x_when_last_word() {
-        assert_no_lints("# Project X", UseTitleCase::new(FstDictionary::curated()));
+        assert_no_lints(
+            "# Project X",
+            UseTitleCase::new(crate::lang::en::dictionary::dictionary()),
+        );
     }
 }
