@@ -78,7 +78,7 @@ impl OrthFlags {
         let mut is_first_char = true;
         let mut upper_to_lower = false;
         let mut lower_to_upper = false;
-        let letter_count = letters.iter().filter(|c| c.is_english_lingual()).count();
+        let letter_count = letters.iter().filter(|c| c.is_latin_letter()).count();
 
         for &c in letters {
             if c == ' ' {
@@ -96,7 +96,7 @@ impl OrthFlags {
                 continue;
             }
 
-            if !c.is_english_lingual() {
+            if !c.is_latin_letter() {
                 continue;
             }
 
