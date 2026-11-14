@@ -50,6 +50,19 @@ fn english_is_the_default() {
 }
 
 #[test]
+fn english_by_name_or_code() {
+    for language in ["en", "eng", "English"] {
+        let found = lints(&["--language", language], "This is an test.");
+        assert!(found.iter().any(|(rule, _)| rule == "AnA"), "{found:?}");
+    }
+}
+
+#[test]
+fn unknown_language_is_an_error() {
+    assert!(lint_error(&["--language", "xx"]).contains("Unknown language: xx"));
+}
+
+#[test]
 fn dialect_still_applies() {
     let american = lints(&["--dialect", "us"], "The colour is red.");
     let british = lints(&["--dialect", "uk"], "The colour is red.");
@@ -61,4 +74,50 @@ fn dialect_still_applies() {
 #[test]
 fn unknown_dialect_is_an_error() {
     assert!(lint_error(&["--dialect", "xx"]).contains("Invalid dialect 'xx'"));
+}
+
+/// Run harper-cli with `args` and return its stdout, asserting that it succeeded.
+fn run(args: &[&str]) -> String {
+    let output = harper_cli().args(args).output().unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    String::from_utf8_lossy(&output.stdout).into_owned()
+}
+
+#[test]
+fn language_goes_before_or_after_the_subcommand() {
+    let before = run(&["--language", "en", "parse", "Hello world."]);
+    let after = run(&["parse", "--language", "en", "Hello world."]);
+    assert_eq!(before, after);
+    assert!(!before.is_empty());
+}
+
+#[test]
+fn every_subcommand_takes_a_language() {
+    for args in [
+        &["parse", "Hello."][..],
+        &["spans", "Hello."],
+        &["annotate", "Hello."],
+        &["metadata", "hello"],
+        &["mine-words", "Hello."],
+        &["nominal-phrases", "Hello."],
+        &["config"],
+    ] {
+        let mut with_language = vec!["--language", "English"];
+        with_language.extend_from_slice(args);
+        run(&with_language);
+    }
+}
+
+#[test]
+fn unknown_language_is_an_error_for_every_subcommand() {
+    let output = harper_cli()
+        .args(["--language", "xx", "parse", "Hello."])
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("Unknown language: xx"));
 }
