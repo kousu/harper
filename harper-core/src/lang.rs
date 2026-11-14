@@ -1,4 +1,4 @@
-pub(crate) mod en;
+pub mod en;
 mod language_data;
 
 pub(crate) use language_data::LanguageData;

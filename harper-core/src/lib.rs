@@ -12,7 +12,7 @@ mod edit_distance;
 pub mod expr;
 mod fat_token;
 mod ignored_lints;
-mod lang;
+pub mod lang;
 pub mod language_detection;
 mod lexing;
 pub mod linting;

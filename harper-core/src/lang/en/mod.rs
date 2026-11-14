@@ -3,17 +3,19 @@
 
 pub(crate) mod dialect;
 pub(crate) mod dictionary;
-pub(crate) mod expr;
+pub mod expr;
 pub(crate) mod indefinite_article;
 pub(crate) mod irregular_nouns;
 pub(crate) mod irregular_verbs;
 pub(crate) mod lexing;
 pub(crate) mod linting;
 pub(crate) mod ordinal;
-pub(crate) mod patterns;
+pub mod patterns;
 pub(crate) mod regular_nouns;
 pub(crate) mod thesaurus_helper;
 pub(crate) mod title_case;
+
+pub use linting::spell_check::is_th_h_missing;
 
 use std::sync::{Arc, OnceLock};
 

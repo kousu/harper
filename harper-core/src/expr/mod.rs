@@ -16,7 +16,6 @@
 mod all;
 mod anchor_end;
 mod anchor_start;
-use crate::lang::en::expr as en;
 mod expr_map;
 mod filter;
 mod first_match_of;
@@ -32,6 +31,8 @@ mod step;
 mod unless_step;
 mod word_expr_group;
 
+use crate::lang::en::expr as en;
+
 #[cfg(not(feature = "concurrent"))]
 use std::rc::Rc;
 use std::sync::Arc;
@@ -39,7 +40,6 @@ use std::sync::Arc;
 pub use all::All;
 pub use anchor_end::AnchorEnd;
 pub use anchor_start::AnchorStart;
-pub use en::*;
 pub use expr_map::ExprMap;
 pub use filter::Filter;
 pub use first_match_of::FirstMatchOf;
@@ -54,6 +54,20 @@ pub use space_or_hyphen::SpaceOrHyphen;
 pub use step::Step;
 pub use unless_step::UnlessStep;
 pub use word_expr_group::WordExprGroup;
+
+// English expressions used to live here. They are in `lang::en::expr` now.
+#[deprecated(note = "English only: use `harper_core::lang::en::expr::DurationExpr`")]
+pub type DurationExpr = en::DurationExpr;
+#[deprecated(note = "English only: use `harper_core::lang::en::expr::MergeableWords`")]
+pub type MergeableWords = en::MergeableWords;
+#[deprecated(note = "English only: use `harper_core::lang::en::expr::PronounBe`")]
+pub type PronounBe = en::PronounBe;
+#[deprecated(note = "English only: use `harper_core::lang::en::expr::ReflexivePronoun`")]
+pub type ReflexivePronoun = en::ReflexivePronoun;
+#[deprecated(note = "English only: use `harper_core::lang::en::expr::SpelledNumberExpr`")]
+pub type SpelledNumberExpr = en::SpelledNumberExpr;
+#[deprecated(note = "English only: use `harper_core::lang::en::expr::TimeUnitExpr`")]
+pub type TimeUnitExpr = en::TimeUnitExpr;
 
 use crate::{Document, LSend, Span, Token};
 

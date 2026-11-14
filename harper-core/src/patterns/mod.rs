@@ -9,7 +9,6 @@ use crate::{Document, LSend, Span, Token};
 
 mod any_pattern;
 mod derived_from;
-use crate::lang::en::patterns as en;
 mod invert;
 mod nominal_phrase;
 mod upos_set;
@@ -18,9 +17,10 @@ mod within_edit_distance;
 mod word;
 mod word_set;
 
+use crate::lang::en::patterns as en;
+
 pub use any_pattern::AnyPattern;
 pub use derived_from::DerivedFrom;
-pub use en::*;
 pub use invert::Invert;
 pub use nominal_phrase::NominalPhrase;
 pub use upos_set::UPOSSet;
@@ -28,6 +28,28 @@ pub use whitespace_pattern::WhitespacePattern;
 pub use within_edit_distance::WithinEditDistance;
 pub use word::Word;
 pub use word_set::WordSet;
+
+// English patterns used to live here. They are in `lang::en::patterns` now.
+#[deprecated(note = "English only: use `harper_core::lang::en::patterns::ImpliesQuantity`")]
+pub type ImpliesQuantity = en::ImpliesQuantity;
+#[deprecated(note = "English only: use `harper_core::lang::en::patterns::IndefiniteArticle`")]
+pub type IndefiniteArticle = en::IndefiniteArticle;
+#[deprecated(note = "English only: use `harper_core::lang::en::patterns::InflectionOfBe`")]
+pub type InflectionOfBe = en::InflectionOfBe;
+#[deprecated(note = "English only: use `harper_core::lang::en::patterns::ModalVerb`")]
+pub type ModalVerb = en::ModalVerb;
+#[deprecated(
+    note = "English only: use `harper_core::lang::en::patterns::PrepositionalPrecederPattern`"
+)]
+pub type PrepositionalPrecederPattern = en::PrepositionalPrecederPattern;
+#[deprecated(note = "English only: use `harper_core::lang::en::patterns::RelativePronoun`")]
+pub type RelativePronoun = en::RelativePronoun;
+
+/// The shared [`PrepositionalPrecederPattern`](en::PrepositionalPrecederPattern).
+#[deprecated(note = "English only: use `harper_core::lang::en::patterns::prepositional_preceder`")]
+pub fn prepositional_preceder() -> &'static en::PrepositionalPrecederPattern {
+    en::prepositional_preceder()
+}
 
 pub trait Pattern: LSend {
     /// Check if the pattern matches at the start of the given token slice.

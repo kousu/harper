@@ -251,6 +251,8 @@ pub(crate) fn is_ll_misspelling(a: &[char], b: &[char]) -> bool {
     }
 }
 
+/// Whether `b` is `a` with an "h" added after a "t", as in "teh" for "the": a common English
+/// misspelling.
 pub fn is_th_h_missing(a: &[char], b: &[char]) -> bool {
     a.iter().any(|c| c.eq_ignore_ascii_case(&'t'))
         && b.iter()
