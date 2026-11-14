@@ -41,7 +41,7 @@ impl PartialEq for FstDictionary {
 }
 
 impl FstDictionary {
-    /// Create a dictionary from the curated dictionary included
+    /// Create a dictionary from the curated English dictionary included
     /// in the Harper binary.
     #[deprecated(note = "use `FstDictionary::curated_for(LanguageFamily::English)`")]
     pub fn curated() -> Arc<Self> {
