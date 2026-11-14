@@ -35,7 +35,7 @@ impl MapPhraseLinter {
 
     pub fn new_similar_to_phrase(phrase: &'static str, detectable_distance: u8) -> Self {
         Self::similar_to(
-            SimilarToPhrase::from_phrase(phrase, detectable_distance),
+            SimilarToPhrase::from_phrase_for(phrase, detectable_distance, LanguageFamily::English),
             phrase,
         )
     }

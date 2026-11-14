@@ -1,7 +1,8 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Lrc, Token, TokenStringExt,
-    expr::{AnchorStart, Expr, FirstMatchOf, FixedPhrase, SequenceExpr},
+    expr::{AnchorStart, Expr, FirstMatchOf, SequenceExpr},
     linting::{ExprLinter, Lint, LintKind, Suggestion},
 };
 
@@ -11,7 +12,7 @@ pub struct IAmAgreement {
 
 impl Default for IAmAgreement {
     fn default() -> Self {
-        let i_are = Lrc::new(FixedPhrase::from_phrase("I are"));
+        let i_are = Lrc::new(fixed_phrase("I are"));
 
         let nothing_before_i_are = SequenceExpr::with(AnchorStart).then(i_are.clone());
 

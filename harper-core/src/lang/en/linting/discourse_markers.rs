@@ -1,6 +1,7 @@
+use crate::lang::en::expr::fixed_phrase;
 use harper_brill::UPOS;
 
-use crate::expr::{Expr, FirstMatchOf, FixedPhrase, SequenceExpr};
+use crate::expr::{Expr, FirstMatchOf, SequenceExpr};
 use crate::patterns::UPOSSet;
 use crate::{Document, Token, TokenStringExt};
 
@@ -54,7 +55,7 @@ impl DiscourseMarkers {
         let phrases_expr = FirstMatchOf::new(
             phrases
                 .iter()
-                .map(|text: &&str| Box::new(FixedPhrase::from_phrase(text)) as Box<dyn Expr>),
+                .map(|text: &&str| Box::new(fixed_phrase(text)) as Box<dyn Expr>),
         );
 
         Self {

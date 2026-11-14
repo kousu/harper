@@ -1,6 +1,6 @@
 use crate::expr::Expr;
 use crate::expr::FirstMatchOf;
-use crate::expr::FixedPhrase;
+use crate::lang::en::expr::fixed_phrase;
 use crate::{Token, TokenStringExt};
 
 use super::{ExprLinter, Lint, LintKind, Suggestion};
@@ -13,9 +13,9 @@ pub struct OutOfDate {
 impl Default for OutOfDate {
     fn default() -> Self {
         let pattern = FirstMatchOf::new(vec![
-            Box::new(FixedPhrase::from_phrase("out of date")),
-            Box::new(FixedPhrase::from_phrase("out-of date")),
-            Box::new(FixedPhrase::from_phrase("out of-date")),
+            Box::new(fixed_phrase("out of date")),
+            Box::new(fixed_phrase("out-of date")),
+            Box::new(fixed_phrase("out of-date")),
         ]);
 
         Self { expr: pattern }

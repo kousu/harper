@@ -1,3 +1,4 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::{
     CharStringExt, Lint, Token, TokenStringExt,
     expr::{Expr, SequenceExpr},
@@ -55,7 +56,7 @@ impl Default for PluralWrongWordOfPhrase {
                     Box::new(word_string(main_pl)),
                 ])
                 .t_ws_h()
-                .then_fixed_phrase(mid)
+                .then(fixed_phrase(mid))
                 .t_ws_h()
                 .then(word_string(last_pl)),
             ) as Box<dyn Expr>);

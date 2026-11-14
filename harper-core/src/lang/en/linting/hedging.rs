@@ -1,6 +1,6 @@
 use crate::expr::Expr;
 use crate::expr::FirstMatchOf;
-use crate::expr::FixedPhrase;
+use crate::lang::en::expr::fixed_phrase;
 use crate::linting::expr_linter::Chunk;
 use crate::linting::{ExprLinter, Lint, LintKind};
 use crate::{Token, TokenStringExt};
@@ -16,7 +16,7 @@ impl Default for Hedging {
 
         let patterns: Vec<Box<dyn Expr>> = phrases
             .into_iter()
-            .map(|s| Box::new(FixedPhrase::from_phrase(s)) as Box<dyn Expr>)
+            .map(|s| Box::new(fixed_phrase(s)) as Box<dyn Expr>)
             .collect();
 
         Self {

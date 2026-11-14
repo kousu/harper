@@ -259,7 +259,10 @@ mod tests_context {
     impl Default for TestSimpleLinter {
         fn default() -> Self {
             Self {
-                expr: Box::new(FixedPhrase::from_phrase("two")),
+                expr: Box::new(FixedPhrase::from_phrase_for(
+                    "two",
+                    crate::LanguageFamily::English,
+                )),
             }
         }
     }
@@ -292,7 +295,10 @@ mod tests_context {
     impl Default for TestContextLinter {
         fn default() -> Self {
             Self {
-                expr: Box::new(FixedPhrase::from_phrase("two")),
+                expr: Box::new(FixedPhrase::from_phrase_for(
+                    "two",
+                    crate::LanguageFamily::English,
+                )),
             }
         }
     }
@@ -355,7 +361,10 @@ mod tests_context {
     impl Default for TestSentenceLinter {
         fn default() -> Self {
             Self {
-                expr: Box::new(FixedPhrase::from_phrase("two, two")),
+                expr: Box::new(FixedPhrase::from_phrase_for(
+                    "two, two",
+                    crate::LanguageFamily::English,
+                )),
             }
         }
     }

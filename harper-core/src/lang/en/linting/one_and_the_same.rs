@@ -1,7 +1,7 @@
 use crate::expr::Expr;
-use crate::expr::FixedPhrase;
 use crate::expr::LongestMatchOf;
 use crate::expr::SequenceExpr;
+use crate::lang::en::expr::fixed_phrase;
 use crate::{Lrc, Token, TokenStringExt};
 
 use super::{ExprLinter, Lint, LintKind, Suggestion};
@@ -13,7 +13,7 @@ pub struct OneAndTheSame {
 
 impl Default for OneAndTheSame {
     fn default() -> Self {
-        let one_in_the_same = Lrc::new(FixedPhrase::from_phrase("one in the same"));
+        let one_in_the_same = Lrc::new(fixed_phrase("one in the same"));
 
         Self {
             expr: LongestMatchOf::new(vec![

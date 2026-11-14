@@ -1,8 +1,9 @@
+use crate::lang::en::expr::fixed_phrase;
 use hashbrown::HashSet;
 
 use crate::{
     CharStringExt, Token, TokenStringExt,
-    expr::{All, Expr, FirstMatchOf, FixedPhrase, SequenceExpr},
+    expr::{All, Expr, FirstMatchOf, SequenceExpr},
     linting::{ExprLinter, Lint, LintKind, Suggestion, expr_linter::Chunk},
     spell::Dictionary,
 };
@@ -21,9 +22,9 @@ impl<D: Dictionary> MassPlurals<D> {
         let oov_looks_plural = All::new(vec![Box::new(oov), Box::new(looks_plural)]);
 
         let phrases = FirstMatchOf::new(vec![
-            Box::new(FixedPhrase::from_phrase("real estates")),
-            Box::new(FixedPhrase::from_phrase("source codes")),
-            Box::new(FixedPhrase::from_phrase("wear and tears")),
+            Box::new(fixed_phrase("real estates")),
+            Box::new(fixed_phrase("source codes")),
+            Box::new(fixed_phrase("wear and tears")),
         ]);
 
         Self {

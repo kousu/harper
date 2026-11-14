@@ -1,9 +1,10 @@
+use crate::lang::en::expr::fixed_phrase;
 use hashbrown::HashSet;
 
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Token,
-    expr::{Expr, FixedPhrase, SequenceExpr},
+    expr::{Expr, SequenceExpr},
     linting::{ExprLinter, Lint, LintKind, Suggestion},
 };
 
@@ -13,7 +14,7 @@ pub struct LookingForwardTo {
 
 impl Default for LookingForwardTo {
     fn default() -> Self {
-        let looking_forward_to = FixedPhrase::from_phrase("looking forward to");
+        let looking_forward_to = fixed_phrase("looking forward to");
 
         let pattern = SequenceExpr::with(looking_forward_to)
             .t_ws()
