@@ -5,26 +5,24 @@ mod ast;
 mod error;
 mod optimize;
 mod parsing;
+// Only English has built-in Weir rules so far.
+#[cfg_attr(not(feature = "en"), allow(unused_macros))]
 mod rule_list;
 
+#[cfg_attr(not(feature = "en"), allow(unused_imports))]
 pub(crate) use rule_list::weir_rule_list;
 
-use std::collections::VecDeque;
 use std::str::FromStr;
 use std::sync::Arc;
 
 pub use error::Error;
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashMap;
 use is_macro::Is;
 use parsing::{parse_expr_str, parse_str};
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::expr::{Expr, ExprExt};
-use crate::linting::{
-    Chunk, ExprLinter, Lint, LintKind, Linter, MAX_SUGGESTION_TRANSFORMATION_DEPTH, Sentence,
-    Suggestion,
-};
-use crate::parsers::Markdown;
+use crate::linting::{Chunk, ExprLinter, Lint, LintKind, Linter, Sentence, Suggestion};
 use crate::{Document, Lrc, Token, TokenStringExt};
 
 use self::ast::{Ast, AstVariable};
@@ -215,6 +213,13 @@ impl WeirLinter {
     /// Runs the tests defined in the source code, returning any failing results.
     #[cfg(feature = "en")]
     pub fn run_tests(&mut self) -> Vec<TestResult> {
+        use std::collections::VecDeque;
+
+        use hashbrown::HashSet;
+
+        use crate::linting::MAX_SUGGESTION_TRANSFORMATION_DEPTH;
+        use crate::parsers::Markdown;
+
         fn apply_nth_suggestion(text: &str, lint: &Lint, n: usize) -> Option<String> {
             let suggestion = lint.suggestions.get(n)?;
             let mut text_chars: Vec<char> = text.chars().collect();

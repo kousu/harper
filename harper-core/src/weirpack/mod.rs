@@ -9,7 +9,7 @@ use zip::{CompressionMethod, ZipArchive, ZipWriter};
 
 use crate::linting::LintGroup;
 use crate::spell::MutableDictionary;
-use crate::weir::{TestResult, WeirLinter};
+use crate::weir::WeirLinter;
 
 mod error;
 mod manifest;
@@ -50,8 +50,9 @@ impl Weirpack {
         self.rules.remove(name)
     }
 
-    /// Run all the tests within all the Weir rules in this Weirpack.
-    pub fn run_tests(&self) -> Result<HashMap<String, Vec<TestResult>>, Error> {
+    /// Run all the tests within all the Weir rules in this Weirpack. Their tests are English.
+    #[cfg(feature = "en")]
+    pub fn run_tests(&self) -> Result<HashMap<String, Vec<crate::weir::TestResult>>, Error> {
         let mut failures = HashMap::new();
 
         for (name, rule) in &self.rules {

@@ -39,6 +39,7 @@ impl MutableDictionary {
 
     /// Create a dictionary from the curated English dictionary included
     /// in the Harper binary.
+    #[cfg(feature = "en")]
     #[deprecated(note = "use `MutableDictionary::curated_for(LanguageFamily::English)`")]
     pub fn curated() -> Arc<Self> {
         crate::lang::en::dictionary::mutable_dictionary()
@@ -277,7 +278,7 @@ impl From<MutableDictionary> for FstDictionary {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use std::borrow::Cow;
 

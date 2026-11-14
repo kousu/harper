@@ -5,6 +5,8 @@ use std::fmt::Display;
 use harper_brill::UPOS;
 use itertools::Itertools;
 
+#[cfg(feature = "en")]
+use crate::EnglishOrdinalSuffix;
 use crate::expr::{Expr, ExprExt, FirstMatchOf, Repeating, SequenceExpr};
 use crate::parsers::Parser;
 #[cfg(feature = "en")]
@@ -13,7 +15,7 @@ use crate::punctuation::Punctuation;
 use crate::spell::Dictionary;
 use crate::vec_ext::VecExt;
 use crate::{CharStringExt, FatStringToken, FatToken, Lrc, Token, TokenKind, TokenStringExt};
-use crate::{EnglishOrdinalSuffix, LanguageFamily, Span};
+use crate::{LanguageFamily, Span};
 
 /// A document containing some amount of lexed and parsed English text.
 #[derive(Debug, Clone)]
@@ -208,6 +210,7 @@ impl Document {
     /// "1st" and "R&D".
     fn apply_fixups(&mut self, language: Option<LanguageFamily>) {
         let english = match language {
+            #[cfg(feature = "en")]
             Some(LanguageFamily::English) => true,
             _ => false,
         };
@@ -216,6 +219,7 @@ impl Document {
         self.condense_newlines();
         self.newlines_to_breaks();
         self.condense_dotted_initialisms();
+        #[cfg(feature = "en")]
         if english {
             self.condense_number_suffixes();
         }
@@ -516,6 +520,7 @@ impl Document {
     }
 
     /// Searches for number suffixes and condenses them down into single tokens
+    #[cfg(feature = "en")]
     fn condense_number_suffixes(&mut self) {
         if self.tokens.len() < 2 {
             return;
