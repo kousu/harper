@@ -5,8 +5,10 @@ use paste::paste;
 use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
 
+use crate::Language;
 use crate::dict_word_metadata_orthography::OrthFlags;
-use crate::{EnglishDialect, EnglishDialectFlags, Language};
+#[cfg(feature = "en")]
+use crate::{EnglishDialect, EnglishDialectFlags};
 
 pub mod derived_from;
 use derived_from::DerivedFrom;
@@ -830,6 +832,8 @@ impl DictWordMetadata {
     }
 
     /// Same thing as [`Self::or`], except in-place rather than a clone.
+    // With no language, `WordDialects` has no values, so merging dialects can't happen.
+    #[cfg_attr(not(feature = "en"), allow(unreachable_code))]
     pub fn merge(&mut self, other: &Self) -> &mut Self {
         macro_rules! merge {
             ($a:expr, $b:expr) => {
@@ -1112,6 +1116,7 @@ impl AffixData {
 #[serde(untagged)]
 #[non_exhaustive]
 pub enum WordDialects {
+    #[cfg(feature = "en")]
     English(EnglishDialectFlags),
 }
 
@@ -1130,11 +1135,13 @@ impl WordDialects {
     #[must_use]
     pub fn union(self, other: Self) -> Self {
         match (self, other) {
+            #[cfg(feature = "en")]
             (Self::English(a), Self::English(b)) => Self::English(a | b),
         }
     }
 
     /// The English dialects, if this is an English word.
+    #[cfg(feature = "en")]
     #[must_use]
     pub fn english(self) -> Option<EnglishDialectFlags> {
         match self {
@@ -1143,12 +1150,14 @@ impl WordDialects {
     }
 }
 
+#[cfg(feature = "en")]
 impl From<EnglishDialectFlags> for WordDialects {
     fn from(flags: EnglishDialectFlags) -> Self {
         Self::English(flags)
     }
 }
 
+#[cfg(feature = "en")]
 impl From<EnglishDialect> for WordDialects {
     fn from(dialect: EnglishDialect) -> Self {
         Self::English(EnglishDialectFlags::from_dialect(dialect))

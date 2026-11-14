@@ -1,3 +1,6 @@
+//! Snapshots of English text.
+#![cfg(feature = "en")]
+
 use std::{
     marker::Sync,
     path::{Path, PathBuf},

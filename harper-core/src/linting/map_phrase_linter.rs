@@ -2,7 +2,6 @@ use super::{ExprLinter, Lint, LintKind};
 use crate::expr::Expr;
 use crate::expr::FixedPhrase;
 use crate::expr::LongestMatchOf;
-#[cfg(feature = "en")]
 use crate::expr::SimilarToPhrase;
 use crate::linting::Suggestion;
 use crate::linting::expr_linter::Chunk;
