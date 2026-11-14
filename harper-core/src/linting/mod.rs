@@ -15,8 +15,12 @@ pub(crate) mod pooled_linter;
 pub(crate) mod spell_check;
 mod suggestion;
 
+/// Whether `b` is `a` with an "h" added after a "t".
 #[doc(hidden)]
-pub use en::spell_check::is_th_h_missing;
+#[deprecated(note = "English only: use `harper_core::lang::en::is_th_h_missing`")]
+pub fn is_th_h_missing(a: &[char], b: &[char]) -> bool {
+    en::spell_check::is_th_h_missing(a, b)
+}
 
 pub use expr_linter::{Chunk, ExprLinter, Sentence};
 pub use initialism_linter::InitialismLinter;

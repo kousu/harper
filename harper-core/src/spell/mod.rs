@@ -15,7 +15,12 @@ pub use self::mutable_dictionary::MutableDictionary;
 pub use self::surrounding_words::{context_word, surrounding_words};
 pub use self::trie_dictionary::TrieDictionary;
 pub use self::word_id::{CanonicalWordId, CaseFoldedWordId};
-pub use crate::linting::is_th_h_missing;
+
+/// Whether `b` is `a` with an "h" added after a "t".
+#[deprecated(note = "English only: use `harper_core::lang::en::is_th_h_missing`")]
+pub fn is_th_h_missing(a: &[char], b: &[char]) -> bool {
+    crate::lang::en::is_th_h_missing(a, b)
+}
 
 mod dictionary;
 mod fst_dictionary;
