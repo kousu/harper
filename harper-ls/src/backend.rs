@@ -18,7 +18,7 @@ use harper_core::parsers::{
     CollapseIdentifiers, IsolateEnglish, Markdown, OrgMode, Parser, PlainEnglish,
 };
 use harper_core::spell::{Dictionary, FstDictionary, MergedDictionary, MutableDictionary};
-use harper_core::{DictWordMetadata, Document, EnglishDialect, IgnoredLints};
+use harper_core::{DictWordMetadata, Document, EnglishDialect, IgnoredLints, Language};
 use harper_dictionary_wordlist::{load_dict, save_dict};
 use harper_git_commit::GitCommitParser;
 use harper_html::HtmlParser;
@@ -88,7 +88,7 @@ impl Backend {
             .await
             .context("Unable to get the file path.")?;
 
-        load_dict(path, self.config.read().await.dialect)
+        load_dict(path, Language::English(self.config.read().await.dialect))
             .await
             .map_err(|err| info!("{err}"))
             .or(Ok(MutableDictionary::new()))
@@ -152,7 +152,7 @@ impl Backend {
     async fn load_user_dictionary(&self) -> MutableDictionary {
         let config = self.config.read().await;
 
-        load_dict(&config.user_dict_path, config.dialect)
+        load_dict(&config.user_dict_path, Language::English(config.dialect))
             .await
             .map_err(|err| info!("{err}"))
             .unwrap_or(MutableDictionary::new())
@@ -168,10 +168,13 @@ impl Backend {
 
     async fn load_workspace_dictionary(&self) -> MutableDictionary {
         let config = self.config.read().await;
-        load_dict(&config.workspace_dict_path, config.dialect)
-            .await
-            .map_err(|err| info!("{err}"))
-            .unwrap_or(MutableDictionary::new())
+        load_dict(
+            &config.workspace_dict_path,
+            Language::English(config.dialect),
+        )
+        .await
+        .map_err(|err| info!("{err}"))
+        .unwrap_or(MutableDictionary::new())
     }
 
     async fn save_workspace_dictionary(&self, dict: impl Dictionary) -> Result<()> {

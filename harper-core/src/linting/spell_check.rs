@@ -8,7 +8,7 @@ use super::{Lint, LintKind, Linter};
 use crate::document::Document;
 use crate::edit_distance::edit_distance;
 use crate::spell::{Dictionary, spelling_candidates_with};
-use crate::{CharString, CharStringExt, EnglishDialect, LSend, TokenStringExt};
+use crate::{CharString, CharStringExt, LSend, Language, TokenStringExt};
 
 /// The parts of spell checking that depend on the language. Each method's default does nothing,
 /// for languages that have nothing to add.
@@ -58,17 +58,18 @@ where
 {
     dictionary: T,
     suggestion_cache: LruCache<CharString, Vec<(CharString, i32)>>,
-    dialect: EnglishDialect,
-    /// What spell checking needs beyond the dictionary, in the checked language.
+    /// The language and dialect to accept words from.
+    language: Language,
+    /// What spell checking `language` needs beyond the dictionary.
     conventions: C,
 }
 
 impl<T: Dictionary, C: SpellingConventions> SpellCheck<T, C> {
-    pub fn new(dictionary: T, dialect: EnglishDialect, conventions: C) -> Self {
+    pub fn new(dictionary: T, language: Language, conventions: C) -> Self {
         Self {
             dictionary,
             suggestion_cache: LruCache::new(NonZero::new(10000).unwrap()),
-            dialect,
+            language,
             conventions,
         }
     }
@@ -83,7 +84,7 @@ impl<T: Dictionary, C: SpellingConventions> SpellCheck<T, C> {
                 word,
                 &self.dictionary,
                 C::CANDIDATES,
-                |meta| meta.dialects.is_dialect_enabled(self.dialect),
+                |meta| meta.allows_language(self.language),
                 |m, s, d| self.conventions.score_adjustment(m, s, d),
             );
             self.suggestion_cache.put(word.into(), suggestions.clone());
@@ -105,7 +106,7 @@ impl<T: Dictionary, C: SpellingConventions> Linter for SpellCheck<T, C> {
             }
 
             if let Some(Some(metadata)) = word.kind.as_word()
-                && metadata.dialects.is_dialect_enabled(self.dialect)
+                && metadata.allows_language(self.language)
                 && (self.dictionary.contains_exact_word(word_chars)
                     || self
                         .dictionary
@@ -203,7 +204,7 @@ mod tests {
     use super::{SpellCheck, SpellingConventions};
     use crate::linting::{Lint, Linter};
     use crate::spell::FstDictionary;
-    use crate::{Document, EnglishDialect};
+    use crate::{Document, EnglishDialect, Language};
 
     /// Ignores "zzz", drops every lint on "qqq", and prefers suggestions starting with "w".
     struct TestSpelling;
@@ -231,7 +232,7 @@ mod tests {
         let document = Document::new_plain_english_curated(text);
         let mut linter = SpellCheck::new(
             FstDictionary::curated(),
-            EnglishDialect::American,
+            Language::English(EnglishDialect::American),
             conventions,
         );
 
@@ -265,7 +266,7 @@ mod tests {
         let document = Document::new_plain_english_curated("thw");
         let mut linter = SpellCheck::new(
             FstDictionary::curated(),
-            EnglishDialect::American,
+            Language::English(EnglishDialect::American),
             TestSpelling,
         );
         let lints = linter.lint(&document);

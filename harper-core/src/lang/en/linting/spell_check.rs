@@ -385,6 +385,7 @@ mod tests {
     use strum::IntoEnumIterator;
 
     use super::EnglishSpelling;
+    use crate::Language;
     use crate::linting::Linter;
     use crate::linting::pooled_linter::for_tests::create_test_pool;
     use crate::linting::spell_check::SpellCheck;
@@ -392,7 +393,7 @@ mod tests {
     use crate::spell::{Dictionary, FstDictionary, MergedDictionary, MutableDictionary};
     use crate::{DictWordMetadata, Document};
     use crate::{
-        EnglishDialect, EnglishDialectFlags,
+        EnglishDialect,
         linting::tests::{assert_lint_count, assert_suggestion_result},
     };
     use std::sync::Arc;
@@ -402,7 +403,7 @@ mod tests {
         SpellCheck<Arc<FstDictionary>, EnglishSpelling>,
         SpellCheck::new(
             FstDictionary::curated(),
-            EnglishDialect::American,
+            Language::English(EnglishDialect::American),
             EnglishSpelling::new()
         )
     );
@@ -411,7 +412,7 @@ mod tests {
     fn close_spelling_guesses_have_priority_over_generic_splits() {
         let mut linter = SpellCheck::new(
             FstDictionary::curated(),
-            EnglishDialect::American,
+            Language::English(EnglishDialect::American),
             EnglishSpelling::new(),
         );
         for (source, priority) in [("coresponding", 32), ("worthchecking", 63)] {
@@ -446,7 +447,7 @@ mod tests {
             "Do you like the color?",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             1,
@@ -459,7 +460,7 @@ mod tests {
             "We flew to the uk.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             &["We flew to the UK."],
@@ -473,7 +474,7 @@ mod tests {
             "We flew to Nz.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             &["We flew to NZ."],
@@ -487,7 +488,7 @@ mod tests {
             "We anonymise it with the customisable tokeniser, then we synthesised the results.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             0,
@@ -500,7 +501,7 @@ mod tests {
             "We anonymise it with the customisable tokeniser, then we synthesised the results.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::American,
+                Language::English(EnglishDialect::American),
                 EnglishSpelling::new(),
             ),
             4,
@@ -513,7 +514,7 @@ mod tests {
             "The attack on Pearl Harbor came before Labor Day.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             0,
@@ -526,7 +527,7 @@ mod tests {
             "The Ministry of Defence met the Labour Party.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::American,
+                Language::English(EnglishDialect::American),
                 EnglishSpelling::new(),
             ),
             0,
@@ -539,7 +540,7 @@ mod tests {
             "The ship left the harbor near Pearl Harbor.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             1,
@@ -552,7 +553,7 @@ mod tests {
             "Does your mom like yogourt?",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Australian,
+                Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
             2,
@@ -565,7 +566,7 @@ mod tests {
             "We mine bauxite to make aluminium.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Canadian,
+                Language::English(EnglishDialect::Canadian),
                 EnglishSpelling::new(),
             ),
             1,
@@ -587,7 +588,7 @@ mod tests {
             "Our house has a verandah.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Australian,
+                Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
             0,
@@ -605,7 +606,7 @@ mod tests {
             "Our house has a verandah.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             1,
@@ -618,7 +619,7 @@ mod tests {
             "Our house has a verandah.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Canadian,
+                Language::English(EnglishDialect::Canadian),
                 EnglishSpelling::new(),
             ),
             1,
@@ -631,7 +632,7 @@ mod tests {
             "In summer we sit on the verandah and eat yogourt.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Australian,
+                Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
             1,
@@ -644,7 +645,7 @@ mod tests {
             "In summer we sit on the verandah and eat yogourt.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Canadian,
+                Language::English(EnglishDialect::Canadian),
                 EnglishSpelling::new(),
             ),
             1,
@@ -666,7 +667,7 @@ mod tests {
             "In summer we sit on the verandah and eat yogourt.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             2,
@@ -679,7 +680,7 @@ mod tests {
             "In Australia we write 'labour' but the political party is the 'Labor Party'.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Australian,
+                Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
             0,
@@ -701,7 +702,7 @@ mod tests {
             "In general, utes have unibody construction while pickups have frames.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Australian,
+                Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
             0,
@@ -714,7 +715,7 @@ mod tests {
             "abanonedware",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Australian,
+                Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
             "abandonware",
@@ -749,7 +750,7 @@ mod tests {
             "afterward",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Australian,
+                Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
             1,
@@ -762,7 +763,7 @@ mod tests {
             "afterwards",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Australian,
+                Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
             0,
@@ -775,7 +776,7 @@ mod tests {
             "afterward",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Canadian,
+                Language::English(EnglishDialect::Canadian),
                 EnglishSpelling::new(),
             ),
             1,
@@ -788,7 +789,7 @@ mod tests {
             "afterwards",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Canadian,
+                Language::English(EnglishDialect::Canadian),
                 EnglishSpelling::new(),
             ),
             0,
@@ -801,7 +802,7 @@ mod tests {
             "afterward",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             1,
@@ -814,7 +815,7 @@ mod tests {
             "afterwards",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             0,
@@ -827,7 +828,7 @@ mod tests {
             "hes",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "he's",
@@ -840,7 +841,7 @@ mod tests {
             "shes",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "she's",
@@ -856,7 +857,7 @@ mod tests {
         user_dict.append_word_str(
             "Calibre",
             DictWordMetadata {
-                dialects: EnglishDialectFlags::from_dialect(user_dialect),
+                dialects: Some(user_dialect.into()),
                 ..Default::default()
             },
         );
@@ -869,23 +870,31 @@ mod tests {
 
         // No dialect issues should be found if the word from another dialect is in our user dictionary.
         assert_eq!(
-            SpellCheck::new(merged_dict.clone(), user_dialect, EnglishSpelling::new())
-                .lint(&Document::new_markdown_default(
-                    "I like to use the software Calibre.",
-                    &merged_dict
-                ))
-                .len(),
+            SpellCheck::new(
+                merged_dict.clone(),
+                Language::English(user_dialect),
+                EnglishSpelling::new()
+            )
+            .lint(&Document::new_markdown_default(
+                "I like to use the software Calibre.",
+                &merged_dict
+            ))
+            .len(),
             0,
             "Calibre is not part of the user's dialect!"
         );
 
         assert_eq!(
-            SpellCheck::new(merged_dict.clone(), user_dialect, EnglishSpelling::new())
-                .lint(&Document::new_markdown_default(
-                    "I like to use the spelling colour.",
-                    &merged_dict
-                ))
-                .len(),
+            SpellCheck::new(
+                merged_dict.clone(),
+                Language::English(user_dialect),
+                EnglishSpelling::new()
+            )
+            .lint(&Document::new_markdown_default(
+                "I like to use the spelling colour.",
+                &merged_dict
+            ))
+            .len(),
             1
         );
     }
@@ -896,7 +905,11 @@ mod tests {
             dbg!(dialect);
             assert_no_lints(
                 "Matt is a great name.",
-                SpellCheck::new(FstDictionary::curated(), dialect, EnglishSpelling::new()),
+                SpellCheck::new(
+                    FstDictionary::curated(),
+                    Language::English(dialect),
+                    EnglishSpelling::new(),
+                ),
             );
         }
     }
@@ -907,7 +920,7 @@ mod tests {
             "'Tere' is supposed to be 'There'",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "'There' is supposed to be 'There'",
@@ -917,7 +930,7 @@ mod tests {
             "'fll' is supposed to be 'fill'",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "'fill' is supposed to be 'fill'",
@@ -929,7 +942,7 @@ mod tests {
             "Generaly",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "Generally",
@@ -947,7 +960,7 @@ mod tests {
             "We had to prepone the meeting",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::Indian,
+                Language::English(EnglishDialect::Indian),
                 EnglishSpelling::new(),
             ),
         );
@@ -1006,7 +1019,7 @@ mod tests {
             "color",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "colour",
@@ -1026,7 +1039,7 @@ mod tests {
             "Color",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "Colour",
@@ -1047,7 +1060,7 @@ mod tests {
             "COLOR",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "COLOUR",
@@ -1064,7 +1077,7 @@ mod tests {
             "realize",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "realise",
@@ -1083,7 +1096,7 @@ mod tests {
             "Realize",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "Realise",
@@ -1103,7 +1116,7 @@ mod tests {
             "REALIZE",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "REALISE",
@@ -1123,7 +1136,7 @@ mod tests {
             "defense",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "defence",
@@ -1141,7 +1154,7 @@ mod tests {
             "Defense",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "Defence",
@@ -1160,7 +1173,7 @@ mod tests {
             "DEFENSE",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "DEFENCE",
@@ -1180,7 +1193,7 @@ mod tests {
             "skeptic",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "sceptic",
@@ -1198,7 +1211,7 @@ mod tests {
             "Skeptic",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "Sceptic",
@@ -1218,7 +1231,7 @@ mod tests {
             "SKEPTIC",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "SCEPTIC",
@@ -1244,7 +1257,7 @@ mod tests {
             "centimeter",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "centimetre",
@@ -1263,7 +1276,7 @@ mod tests {
             "Centimeter",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "Centimetre",
@@ -1283,7 +1296,7 @@ mod tests {
             "CENTIMETER",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "CENTIMETRE",
@@ -1303,7 +1316,7 @@ mod tests {
             "traveler",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "traveller",
@@ -1322,7 +1335,7 @@ mod tests {
             "Traveler",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "Traveller",
@@ -1342,7 +1355,7 @@ mod tests {
             "TRAVELER",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "TRAVELLER",
@@ -1358,7 +1371,7 @@ mod tests {
             "I've got a gray cat.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "I've got a grey cat.",
@@ -1381,7 +1394,7 @@ mod tests {
             "I've Got a Gray Cat.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "I've Got a Grey Cat.",
@@ -1404,7 +1417,7 @@ mod tests {
             "GRAY",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "GREY",
@@ -1426,7 +1439,7 @@ mod tests {
             "The cheif recieved a letter.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "The chief received a letter.",
@@ -1440,7 +1453,7 @@ mod tests {
             "The Cheif Recieved a Letter.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "The Chief Received a Letter.",
@@ -1454,7 +1467,7 @@ mod tests {
             "THE CHEIF RECIEVED A LETTER.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "THE CHEIF RECEIVED A LETTER.",
@@ -1467,7 +1480,7 @@ mod tests {
             "v's",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "vs",
@@ -1480,7 +1493,7 @@ mod tests {
             "v’s",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "vs",
@@ -1493,7 +1506,7 @@ mod tests {
             "childrens",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
             "children's",
@@ -1518,7 +1531,7 @@ mod tests {
             "The suspect was closely surveilled by the agents.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
         );
@@ -1526,7 +1539,7 @@ mod tests {
             "They were surveilling the premises.",
             SpellCheck::new(
                 FstDictionary::curated(),
-                EnglishDialect::British,
+                Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
         );
@@ -1539,12 +1552,12 @@ mod test_context_ranking {
     use crate::linting::spell_check::SpellCheck;
     use crate::linting::{Linter, Suggestion};
     use crate::spell::FstDictionary;
-    use crate::{Document, EnglishDialect};
+    use crate::{Document, EnglishDialect, Language};
 
     fn suggestions(text: &str) -> Vec<String> {
         SpellCheck::new(
             FstDictionary::curated(),
-            EnglishDialect::American,
+            Language::English(EnglishDialect::American),
             EnglishSpelling::new(),
         )
         .lint(&Document::new_plain_english_curated(text))

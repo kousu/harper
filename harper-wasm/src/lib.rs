@@ -8,6 +8,7 @@ use std::convert::Into;
 use std::io::Cursor;
 use std::sync::Arc;
 
+use harper_core::RegexMasker;
 use harper_core::language_detection::is_doc_likely_english;
 use harper_core::linting::{HumanReadableStructuredConfig, StructuredConfig};
 use harper_core::linting::{LintGroup, Linter as _};
@@ -18,7 +19,6 @@ use harper_core::{
     CharString, DictWordMetadata, Document, IgnoredLints, LintContext, Lrc, remove_overlaps,
     spell::{Dictionary, FstDictionary, MergedDictionary, MutableDictionary},
 };
-use harper_core::{DialectFlags, RegexMasker};
 use harper_stats::{Record, RecordKind, Stats};
 use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::Serializer;
@@ -461,7 +461,7 @@ impl Linter {
                 (
                     word.chars().collect::<CharString>(),
                     DictWordMetadata {
-                        dialects: DialectFlags::from_dialect(self.dialect.into()),
+                        dialects: Some(harper_core::EnglishDialect::from(self.dialect).into()),
                         ..Default::default()
                     },
                 )

@@ -154,7 +154,7 @@ mod tests {
             "SpellCheck",
             spell_check::SpellCheck::new(
                 dict.clone(),
-                EnglishDialect::American,
+                crate::Language::English(EnglishDialect::American),
                 super::super::spell_check::EnglishSpelling::new(),
             ),
         );
