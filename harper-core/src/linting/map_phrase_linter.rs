@@ -6,7 +6,7 @@ use crate::expr::SimilarToPhrase;
 use crate::linting::Suggestion;
 use crate::linting::expr_linter::Chunk;
 use crate::weir::weir_expr_to_expr;
-use crate::{Token, TokenStringExt};
+use crate::{LanguageFamily, Token, TokenStringExt};
 
 pub struct MapPhraseLinter {
     description: String,
@@ -34,8 +34,27 @@ impl MapPhraseLinter {
     }
 
     pub fn new_similar_to_phrase(phrase: &'static str, detectable_distance: u8) -> Self {
+        Self::similar_to(
+            SimilarToPhrase::from_phrase(phrase, detectable_distance),
+            phrase,
+        )
+    }
+
+    /// Like [`Self::new_similar_to_phrase`], with the phrase in `language`.
+    pub fn new_similar_to_phrase_for(
+        phrase: &'static str,
+        detectable_distance: u8,
+        language: LanguageFamily,
+    ) -> Self {
+        Self::similar_to(
+            SimilarToPhrase::from_phrase_for(phrase, detectable_distance, language),
+            phrase,
+        )
+    }
+
+    fn similar_to(expr: SimilarToPhrase, phrase: &'static str) -> Self {
         Self::new(
-            Box::new(SimilarToPhrase::from_phrase(phrase, detectable_distance)),
+            Box::new(expr),
             [phrase],
             format!("Did you mean the phrase `{phrase}`?"),
             format!("Looks for slight improper modifications to the phrase `{phrase}`."),
@@ -71,8 +90,27 @@ impl MapPhraseLinter {
         description: impl ToString,
         lint_kind: Option<LintKind>,
     ) -> Self {
+        Self::new_fixed_phrase_for(
+            phrase,
+            correct_forms,
+            message,
+            description,
+            lint_kind,
+            LanguageFamily::English,
+        )
+    }
+
+    /// Like [`Self::new_fixed_phrase`], with the phrase in `language`.
+    pub fn new_fixed_phrase_for(
+        phrase: impl AsRef<str>,
+        correct_forms: impl IntoIterator<Item = impl ToString>,
+        message: impl ToString,
+        description: impl ToString,
+        lint_kind: Option<LintKind>,
+        language: LanguageFamily,
+    ) -> Self {
         Self::new(
-            Box::new(FixedPhrase::from_phrase(phrase.as_ref())),
+            Box::new(FixedPhrase::from_phrase_for(phrase.as_ref(), language)),
             correct_forms,
             message,
             description,

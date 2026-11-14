@@ -1,6 +1,5 @@
-use crate::parsers::PlainEnglish;
 use crate::patterns::Word;
-use crate::{Document, Span, Token, TokenKind};
+use crate::{Document, LanguageFamily, Span, Token, TokenKind};
 
 use super::{Expr, SequenceExpr};
 
@@ -25,9 +24,13 @@ impl FixedPhrase {
     /// Creates a [`FixedPhrase`] from a plaintext string.
     /// Uses plain English tokenization rules.
     pub fn from_phrase(text: &str) -> Self {
-        let document =
-            Document::new_basic_tokenize(text, &PlainEnglish, crate::LanguageFamily::English);
-        Self::from_document(&document)
+        Self::from_phrase_for(text, LanguageFamily::English)
+    }
+
+    /// Creates a [`FixedPhrase`] from a plaintext string, split into words the way `language`
+    /// splits them.
+    pub fn from_phrase_for(text: &str, language: LanguageFamily) -> Self {
+        Self::from_document(&Document::new_basic_tokenize_for(text, language))
     }
 
     /// Creates a [`FixedPhrase`] from a pre-tokenized document.
@@ -70,6 +73,16 @@ mod tests {
     use super::FixedPhrase;
     use crate::expr::Expr;
     use crate::{Document, Span};
+
+    #[test]
+    fn from_phrase_for_matches_in_its_language() {
+        let doc = Document::new_plain_english_curated("I said hello, world.");
+        let phrase = FixedPhrase::from_phrase_for("hello, world", crate::LanguageFamily::English);
+        assert_eq!(
+            phrase.run(4, doc.get_tokens(), doc.get_source()),
+            Some(Span::new(4, 8))
+        );
+    }
 
     #[test]
     fn test_not_case_sensitive() {

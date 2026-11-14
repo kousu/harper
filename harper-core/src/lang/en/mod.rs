@@ -22,6 +22,7 @@ use harper_brill::{Chunker, Tagger, UPOS, brill_tagger, burn_chunker};
 use crate::EnglishDialect;
 use crate::lang::LanguageData;
 use crate::linting::{FlatConfig, StructuredConfig};
+use crate::parsers::{Parser, PlainEnglish};
 use crate::spell::{FstDictionary, MutableDictionary, TrieDictionary};
 
 /// English's data, for [`LanguageFamily::data`](crate::LanguageFamily::data).
@@ -38,6 +39,10 @@ impl LanguageData for English {
 
     fn trie_dictionary(&self) -> Arc<TrieDictionary<Arc<FstDictionary>>> {
         dictionary::trie_dictionary()
+    }
+
+    fn prose_parser(&self) -> &'static dyn Parser {
+        &PlainEnglish
     }
 
     fn tag_and_chunk(&self, sentence: &[String]) -> (Vec<Option<UPOS>>, Vec<bool>) {
