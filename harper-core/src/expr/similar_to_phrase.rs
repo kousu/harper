@@ -15,6 +15,7 @@ impl SimilarToPhrase {
     /// This is an expensive operation, so try to only do it at startup and in tests.
     ///
     /// It will panic if your document is too complex, so only run this with curated phrases.
+    #[deprecated(note = "use `SimilarToPhrase::from_phrase_for` with the phrase's language")]
     pub fn from_phrase(text: &str, max_edit_dist: u8) -> Self {
         let document = Document::new_plain_english_curated(text);
 

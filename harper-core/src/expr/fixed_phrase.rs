@@ -23,6 +23,7 @@ pub struct FixedPhrase {
 impl FixedPhrase {
     /// Creates a [`FixedPhrase`] from a plaintext string.
     /// Uses plain English tokenization rules.
+    #[deprecated(note = "use `FixedPhrase::from_phrase_for` with the phrase's language")]
     pub fn from_phrase(text: &str) -> Self {
         Self::from_phrase_for(text, LanguageFamily::English)
     }
