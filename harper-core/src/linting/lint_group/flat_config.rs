@@ -81,6 +81,7 @@ impl FlatConfig {
     }
 
     /// Fill the group with the values for the curated English lint group.
+    #[deprecated(note = "use `FlatConfig::fill_with_curated_for(LanguageFamily::English)`")]
     pub fn fill_with_curated(&mut self) {
         self.fill_with_curated_for(crate::LanguageFamily::English);
     }
@@ -93,6 +94,8 @@ impl FlatConfig {
         self.merge_from(temp);
     }
 
+    /// The config of the curated English lint group.
+    #[deprecated(note = "use `FlatConfig::new_curated_for(LanguageFamily::English)`")]
     pub fn new_curated() -> Self {
         Self::new_curated_for(crate::LanguageFamily::English)
     }

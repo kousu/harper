@@ -16,12 +16,14 @@ pub struct TrieDictionary<D: Dictionary> {
 }
 
 /// The curated English dictionary, as a [`TrieDictionary`].
+#[deprecated(note = "use `TrieDictionary::curated_for(LanguageFamily::English)`")]
 pub static DICT: LazyLock<Arc<TrieDictionary<Arc<FstDictionary>>>> =
     LazyLock::new(crate::lang::en::dictionary::trie_dictionary);
 
 impl TrieDictionary<Arc<FstDictionary>> {
     /// Create a dictionary from the curated English dictionary included
     /// in the Harper binary.
+    #[deprecated(note = "use `TrieDictionary::curated_for(LanguageFamily::English)`")]
     pub fn curated() -> Arc<Self> {
         Self::curated_for(LanguageFamily::English)
     }

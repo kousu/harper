@@ -243,6 +243,10 @@ impl LintGroup {
         }
     }
 
+    /// Create the curated group of English rules.
+    #[deprecated(
+        note = "use `LintGroup::new_curated_for_language(dictionary, Language::English(dialect))`"
+    )]
     pub fn new_curated(
         dictionary: Arc<impl Dictionary + 'static>,
         dialect: EnglishDialect,
@@ -250,7 +254,10 @@ impl LintGroup {
         super::en::new_curated(dictionary, dialect)
     }
 
-    /// Create a new curated group with all config values cleared out.
+    /// Create a new curated group of English rules with all config values cleared out.
+    #[deprecated(
+        note = "use `LintGroup::new_curated_empty_config_for_language(dictionary, Language::English(dialect))`"
+    )]
     pub fn new_curated_empty_config(
         dictionary: Arc<impl Dictionary + 'static>,
         dialect: EnglishDialect,

@@ -16,7 +16,8 @@ pub struct StructuredConfig {
 }
 
 impl StructuredConfig {
-    /// Build the curated structured config, including labels.
+    /// Build the curated structured config of the English rules, including labels.
+    #[deprecated(note = "use `StructuredConfig::curated_for(LanguageFamily::English)`")]
     pub fn curated() -> Self {
         crate::lang::en::linting::default_config()
     }
