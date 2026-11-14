@@ -17,6 +17,8 @@ pub(crate) mod title_case;
 
 use std::sync::{Arc, OnceLock};
 
+use harper_brill::{Chunker, Tagger, UPOS, brill_tagger, burn_chunker};
+
 use crate::EnglishDialect;
 use crate::lang::LanguageData;
 use crate::linting::{FlatConfig, StructuredConfig};
@@ -36,6 +38,12 @@ impl LanguageData for English {
 
     fn trie_dictionary(&self) -> Arc<TrieDictionary<Arc<FstDictionary>>> {
         dictionary::trie_dictionary()
+    }
+
+    fn tag_and_chunk(&self, sentence: &[String]) -> (Vec<Option<UPOS>>, Vec<bool>) {
+        let tags = brill_tagger().tag_sentence(sentence);
+        let np_flags = burn_chunker().chunk_sentence(sentence, &tags);
+        (tags, np_flags)
     }
 
     fn default_config(&self) -> StructuredConfig {
