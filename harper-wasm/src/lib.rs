@@ -10,13 +10,14 @@ use std::sync::Arc;
 
 use harper_core::RegexMasker;
 use harper_core::language_detection::is_doc_likely_english;
+use harper_core::linting::{FlatConfig, LintGroup, Linter as _};
 use harper_core::linting::{HumanReadableStructuredConfig, StructuredConfig};
-use harper_core::linting::{LintGroup, Linter as _};
 use harper_core::parsers::{IsolateEnglish, Markdown, Mask, OopsAllHeadings, Parser, PlainEnglish};
 use harper_core::remove_overlaps_map;
 use harper_core::weirpack::Weirpack;
 use harper_core::{
-    CharString, DictWordMetadata, Document, IgnoredLints, LintContext, Lrc, remove_overlaps,
+    CharString, DictWordMetadata, Document, IgnoredLints, LanguageFamily, LintContext, Lrc,
+    remove_overlaps,
     spell::{Dictionary, FstDictionary, MergedDictionary, MutableDictionary},
 };
 use harper_stats::{Record, RecordKind, Stats};
@@ -62,16 +63,20 @@ pub enum Language {
 }
 
 impl Language {
-    fn create_parser(&self) -> Box<dyn Parser> {
+    /// The parser for this markup, handing its prose to `natural_language`'s lexer.
+    fn create_parser(&self, natural_language: LanguageFamily) -> Box<dyn Parser> {
         match self {
-            Language::Plain => Box::new(PlainEnglish),
+            Language::Plain => Box::new(natural_language.lexer()),
             // TODO: Have a way to configure the Markdown parser
-            Language::Markdown => Box::new(Markdown::default()),
+            Language::Markdown => Box::new(Markdown::with_language(
+                Default::default(),
+                natural_language,
+            )),
             Language::Typst => {
                 #[cfg(feature = "typst")]
                 {
                     use harper_typst::Typst;
-                    Box::new(Typst::default())
+                    Box::new(Typst::with_language(natural_language))
                 }
                 #[cfg(not(feature = "typst"))]
                 {
@@ -118,7 +123,25 @@ pub struct Linter {
     weirpack_dictionaries: Vec<Arc<MutableDictionary>>,
     ignored_lints: IgnoredLints,
     dialect: Dialect,
+    /// The natural language of the text, with `dialect` if it is English.
+    language: harper_core::Language,
     stats: Stats,
+}
+
+/// The [`harper_core::Language`] named by `natural_language` (a name or code, like "en" or
+/// "English"; English if `None`), in `dialect` if it is English.
+fn resolve_language(
+    dialect: Dialect,
+    natural_language: Option<&str>,
+) -> Result<harper_core::Language, String> {
+    let language = harper_core::Language::try_from_names(natural_language.unwrap_or("en"), None)
+        .map_err(|err| err.to_string())?;
+
+    #[allow(unreachable_patterns)]
+    Ok(match language {
+        harper_core::Language::English(_) => harper_core::Language::English(dialect.into()),
+        other => other,
+    })
 }
 
 #[derive(Serialize)]
@@ -129,25 +152,36 @@ struct WeirpackTestFailure {
 
 #[wasm_bindgen]
 impl Linter {
-    /// Construct a new `Linter`.
+    /// Construct a new `Linter` for text in `natural_language`, a language name or code like
+    /// "en" or "English" (English if omitted). `dialect` applies when the language is English.
+    /// Fails if Harper doesn't know the language.
+    ///
     /// Note that this can mean constructing the curated dictionary, which is the most expensive operation
     /// in Harper.
-    pub fn new(dialect: Dialect) -> Self {
-        let dictionary = Self::construct_merged_dict(&[Arc::new(MutableDictionary::default())]);
-        let lint_group = LintGroup::new_curated_empty_config_for_language(
-            dictionary.clone(),
-            harper_core::Language::English(dialect.into()),
+    pub fn new(dialect: Dialect, natural_language: Option<String>) -> Result<Linter, String> {
+        let language = resolve_language(dialect, natural_language.as_deref())?;
+        let dictionary = Self::construct_merged_dict(
+            language.family(),
+            &[Arc::new(MutableDictionary::default())],
         );
+        let lint_group =
+            LintGroup::new_curated_empty_config_for_language(dictionary.clone(), language);
 
-        Self {
+        Ok(Self {
             lint_group,
             user_dictionary: MutableDictionary::new(),
             weirpack_dictionaries: Vec::new(),
             dictionary,
             ignored_lints: IgnoredLints::default(),
             dialect,
+            language,
             stats: Stats::default(),
-        }
+        })
+    }
+
+    /// The language family of the text this linter checks.
+    fn family(&self) -> LanguageFamily {
+        self.language.family()
     }
 
     /// Update the dictionary inside [`Self::lint_group`] to include [`Self::user_dictionary`].
@@ -158,11 +192,11 @@ impl Linter {
         let mut constituent_dictionaries = vec![Arc::new(self.user_dictionary.clone())];
         constituent_dictionaries.extend(self.weirpack_dictionaries.iter().cloned());
 
-        self.dictionary = Self::construct_merged_dict(&constituent_dictionaries);
+        self.dictionary = Self::construct_merged_dict(self.family(), &constituent_dictionaries);
 
         self.lint_group = LintGroup::new_curated_empty_config_for_language(
             self.dictionary.clone(),
-            harper_core::Language::English(self.dialect.into()),
+            self.language,
         );
 
         self.lint_group.config.merge_from(lint_config);
@@ -170,12 +204,13 @@ impl Linter {
 
     /// Construct the actual dictionary to be used for linting and parsing from the curated dictionary
     /// and any other runtime-provided dictionaries.
-    fn construct_merged_dict(dicts: &[Arc<impl Dictionary + 'static>]) -> Arc<MergedDictionary> {
+    fn construct_merged_dict(
+        language: LanguageFamily,
+        dicts: &[Arc<impl Dictionary + 'static>],
+    ) -> Arc<MergedDictionary> {
         let mut lint_dict = MergedDictionary::new();
 
-        lint_dict.add_dictionary(FstDictionary::curated_for(
-            harper_core::LanguageFamily::English,
-        ));
+        lint_dict.add_dictionary(FstDictionary::curated_for(language));
 
         for dict in dicts {
             lint_dict.add_dictionary(Arc::new(dict.clone()));
@@ -234,7 +269,7 @@ impl Linter {
     }
 
     pub fn get_structured_lint_config_as_json(&self) -> String {
-        let mut config = StructuredConfig::curated_for(harper_core::LanguageFamily::English);
+        let mut config = StructuredConfig::curated_for(self.family());
         config.copy_from_flat_config(&self.lint_group.config);
 
         let human = HumanReadableStructuredConfig::from_structured_config(&config);
@@ -273,7 +308,7 @@ impl Linter {
     pub fn get_structured_lint_config_as_object(&self) -> JsValue {
         let serializer = Serializer::json_compatible();
 
-        let mut config = StructuredConfig::curated_for(harper_core::LanguageFamily::English);
+        let mut config = StructuredConfig::curated_for(self.family());
         config.copy_from_flat_config(&self.lint_group.config);
 
         let human = HumanReadableStructuredConfig::from_structured_config(&config);
@@ -292,8 +327,8 @@ impl Linter {
         for lint in lints {
             let document = Document::new_with_parser_and_language(
                 source.clone(),
-                &lint.language.create_parser(),
-                harper_core::LanguageFamily::English,
+                &lint.language.create_parser(self.family()),
+                self.family(),
             );
 
             self.ignored_lints.ignore_lint(&lint.inner, &document);
@@ -313,8 +348,8 @@ impl Linter {
 
         let document = Document::new_with_parser_and_language(
             source,
-            &lint.language.create_parser(),
-            harper_core::LanguageFamily::English,
+            &lint.language.create_parser(self.family()),
+            self.family(),
         );
 
         let ctx = LintContext::from_lint(&lint.inner, &document);
@@ -328,7 +363,7 @@ impl Linter {
         regex_mask: Option<String>,
         isolate_english: bool,
     ) -> Option<Box<dyn Parser>> {
-        let mut parser = language.create_parser();
+        let mut parser = language.create_parser(self.family());
 
         if let Some(regex) = regex_mask {
             let Some(masker) = RegexMasker::new(regex.as_str(), true) else {
@@ -352,9 +387,7 @@ impl Linter {
 
     fn with_curated_config<T>(&mut self, lint: impl FnOnce(&mut LintGroup) -> T) -> T {
         let config = self.lint_group.config.clone();
-        self.lint_group
-            .config
-            .fill_with_curated_for(harper_core::LanguageFamily::English);
+        self.lint_group.config.fill_with_curated_for(self.family());
 
         let output = lint(&mut self.lint_group);
 
@@ -378,11 +411,8 @@ impl Linter {
             return vec![];
         };
 
-        let document = Document::new_with_parser_and_language(
-            source.clone(),
-            &parser,
-            harper_core::LanguageFamily::English,
-        );
+        let document =
+            Document::new_with_parser_and_language(source.clone(), &parser, self.family());
 
         let mut lints =
             self.with_curated_config(|lint_group| lint_group.organized_lints(&document));
@@ -426,11 +456,8 @@ impl Linter {
             return vec![];
         };
 
-        let document = Document::new_with_parser_and_language(
-            source.clone(),
-            &parser,
-            harper_core::LanguageFamily::English,
-        );
+        let document =
+            Document::new_with_parser_and_language(source.clone(), &parser, self.family());
 
         let mut lints = self.with_curated_config(|lint_group| lint_group.lint(&document));
 
@@ -478,7 +505,7 @@ impl Linter {
                 (
                     word.chars().collect::<CharString>(),
                     DictWordMetadata {
-                        dialects: Some(harper_core::EnglishDialect::from(self.dialect).into()),
+                        dialects: Some(self.language.into()),
                         ..Default::default()
                     },
                 )
@@ -504,6 +531,21 @@ impl Linter {
         self.dialect
     }
 
+    /// Get the default (unset) configuration of this linter's language as JSON.
+    pub fn get_default_lint_config_as_json(&self) -> String {
+        serde_json::to_string(&FlatConfig::new_curated_for(self.family())).unwrap()
+    }
+
+    /// Get the default (unset) configuration of this linter's language.
+    pub fn get_default_lint_config_as_object(&self) -> JsValue {
+        // Important for downstream JSON serialization
+        let serializer = Serializer::json_compatible();
+
+        FlatConfig::new_curated_for(self.family())
+            .serialize(&serializer)
+            .unwrap()
+    }
+
     /// Apply a suggestion from a given lint.
     /// This action will be logged to the Linter's statistics.
     pub fn apply_suggestion(
@@ -516,8 +558,8 @@ impl Linter {
 
         let doc = Document::new_with_parser_and_language(
             source.clone(),
-            &lint.language.create_parser(),
-            harper_core::LanguageFamily::English,
+            &lint.language.create_parser(self.family()),
+            self.family(),
         );
 
         self.stats
@@ -728,6 +770,7 @@ fn char_idx_to_js_str_idx(char_idx: usize, char_str: &[char]) -> usize {
     })
 }
 
+/// The default (unset) configuration of English's rules. A `Linter` gives its own language's.
 #[wasm_bindgen]
 pub fn get_default_lint_config_as_json() -> String {
     let config =
@@ -736,6 +779,7 @@ pub fn get_default_lint_config_as_json() -> String {
     serde_json::to_string(&config).unwrap()
 }
 
+/// The default (unset) configuration of English's rules. A `Linter` gives its own language's.
 #[wasm_bindgen]
 pub fn get_default_lint_config() -> JsValue {
     let config =
@@ -824,13 +868,70 @@ mod tests {
     #[test]
     fn issue_2216() {
         let text = "Aeon".to_owned();
-        let mut linter = Linter::new(Dialect::American);
+        let mut linter = Linter::new(Dialect::American, None).unwrap();
 
         linter.import_words(vec![text.clone()]);
         dbg!(linter.dictionary.get_word_metadata_str(&text));
 
         let lints = linter.lint(text, Language::Plain, false, None, true, false);
         assert!(lints.is_empty());
+    }
+
+    #[test]
+    fn english_is_the_default_natural_language() {
+        let linter = Linter::new(Dialect::British, None).unwrap();
+
+        assert_eq!(
+            linter.language,
+            harper_core::Language::English(harper_core::EnglishDialect::British)
+        );
+    }
+
+    #[test]
+    fn natural_language_by_name_or_code() {
+        for name in ["en", "eng", "English"] {
+            let linter = Linter::new(Dialect::Canadian, Some(name.to_owned())).unwrap();
+
+            assert_eq!(
+                linter.language,
+                harper_core::Language::English(harper_core::EnglishDialect::Canadian)
+            );
+        }
+    }
+
+    #[test]
+    fn unknown_natural_language_is_an_error() {
+        let error = Linter::new(Dialect::American, Some("Klingon".to_owned()))
+            .err()
+            .unwrap();
+
+        assert!(error.contains("Unknown language"), "{error}");
+    }
+
+    #[test]
+    fn english_lints_with_its_natural_language() {
+        let mut linter = Linter::new(Dialect::American, Some("en".to_owned())).unwrap();
+
+        let lints = linter.lint(
+            "This is an test.".to_owned(),
+            Language::Plain,
+            false,
+            None,
+            true,
+            false,
+        );
+
+        assert!(!lints.is_empty());
+    }
+
+    #[test]
+    fn default_lint_config_follows_the_natural_language() {
+        let linter = Linter::new(Dialect::American, Some("English".to_owned())).unwrap();
+
+        assert_eq!(
+            linter.get_default_lint_config_as_json(),
+            get_default_lint_config_as_json()
+        );
     }
 
     #[test]
@@ -843,7 +944,7 @@ mod tests {
         if (0..10).all(|_| {
             // Run a few times.
             for _ in 0..10 {
-                let mut linter = Linter::new(Dialect::American);
+                let mut linter = Linter::new(Dialect::American, None).unwrap();
 
                 let results = linter.lint(
                     "This is a grammatically correct sentence.".to_string(),
