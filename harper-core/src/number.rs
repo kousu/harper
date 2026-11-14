@@ -1,9 +1,9 @@
 use std::fmt::Display;
 
-use is_macro::Is;
-use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use serde::{Deserialize, Serialize};
+
+use crate::EnglishOrdinalSuffix;
 
 /// Represents a written number.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, Default, PartialEq, Eq, Hash, PartialOrd)]
@@ -36,69 +36,59 @@ impl Display for Number {
     }
 }
 
-#[derive(
-    Debug, Serialize, Deserialize, Default, PartialEq, PartialOrd, Clone, Copy, Is, Hash, Eq,
-)]
+/// A number's ordinal suffix, as its language writes it, such as English's "st" in "1st".
+///
+/// It serializes as the language's suffix alone, like `"St"`.
+#[derive(Debug, Serialize, Deserialize, PartialEq, PartialOrd, Clone, Copy, Hash, Eq)]
+#[serde(untagged)]
+#[non_exhaustive]
 pub enum OrdinalSuffix {
-    #[default]
-    Th,
-    St,
-    Nd,
-    Rd,
+    English(EnglishOrdinalSuffix),
 }
 
 impl OrdinalSuffix {
-    pub fn correct_suffix_for(number: impl Into<f64>) -> Option<Self> {
-        let number = number.into();
-
-        if number < 0.0 || number - number.floor() > f64::EPSILON || number > u64::MAX as f64 {
-            return None;
-        }
-
-        let integer = number as u64;
-
-        if let 11..=13 = integer % 100 {
-            return Some(Self::Th);
-        };
-
-        Some(match integer % 10 {
-            0 | 4..=9 => Self::Th,
-            1 => Self::St,
-            2 => Self::Nd,
-            3 => Self::Rd,
-            _ => unreachable!(),
-        })
-    }
-
+    /// The suffix as written.
     pub const fn to_chars(self) -> &'static [char] {
         match self {
-            OrdinalSuffix::Th => &['t', 'h'],
-            OrdinalSuffix::St => &['s', 't'],
-            OrdinalSuffix::Nd => &['n', 'd'],
-            OrdinalSuffix::Rd => &['r', 'd'],
+            Self::English(suffix) => suffix.to_chars(),
         }
     }
+}
 
-    /// Check the characters in a buffer to see if it matches a number suffix.
+/// The old English variants, for code written before suffixes had a language.
+#[allow(non_upper_case_globals)]
+impl OrdinalSuffix {
+    #[deprecated(note = "use `OrdinalSuffix::English(EnglishOrdinalSuffix::Th)`")]
+    pub const Th: Self = Self::English(EnglishOrdinalSuffix::Th);
+    #[deprecated(note = "use `OrdinalSuffix::English(EnglishOrdinalSuffix::St)`")]
+    pub const St: Self = Self::English(EnglishOrdinalSuffix::St);
+    #[deprecated(note = "use `OrdinalSuffix::English(EnglishOrdinalSuffix::Nd)`")]
+    pub const Nd: Self = Self::English(EnglishOrdinalSuffix::Nd);
+    #[deprecated(note = "use `OrdinalSuffix::English(EnglishOrdinalSuffix::Rd)`")]
+    pub const Rd: Self = Self::English(EnglishOrdinalSuffix::Rd);
+
+    #[deprecated(note = "use `EnglishOrdinalSuffix::correct_suffix_for`")]
+    pub fn correct_suffix_for(number: impl Into<f64>) -> Option<Self> {
+        EnglishOrdinalSuffix::correct_suffix_for(number).map(Self::English)
+    }
+
+    #[deprecated(note = "use `EnglishOrdinalSuffix::from_chars`")]
     pub fn from_chars(chars: &[char]) -> Option<Self> {
-        let lower_chars: [char; 2] = chars.iter().map(char::to_ascii_lowercase).collect_array()?;
+        EnglishOrdinalSuffix::from_chars(chars).map(Self::English)
+    }
+}
 
-        match lower_chars {
-            ['t', 'h'] => Some(OrdinalSuffix::Th),
-            ['s', 't'] => Some(OrdinalSuffix::St),
-            ['n', 'd'] => Some(OrdinalSuffix::Nd),
-            ['r', 'd'] => Some(OrdinalSuffix::Rd),
-            _ => None,
-        }
+impl From<EnglishOrdinalSuffix> for OrdinalSuffix {
+    fn from(suffix: EnglishOrdinalSuffix) -> Self {
+        Self::English(suffix)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use itertools::Itertools;
     use ordered_float::OrderedFloat;
 
-    use crate::OrdinalSuffix;
+    use crate::EnglishOrdinalSuffix;
 
     use super::Number;
 
@@ -135,13 +125,24 @@ mod tests {
         assert_eq!(
             Number {
                 value: OrderedFloat(15.0),
-                suffix: Some(OrdinalSuffix::Th),
+                suffix: Some(EnglishOrdinalSuffix::Th.into()),
                 radix: 10,
                 precision: 0
             }
             .to_string(),
             "15th"
         )
+    }
+
+    /// Suffixes serialize as they did before they had a language.
+    #[test]
+    fn suffix_serializes_as_before() {
+        let suffix: crate::OrdinalSuffix = EnglishOrdinalSuffix::Th.into();
+        assert_eq!(serde_json::to_string(&suffix).unwrap(), "\"Th\"");
+        assert_eq!(
+            serde_json::from_str::<crate::OrdinalSuffix>("\"Th\"").unwrap(),
+            suffix
+        );
     }
 
     #[test]
@@ -156,11 +157,5 @@ mod tests {
             .to_string(),
             "15.50"
         )
-    }
-
-    #[test]
-    fn issue_1051() {
-        let word = "story".chars().collect_vec();
-        assert_eq!(None, OrdinalSuffix::from_chars(&word));
     }
 }

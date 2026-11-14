@@ -11,7 +11,7 @@ use crate::punctuation::Punctuation;
 use crate::spell::Dictionary;
 use crate::vec_ext::VecExt;
 use crate::{CharStringExt, FatStringToken, FatToken, Lrc, Token, TokenKind, TokenStringExt};
-use crate::{OrdinalSuffix, Span};
+use crate::{EnglishOrdinalSuffix, Span};
 
 /// A document containing some amount of lexed and parsed English text.
 #[derive(Debug, Clone)]
@@ -483,9 +483,9 @@ impl Document {
 
             if let (TokenKind::Number(..), TokenKind::Word(..)) = (&a.kind, &b.kind)
                 && let Some(found_suffix) =
-                    OrdinalSuffix::from_chars(self.get_span_content(&b.span))
+                    EnglishOrdinalSuffix::from_chars(self.get_span_content(&b.span))
             {
-                self.tokens[idx].kind.as_mut_number().unwrap().suffix = Some(found_suffix);
+                self.tokens[idx].kind.as_mut_number().unwrap().suffix = Some(found_suffix.into());
                 replace_starts.push(idx);
             }
         }
