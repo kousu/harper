@@ -1,3 +1,4 @@
+#[cfg(feature = "en")]
 pub mod en;
 mod language_data;
 
@@ -36,6 +37,7 @@ impl LanguageFamily {
     /// build includes: everything else asks the language for its data.
     pub(crate) fn data(self) -> &'static dyn LanguageData {
         match self {
+            #[cfg(feature = "en")]
             Self::English => &en::English,
         }
     }

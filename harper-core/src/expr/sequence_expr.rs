@@ -158,10 +158,11 @@ impl SequenceExpr {
         Self::default().then_word_seq(words)
     }
 
-    /// Match a fixed phrase.
+    /// Match a fixed phrase, split into words as English splits them.
     #[deprecated(
         note = "use `SequenceExpr::fixed_phrase_for` with the phrase's language, or `lang::en::expr::fixed_phrase`"
     )]
+    #[cfg(feature = "en")]
     pub fn fixed_phrase(phrase: &'static str) -> Self {
         Self::default().then_fixed_phrase_for(phrase, LanguageFamily::English)
     }
@@ -366,10 +367,11 @@ impl SequenceExpr {
         }
     }
 
-    /// Match a fixed phrase.
+    /// Match a fixed phrase, split into words as English splits them.
     #[deprecated(
         note = "use `then_fixed_phrase_for` with the phrase's language, or `.then(lang::en::expr::fixed_phrase(..))`"
     )]
+    #[cfg(feature = "en")]
     pub fn then_fixed_phrase(self, phrase: &'static str) -> Self {
         self.then(FixedPhrase::from_phrase_for(
             phrase,

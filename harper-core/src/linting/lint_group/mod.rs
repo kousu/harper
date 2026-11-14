@@ -235,6 +235,7 @@ impl LintGroup {
     }
 
     /// Create the curated group of rules for `language`.
+    #[cfg_attr(not(feature = "en"), allow(unused_variables))]
     pub fn new_curated_for_language(
         dictionary: Arc<impl Dictionary + 'static>,
         language: Language,
