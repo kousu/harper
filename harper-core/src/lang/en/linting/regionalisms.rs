@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::{
     EnglishDialect::{self, American, Australian, British, Canadian, Indian},
     Token, TokenStringExt,
@@ -697,7 +698,12 @@ impl Regionalisms {
         let terms: Vec<Box<dyn Expr>> = REGIONAL_TERMS
             .iter()
             .filter(|row| row.flag == Flag)
-            .map(|row| Box::new(FixedPhrase::from_phrase(row.term)) as Box<dyn Expr>)
+            .map(|row| {
+                Box::new(FixedPhrase::from_phrase_for(
+                    row.term,
+                    LanguageFamily::English,
+                )) as Box<dyn Expr>
+            })
             .collect();
 
         Self {

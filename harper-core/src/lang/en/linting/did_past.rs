@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::{
     CharStringExt, Lint, Token,
     char_ext::CharExt,
@@ -18,7 +19,10 @@ impl<D: Dictionary> DidPast<D> {
         Self {
             expr: SequenceExpr::longest_of([
                 Box::new(WordSet::new(["did", "didn't", "didnt"])) as Box<dyn Expr>,
-                Box::new(FixedPhrase::from_phrase("did not")),
+                Box::new(FixedPhrase::from_phrase_for(
+                    "did not",
+                    LanguageFamily::English,
+                )),
             ])
             .then_optional(SequenceExpr::default().t_ws().then_subject_pronoun())
             .t_ws()

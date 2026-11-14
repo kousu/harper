@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::expr::Expr;
 use crate::expr::FirstMatchOf;
 use crate::expr::FixedPhrase;
@@ -14,10 +15,22 @@ pub struct APart {
 impl Default for APart {
     fn default() -> Self {
         let pattern = FirstMatchOf::new(vec![
-            Box::new(FixedPhrase::from_phrase("a part from")),
-            Box::new(FixedPhrase::from_phrase("apart of")),
-            Box::new(FixedPhrase::from_phrase("fall a part")),
-            Box::new(FixedPhrase::from_phrase("far a part")),
+            Box::new(FixedPhrase::from_phrase_for(
+                "a part from",
+                LanguageFamily::English,
+            )),
+            Box::new(FixedPhrase::from_phrase_for(
+                "apart of",
+                LanguageFamily::English,
+            )),
+            Box::new(FixedPhrase::from_phrase_for(
+                "fall a part",
+                LanguageFamily::English,
+            )),
+            Box::new(FixedPhrase::from_phrase_for(
+                "far a part",
+                LanguageFamily::English,
+            )),
         ]);
 
         Self { expr: pattern }

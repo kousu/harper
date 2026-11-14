@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::{
     CharStringExt, EnglishDialect, Token,
     expr::{Expr, FirstMatchOf, SequenceExpr},
@@ -31,7 +32,7 @@ impl InOnTheCards {
         let expr = SequenceExpr::with(pre_context)
             .t_ws()
             .t_aco(preposition)
-            .then_fixed_phrase(" the cards");
+            .then_fixed_phrase_for(" the cards", LanguageFamily::English);
 
         Self { expr, dialect }
     }

@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::expr::{Expr, FixedPhrase, SequenceExpr};
 use crate::linting::expr_linter::Chunk;
 use crate::linting::{ExprLinter, LintKind, Suggestion};
@@ -12,11 +13,14 @@ impl Default for MostOfTheTimes {
     fn default() -> Self {
         Self {
             expr: SequenceExpr::any_of([
-                Box::new(FixedPhrase::from_phrase("a lot")) as Box<dyn Expr>,
+                Box::new(FixedPhrase::from_phrase_for(
+                    "a lot",
+                    LanguageFamily::English,
+                )) as Box<dyn Expr>,
                 Box::new(Word::new("most")),
             ])
             .t_ws()
-            .then_fixed_phrase("of the times"),
+            .then_fixed_phrase_for("of the times", LanguageFamily::English),
         }
     }
 }

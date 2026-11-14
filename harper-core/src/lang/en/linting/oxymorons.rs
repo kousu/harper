@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::expr::Expr;
 use crate::expr::FirstMatchOf;
 use crate::expr::FixedPhrase;
@@ -37,7 +38,9 @@ impl Oxymorons {
         // Build a vector of exact-match patterns for each oxymoron.
         let exprs: Vec<Box<dyn Expr>> = phrases
             .into_iter()
-            .map(|s| Box::new(FixedPhrase::from_phrase(s)) as Box<dyn Expr>)
+            .map(|s| {
+                Box::new(FixedPhrase::from_phrase_for(s, LanguageFamily::English)) as Box<dyn Expr>
+            })
             .collect();
 
         Self {

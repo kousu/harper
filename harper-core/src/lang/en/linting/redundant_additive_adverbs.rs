@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Lrc, Token, TokenStringExt,
@@ -13,7 +14,7 @@ pub struct RedundantAdditiveAdverbs {
 impl Default for RedundantAdditiveAdverbs {
     fn default() -> Self {
         let also_too = WordSet::new(["also", "too"]);
-        let as_well = FixedPhrase::from_phrase("as well");
+        let as_well = FixedPhrase::from_phrase_for("as well", LanguageFamily::English);
 
         let additive_adverb = Lrc::new(FirstMatchOf::new([
             Box::new(also_too) as Box<dyn Expr>,

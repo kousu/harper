@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::Token;
 use crate::TokenStringExt;
 use crate::expr::{Expr, SequenceExpr};
@@ -13,7 +14,7 @@ impl Default for GoSoFarAsTo {
     fn default() -> Self {
         Self {
             exp: SequenceExpr::word_set(["go", "goes", "going", "gone", "went"])
-                .then_fixed_phrase(" so far to ")
+                .then_fixed_phrase_for(" so far to ", LanguageFamily::English)
                 .then_optional(SequenceExpr::default().then_adverb().t_ws())
                 .then_any_word(),
         }

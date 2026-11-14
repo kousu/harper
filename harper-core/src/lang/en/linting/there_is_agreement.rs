@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::{
     CharStringExt, EnglishDialect, IrregularNouns, Lint, Lrc, Token, TokenStringExt,
     expr::{Expr, FirstMatchOf, OwnedExprExt, SequenceExpr, SpelledNumberExpr},
@@ -95,7 +96,8 @@ impl<D: Dictionary> ThereIsAgreement<D> {
             }) as Box<dyn Expr>
         })
         .chain(std::iter::once(Box::new(
-            SequenceExpr::fixed_phrase("there's ").then(plural_noun.clone()),
+            SequenceExpr::fixed_phrase_for("there's ", LanguageFamily::English)
+                .then(plural_noun.clone()),
         ) as Box<dyn Expr>))
         .collect();
 

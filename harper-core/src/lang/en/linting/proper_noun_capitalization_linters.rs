@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::expr::{Expr, ExprMap, FixedPhrase, LongestMatchOf};
 use hashbrown::HashMap;
 use serde::{Deserialize, Serialize};
@@ -126,7 +127,10 @@ pub(crate) fn proper_nouns_expr() -> LongestMatchOf {
         rules
             .into_values()
             .flat_map(|rule| rule.canonical)
-            .map(|name| Box::new(FixedPhrase::from_phrase(&name)) as Box<dyn Expr>),
+            .map(|name| {
+                Box::new(FixedPhrase::from_phrase_for(&name, LanguageFamily::English))
+                    as Box<dyn Expr>
+            }),
     )
 }
 

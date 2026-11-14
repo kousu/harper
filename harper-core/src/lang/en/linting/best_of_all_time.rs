@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::Token;
 use crate::expr::{Expr, SequenceExpr};
 use crate::linting::{ExprLinter, Lint, LintKind, Suggestion, expr_linter::Sentence};
@@ -34,7 +35,7 @@ impl Default for BestOfAllTime {
                 .t_ws()
                 .then_kind_where(|kind| kind.is_noun() || kind.is_oov()),
         )
-        .then_fixed_phrase(" of all times");
+        .then_fixed_phrase_for(" of all times", LanguageFamily::English);
 
         Self { expr }
     }

@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use hashbrown::HashSet;
 
 use crate::linting::expr_linter::Chunk;
@@ -13,7 +14,8 @@ pub struct LookingForwardTo {
 
 impl Default for LookingForwardTo {
     fn default() -> Self {
-        let looking_forward_to = FixedPhrase::from_phrase("looking forward to");
+        let looking_forward_to =
+            FixedPhrase::from_phrase_for("looking forward to", LanguageFamily::English);
 
         let pattern = SequenceExpr::with(looking_forward_to)
             .t_ws()

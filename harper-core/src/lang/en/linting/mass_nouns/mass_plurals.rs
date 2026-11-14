@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use hashbrown::HashSet;
 
 use crate::{
@@ -21,9 +22,18 @@ impl<D: Dictionary> MassPlurals<D> {
         let oov_looks_plural = All::new(vec![Box::new(oov), Box::new(looks_plural)]);
 
         let phrases = FirstMatchOf::new(vec![
-            Box::new(FixedPhrase::from_phrase("real estates")),
-            Box::new(FixedPhrase::from_phrase("source codes")),
-            Box::new(FixedPhrase::from_phrase("wear and tears")),
+            Box::new(FixedPhrase::from_phrase_for(
+                "real estates",
+                LanguageFamily::English,
+            )),
+            Box::new(FixedPhrase::from_phrase_for(
+                "source codes",
+                LanguageFamily::English,
+            )),
+            Box::new(FixedPhrase::from_phrase_for(
+                "wear and tears",
+                LanguageFamily::English,
+            )),
         ]);
 
         Self {

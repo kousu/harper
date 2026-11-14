@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::expr::Expr;
 use crate::expr::FirstMatchOf;
 use crate::expr::SequenceExpr;
@@ -16,7 +17,7 @@ impl Default for AmountsFor {
 
         let singular_pattern = SequenceExpr::with(singular_context)
             .then_whitespace()
-            .then_fixed_phrase("amounts for");
+            .then_fixed_phrase_for("amounts for", LanguageFamily::English);
 
         let singular_context = WordSet::new([
             "they", "can", "could", "may", "might", "must", "should", "will", "would",
@@ -24,7 +25,7 @@ impl Default for AmountsFor {
 
         let plural_pattern = SequenceExpr::with(singular_context)
             .then_whitespace()
-            .then_fixed_phrase("amount for");
+            .then_fixed_phrase_for("amount for", LanguageFamily::English);
 
         Self {
             expr: FirstMatchOf::new(vec![Box::new(singular_pattern), Box::new(plural_pattern)]),

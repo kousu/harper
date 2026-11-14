@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     EnglishDialect, Token,
@@ -22,7 +23,7 @@ impl HaveTakeALook {
 
         let expr = SequenceExpr::word_set(light_verb)
             .t_ws()
-            .then_fixed_phrase("a look");
+            .then_fixed_phrase_for("a look", LanguageFamily::English);
 
         Self { expr, dialect }
     }

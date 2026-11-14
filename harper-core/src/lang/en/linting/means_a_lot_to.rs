@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::{
     Lint, Token, TokenStringExt,
     expr::{Expr, FixedPhrase, SequenceExpr},
@@ -17,7 +18,10 @@ impl Default for MeansALotTo {
                 .t_set(["mean", "means", "meant"])
                 .t_ws()
                 .then_any_of([
-                    Box::new(FixedPhrase::from_phrase("a lot")) as Box<dyn Expr>,
+                    Box::new(FixedPhrase::from_phrase_for(
+                        "a lot",
+                        LanguageFamily::English,
+                    )) as Box<dyn Expr>,
                     Box::new(WordSet::new(["alot", "lot"])),
                 ])
                 .t_ws()

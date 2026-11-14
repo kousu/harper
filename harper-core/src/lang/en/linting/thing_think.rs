@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Token,
@@ -17,7 +18,10 @@ impl Default for ThingThink {
         let indefinite_pronouns = FirstMatchOf::new([
             Box::new(WordSet::new(["anybody", "anyone", "everybody", "everyone"])) as Box<dyn Expr>,
             // "Any one thing", "every one thing", "any body thing" cause false positives.
-            Box::new(FixedPhrase::from_phrase("every body")),
+            Box::new(FixedPhrase::from_phrase_for(
+                "every body",
+                LanguageFamily::English,
+            )),
         ]);
         let pronoun = FirstMatchOf::new([
             Box::new(subject_pronouns) as Box<dyn Expr>,

@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::{
     CharStringExt, Lint, Token,
     expr::{Expr, FixedPhrase, SequenceExpr},
@@ -23,16 +24,46 @@ impl Default for DoMistake {
                             "a", "an", "the", "that", "these", "this", "those", "another", "many",
                             "several", "some", "my", "our", "your", "his", "her", "its", "their",
                         ])) as Box<dyn Expr>,
-                        Box::new(FixedPhrase::from_phrase("a lot of")),
-                        Box::new(FixedPhrase::from_phrase("lots of")),
-                        Box::new(FixedPhrase::from_phrase("that kind of")),
-                        Box::new(FixedPhrase::from_phrase("these kinds of")),
-                        Box::new(FixedPhrase::from_phrase("this kind of")),
-                        Box::new(FixedPhrase::from_phrase("those kinds of")),
-                        Box::new(FixedPhrase::from_phrase("so many")),
-                        Box::new(FixedPhrase::from_phrase("too many")),
-                        Box::new(FixedPhrase::from_phrase("tons of")),
-                        Box::new(FixedPhrase::from_phrase("tonnes of")),
+                        Box::new(FixedPhrase::from_phrase_for(
+                            "a lot of",
+                            LanguageFamily::English,
+                        )),
+                        Box::new(FixedPhrase::from_phrase_for(
+                            "lots of",
+                            LanguageFamily::English,
+                        )),
+                        Box::new(FixedPhrase::from_phrase_for(
+                            "that kind of",
+                            LanguageFamily::English,
+                        )),
+                        Box::new(FixedPhrase::from_phrase_for(
+                            "these kinds of",
+                            LanguageFamily::English,
+                        )),
+                        Box::new(FixedPhrase::from_phrase_for(
+                            "this kind of",
+                            LanguageFamily::English,
+                        )),
+                        Box::new(FixedPhrase::from_phrase_for(
+                            "those kinds of",
+                            LanguageFamily::English,
+                        )),
+                        Box::new(FixedPhrase::from_phrase_for(
+                            "so many",
+                            LanguageFamily::English,
+                        )),
+                        Box::new(FixedPhrase::from_phrase_for(
+                            "too many",
+                            LanguageFamily::English,
+                        )),
+                        Box::new(FixedPhrase::from_phrase_for(
+                            "tons of",
+                            LanguageFamily::English,
+                        )),
+                        Box::new(FixedPhrase::from_phrase_for(
+                            "tonnes of",
+                            LanguageFamily::English,
+                        )),
                     ])
                     .t_ws()
                     .then_word_set(["mistake", "mistakes"]),

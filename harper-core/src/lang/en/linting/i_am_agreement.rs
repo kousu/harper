@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Lrc, Token, TokenStringExt,
@@ -11,7 +12,10 @@ pub struct IAmAgreement {
 
 impl Default for IAmAgreement {
     fn default() -> Self {
-        let i_are = Lrc::new(FixedPhrase::from_phrase("I are"));
+        let i_are = Lrc::new(FixedPhrase::from_phrase_for(
+            "I are",
+            LanguageFamily::English,
+        ));
 
         let nothing_before_i_are = SequenceExpr::with(AnchorStart).then(i_are.clone());
 

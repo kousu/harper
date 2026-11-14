@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::{
     CharStringExt, Lint, Token,
     expr::{Expr, Repeating, SequenceExpr},
@@ -34,7 +35,7 @@ impl Default for OldestInTheBook {
         let noun_phrase = SequenceExpr::optional(adjseq).then(nounseq);
 
         Self {
-            expr: SequenceExpr::fixed_phrase("oldest ")
+            expr: SequenceExpr::fixed_phrase_for("oldest ", LanguageFamily::English)
                 .then(noun_phrase)
                 .t_ws()
                 .then_word_seq(&["in", "the", "books"]),

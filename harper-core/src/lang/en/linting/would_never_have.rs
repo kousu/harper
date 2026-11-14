@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Token,
@@ -25,7 +26,12 @@ impl Default for WouldNeverHave {
 
         let expr: Vec<Box<dyn Expr>> = phrases
             .iter()
-            .map(|&phrase| Box::new(FixedPhrase::from_phrase(phrase)) as Box<dyn Expr>)
+            .map(|&phrase| {
+                Box::new(FixedPhrase::from_phrase_for(
+                    phrase,
+                    LanguageFamily::English,
+                )) as Box<dyn Expr>
+            })
             .collect();
 
         // TODO: verb should be perfect form ("done", "happened", etc.) when verb property changes are merged

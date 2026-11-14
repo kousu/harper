@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use harper_brill::UPOS;
 
 use crate::expr::{Expr, FirstMatchOf, FixedPhrase, SequenceExpr};
@@ -51,11 +52,9 @@ impl DiscourseMarkers {
             "thus",
         ];
 
-        let phrases_expr = FirstMatchOf::new(
-            phrases
-                .iter()
-                .map(|text: &&str| Box::new(FixedPhrase::from_phrase(text)) as Box<dyn Expr>),
-        );
+        let phrases_expr = FirstMatchOf::new(phrases.iter().map(|text: &&str| {
+            Box::new(FixedPhrase::from_phrase_for(text, LanguageFamily::English)) as Box<dyn Expr>
+        }));
 
         Self {
             // Skip markers followed by a modifier or a verb

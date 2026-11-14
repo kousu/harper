@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::expr::Expr;
 use crate::expr::FixedPhrase;
 use crate::expr::LongestMatchOf;
@@ -13,7 +14,10 @@ pub struct OneAndTheSame {
 
 impl Default for OneAndTheSame {
     fn default() -> Self {
-        let one_in_the_same = Lrc::new(FixedPhrase::from_phrase("one in the same"));
+        let one_in_the_same = Lrc::new(FixedPhrase::from_phrase_for(
+            "one in the same",
+            LanguageFamily::English,
+        ));
 
         Self {
             expr: LongestMatchOf::new(vec![

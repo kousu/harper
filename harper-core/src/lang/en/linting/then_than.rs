@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::{
     CharStringExt, Token, TokenKind,
     expr::{All, Expr, FirstMatchOf, FixedPhrase, SequenceExpr},
@@ -45,12 +46,30 @@ impl ThenThan {
         Self {
             expr: FirstMatchOf::new([
                 Box::new(comparison) as Box<dyn Expr>,
-                Box::new(FixedPhrase::from_phrase("easier said then done")),
-                Box::new(FixedPhrase::from_phrase("now and than")),
-                Box::new(FixedPhrase::from_phrase("other then")),
-                Box::new(FixedPhrase::from_phrase("rather then")),
-                Box::new(FixedPhrase::from_phrase("than again")),
-                Box::new(FixedPhrase::from_phrase("until than")),
+                Box::new(FixedPhrase::from_phrase_for(
+                    "easier said then done",
+                    LanguageFamily::English,
+                )),
+                Box::new(FixedPhrase::from_phrase_for(
+                    "now and than",
+                    LanguageFamily::English,
+                )),
+                Box::new(FixedPhrase::from_phrase_for(
+                    "other then",
+                    LanguageFamily::English,
+                )),
+                Box::new(FixedPhrase::from_phrase_for(
+                    "rather then",
+                    LanguageFamily::English,
+                )),
+                Box::new(FixedPhrase::from_phrase_for(
+                    "than again",
+                    LanguageFamily::English,
+                )),
+                Box::new(FixedPhrase::from_phrase_for(
+                    "until than",
+                    LanguageFamily::English,
+                )),
             ]),
         }
     }

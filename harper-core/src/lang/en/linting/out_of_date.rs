@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::expr::Expr;
 use crate::expr::FirstMatchOf;
 use crate::expr::FixedPhrase;
@@ -13,9 +14,18 @@ pub struct OutOfDate {
 impl Default for OutOfDate {
     fn default() -> Self {
         let pattern = FirstMatchOf::new(vec![
-            Box::new(FixedPhrase::from_phrase("out of date")),
-            Box::new(FixedPhrase::from_phrase("out-of date")),
-            Box::new(FixedPhrase::from_phrase("out of-date")),
+            Box::new(FixedPhrase::from_phrase_for(
+                "out of date",
+                LanguageFamily::English,
+            )),
+            Box::new(FixedPhrase::from_phrase_for(
+                "out-of date",
+                LanguageFamily::English,
+            )),
+            Box::new(FixedPhrase::from_phrase_for(
+                "out of-date",
+                LanguageFamily::English,
+            )),
         ]);
 
         Self { expr: pattern }

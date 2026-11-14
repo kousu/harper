@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::expr::Expr;
 use crate::expr::FixedPhrase;
 use crate::expr::LongestMatchOf;
@@ -20,7 +21,10 @@ pub struct BackInTheDay {
 impl Default for BackInTheDay {
     fn default() -> Self {
         let exceptions = Lrc::new(WordSet::new(["before", "of", "when"]));
-        let phrase = Lrc::new(FixedPhrase::from_phrase("back in the days"));
+        let phrase = Lrc::new(FixedPhrase::from_phrase_for(
+            "back in the days",
+            LanguageFamily::English,
+        ));
 
         let pattern = SequenceExpr::with(phrase.clone())
             .then_whitespace()
