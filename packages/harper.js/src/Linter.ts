@@ -156,4 +156,9 @@ export interface LinterInit {
 	binary: BinaryModule;
 	/** The dialect of English Harper should use. If omitted, Harper will default to American English. */
 	dialect?: Dialect;
+	/** The natural language of the text, by name or code, such as `'en'` or `'English'`.
+	 * If omitted, Harper checks English. It is set once for the linter's lifetime.
+	 * Not to be confused with `LintOptions.language`, which is the text's markup.
+	 * Linting fails if Harper doesn't know the language. */
+	naturalLanguage?: string;
 }

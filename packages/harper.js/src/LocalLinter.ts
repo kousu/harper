@@ -39,18 +39,20 @@ function toWasmLintArgs(text: string, options?: LintOptions): WasmLintArgs {
 export default class LocalLinter implements Linter {
 	binary: SuperBinaryModule;
 	private inner: Promise<WasmLinter>;
+	private naturalLanguage?: string;
 	private disposed = false;
 
 	constructor(init: LinterInit) {
 		this.binary = init.binary as SuperBinaryModule;
 		this.binary.setup();
+		this.naturalLanguage = init.naturalLanguage;
 		this.inner = this.createInner(init.dialect);
 	}
 
 	private createInner(dialect?: Dialect): Promise<WasmLinter> {
 		return LazyPromise.from(async () => {
 			await this.binary.setup();
-			return this.binary.createLinter(dialect);
+			return this.binary.createLinter(dialect, this.naturalLanguage);
 		});
 	}
 
@@ -101,11 +103,13 @@ export default class LocalLinter implements Linter {
 	}
 
 	async getDefaultLintConfigAsJSON(): Promise<string> {
-		return await this.binary.getDefaultLintConfigAsJSON();
+		const inner = await this.inner;
+		return inner.get_default_lint_config_as_json();
 	}
 
 	async getDefaultLintConfig(): Promise<LintConfig> {
-		return await this.binary.getDefaultLintConfig();
+		const inner = await this.inner;
+		return inner.get_default_lint_config_as_object();
 	}
 
 	async getStructuredLintConfig(): Promise<StructuredLintConfig> {

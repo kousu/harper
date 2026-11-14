@@ -152,9 +152,9 @@ export class BinaryModuleImpl {
 }
 
 export class SuperBinaryModule extends BinaryModuleImpl {
-	async createLinter(dialect?: Dialect): Promise<WasmLinter> {
+	async createLinter(dialect?: Dialect, naturalLanguage?: string): Promise<WasmLinter> {
 		const exported = await this.getBinaryModule();
-		return exported.Linter.new(dialect ?? Dialect.American);
+		return exported.Linter.new(dialect ?? Dialect.American, naturalLanguage);
 	}
 
 	async getBinaryModule(): Promise<any> {
