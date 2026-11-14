@@ -57,10 +57,8 @@ impl Expr for ReflexivePronoun {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        Document, TokenKind,
-        expr::{ExprExt, ReflexivePronoun},
-    };
+    use super::ReflexivePronoun;
+    use crate::{Document, TokenKind, expr::ExprExt};
 
     use super::BAD_REFLEXIVE_PRONOUNS;
 

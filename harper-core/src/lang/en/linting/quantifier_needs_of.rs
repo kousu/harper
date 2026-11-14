@@ -1,6 +1,6 @@
 use crate::Token;
 use crate::expr::{Expr, SequenceExpr};
-use crate::patterns::IndefiniteArticle;
+use crate::lang::en::patterns::IndefiniteArticle;
 
 use super::{ExprLinter, Lint, LintKind, Suggestion};
 use crate::linting::expr_linter::Chunk;

@@ -1,7 +1,8 @@
 use crate::LanguageFamily;
+use crate::lang::en::expr::SpelledNumberExpr;
 use crate::{
     CharStringExt, EnglishDialect, IrregularNouns, Lint, Lrc, Token, TokenStringExt,
-    expr::{Expr, FirstMatchOf, OwnedExprExt, SequenceExpr, SpelledNumberExpr},
+    expr::{Expr, FirstMatchOf, OwnedExprExt, SequenceExpr},
     lang::en::indefinite_article::{InitialSound, starts_with_vowel},
     lang::en::regular_nouns,
     linting::{
