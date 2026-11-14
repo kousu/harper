@@ -5,6 +5,8 @@ use std::{collections::BTreeMap, hash::BuildHasher, num::NonZero, sync::Arc};
 
 use {foldhash::quality::RandomState, hashbrown::HashMap, lru::LruCache};
 
+#[cfg(feature = "fr")]
+use super::spell_check::{PlainSpelling, SpellCheck};
 use crate::{
     linting::{
         expr_linter::{Chunk, Sentence, run_on_chunk},
@@ -235,7 +237,7 @@ impl LintGroup {
     }
 
     /// Create the curated group of rules for `language`.
-    #[cfg_attr(not(feature = "en"), allow(unused_variables))]
+    #[cfg_attr(not(any(feature = "en", feature = "fr")), allow(unused_variables))]
     pub fn new_curated_for_language(
         dictionary: Arc<impl Dictionary + 'static>,
         language: Language,
@@ -245,7 +247,27 @@ impl LintGroup {
             Language::English(dialect) => {
                 crate::lang::en::linting::new_curated(dictionary, dialect)
             }
+            #[cfg(feature = "fr")]
+            Language::French(dialect) => Self::new_curated_french(dictionary, dialect),
         }
+    }
+
+    /// The French rules: only spell checking so far. `dictionary` should be French, such as
+    /// `FstDictionary::curated_for(LanguageFamily::French)`.
+    #[cfg(feature = "fr")]
+    fn new_curated_french(
+        dictionary: Arc<impl Dictionary + 'static>,
+        dialect: crate::FrenchDialect,
+    ) -> Self {
+        let mut out = Self::empty();
+
+        out.add(
+            "SpellCheck",
+            SpellCheck::new(dictionary, Language::French(dialect), PlainSpelling),
+        );
+        out.set_all_rules_to(Some(true));
+
+        out
     }
 
     /// Create the curated group of English rules.
@@ -693,5 +715,25 @@ mod tests {
         );
         let curated = crate::lang::en::linting::new_curated(dict, EnglishDialect::British);
         assert_eq!(english.config, curated.config);
+    }
+}
+
+#[cfg(all(test, feature = "fr"))]
+mod french_tests {
+    use super::*;
+    use crate::spell::FstDictionary;
+
+    #[test]
+    fn french_group_has_only_spell_check() {
+        use crate::{FrenchDialect, LanguageFamily};
+
+        let group = LintGroup::new_curated_for_language(
+            FstDictionary::curated_for(LanguageFamily::French),
+            Language::French(FrenchDialect::France),
+        );
+
+        assert!(group.config.is_rule_enabled("SpellCheck"));
+        assert!(!group.config.has_rule("AnA"));
+        assert!(!group.config.has_rule("RepeatedWords"));
     }
 }

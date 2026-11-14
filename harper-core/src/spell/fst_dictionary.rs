@@ -1,4 +1,3 @@
-use crate::LanguageFamily;
 use std::{borrow::Cow, cell::RefCell, sync::Arc};
 
 use fst::{IntoStreamer, Map as FstMap, Streamer, map::StreamWithState};
@@ -6,7 +5,7 @@ use hashbrown::HashMap;
 use levenshtein_automata::{DFA, LevenshteinAutomatonBuilder};
 
 use super::{CanonicalWordId, Dictionary, FuzzyMatchResult, MutableDictionary};
-use crate::{CharString, CharStringExt, DictWordMetadata};
+use crate::{CharString, CharStringExt, DictWordMetadata, LanguageFamily};
 
 /// An immutable dictionary allowing for very fast spellchecking.
 ///
@@ -49,6 +48,8 @@ impl FstDictionary {
     }
 
     /// The curated dictionary for `language`.
+    ///
+    /// French has no dictionary yet, so it gets an empty one.
     pub fn curated_for(language: LanguageFamily) -> Arc<Self> {
         language.data().dictionary()
     }

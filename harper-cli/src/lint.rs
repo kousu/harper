@@ -588,5 +588,8 @@ pub fn print_formatted_items(
 fn describe_language(language: Language) -> String {
     match language {
         Language::English(dialect) => format!("English, {dialect}"),
+        #[cfg(feature = "fr")]
+        Language::French(dialect) => format!("French, {dialect}"),
+        other => format!("{other:?}"),
     }
 }

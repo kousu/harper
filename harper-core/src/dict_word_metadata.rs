@@ -9,6 +9,8 @@ use crate::Language;
 use crate::dict_word_metadata_orthography::OrthFlags;
 #[cfg(feature = "en")]
 use crate::{EnglishDialect, EnglishDialectFlags};
+#[cfg(feature = "fr")]
+use crate::{FrenchDialect, FrenchDialectFlags};
 
 pub mod derived_from;
 use derived_from::DerivedFrom;
@@ -833,7 +835,7 @@ impl DictWordMetadata {
 
     /// Same thing as [`Self::or`], except in-place rather than a clone.
     // With no language, `WordDialects` has no values, so merging dialects can't happen.
-    #[cfg_attr(not(feature = "en"), allow(unreachable_code))]
+    #[cfg_attr(not(any(feature = "en", feature = "fr")), allow(unreachable_code))]
     pub fn merge(&mut self, other: &Self) -> &mut Self {
         macro_rules! merge {
             ($a:expr, $b:expr) => {
@@ -1118,6 +1120,8 @@ impl AffixData {
 pub enum WordDialects {
     #[cfg(feature = "en")]
     English(EnglishDialectFlags),
+    #[cfg(feature = "fr")]
+    French(FrenchDialectFlags),
 }
 
 impl WordDialects {
@@ -1128,6 +1132,10 @@ impl WordDialects {
         match (self, language) {
             #[cfg(feature = "en")]
             (Self::English(flags), Language::English(dialect)) => flags.is_dialect_enabled(dialect),
+            #[cfg(feature = "fr")]
+            (Self::French(flags), Language::French(dialect)) => flags.allows(dialect),
+            #[cfg(all(feature = "en", feature = "fr"))]
+            _ => false,
         }
     }
 
@@ -1137,6 +1145,10 @@ impl WordDialects {
         match (self, other) {
             #[cfg(feature = "en")]
             (Self::English(a), Self::English(b)) => Self::English(a | b),
+            #[cfg(feature = "fr")]
+            (Self::French(a), Self::French(b)) => Self::French(a | b),
+            #[cfg(all(feature = "en", feature = "fr"))]
+            (a, _) => a,
         }
     }
 
@@ -1146,7 +1158,23 @@ impl WordDialects {
     pub fn english(self) -> Option<EnglishDialectFlags> {
         match self {
             Self::English(flags) => Some(flags),
+            #[cfg(feature = "fr")]
+            _ => None,
         }
+    }
+}
+
+#[cfg(feature = "fr")]
+impl From<FrenchDialectFlags> for WordDialects {
+    fn from(flags: FrenchDialectFlags) -> Self {
+        Self::French(flags)
+    }
+}
+
+#[cfg(feature = "fr")]
+impl From<FrenchDialect> for WordDialects {
+    fn from(dialect: FrenchDialect) -> Self {
+        Self::French(FrenchDialectFlags::from_dialect(dialect))
     }
 }
 
@@ -1170,6 +1198,8 @@ impl From<Language> for WordDialects {
         match language {
             #[cfg(feature = "en")]
             Language::English(dialect) => dialect.into(),
+            #[cfg(feature = "fr")]
+            Language::French(dialect) => dialect.into(),
         }
     }
 }

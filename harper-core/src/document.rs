@@ -160,7 +160,10 @@ impl Document {
 
     /// A document of plain text in `language`.
     // With no language built in, `LanguageFamily` has no values, so these can't be called.
-    #[cfg_attr(not(feature = "en"), allow(unreachable_code, unused_variables))]
+    #[cfg_attr(
+        not(any(feature = "en", feature = "fr")),
+        allow(unreachable_code, unused_variables)
+    )]
     pub fn new_with_language(text: impl DocumentText, language: impl Into<LanguageFamily>) -> Self {
         let source = text.into_chars();
         let language = Some(language.into());
@@ -173,7 +176,10 @@ impl Document {
     ///
     /// Build `parser` for the same language, since the parser still lexes the prose it finds.
     // With no language built in, `LanguageFamily` has no values, so these can't be called.
-    #[cfg_attr(not(feature = "en"), allow(unreachable_code, unused_variables))]
+    #[cfg_attr(
+        not(any(feature = "en", feature = "fr")),
+        allow(unreachable_code, unused_variables)
+    )]
     pub fn new_with_parser_and_language(
         text: impl DocumentText,
         parser: &impl Parser,

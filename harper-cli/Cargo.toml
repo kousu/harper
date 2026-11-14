@@ -34,5 +34,7 @@ yansi = "1.0.1"
 tempfile = "3"
 
 [features]
-default = []
+default = ["fr"]
+# French support. On by default, since harper-cli is a debugging tool.
+fr = ["harper-core/fr"]
 training = ["harper-pos-utils/training"]

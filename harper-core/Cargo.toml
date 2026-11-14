@@ -61,6 +61,8 @@ default = ["en", "thesaurus", "concurrent"]
 # English: its dictionary, rules, tagger and chunkers.
 en = ["harper-brill/en"]
 concurrent = ["dep:boxcar"]
+# Experimental French support.
+fr = []
 # Synonym suggestions for the English rules.
 thesaurus = ["en", "dep:harper-thesaurus"]
 

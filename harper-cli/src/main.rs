@@ -52,7 +52,8 @@ struct Cli {
     #[arg(long, global = true)]
     no_color: bool,
 
-    /// The language of the text: `en` (English).
+    /// The language of the text: `en` (English) or, in builds with the `fr` feature, `fr`
+    /// (French).
     #[arg(long, global = true, default_value = "en")]
     language: String,
 
@@ -83,7 +84,8 @@ enum Args {
         #[arg(short = 'o', long)]
         keep_overlapping_lints: bool,
         /// Specify the dialect of the language. Common synonyms, abbreviations, and codes are
-        /// supported. Defaults to the language's most common dialect: `us` for English.
+        /// supported. Defaults to the language's most common dialect: `us` for English, `fr`
+        /// (France) for French.
         #[arg(short, long)]
         dialect: Option<String>,
         /// Path to the user dictionary.
@@ -283,7 +285,7 @@ fn main() -> anyhow::Result<()> {
 
             lint(
                 markdown_options,
-                curated_dictionary,
+                FstDictionary::curated_for(language.family()),
                 inputs,
                 LintOptions {
                     count,
