@@ -390,14 +390,17 @@ mod tests {
     use crate::linting::LintKind;
     use crate::linting::pooled_linter::for_tests::create_test_pool;
     use crate::linting::tests::{assert_no_lints, assert_suggestion_result};
-    use crate::spell::{FstDictionary, MutableDictionary};
+    use crate::spell::MutableDictionary;
     use crate::weir::WeirLinter;
     use crate::{Document, EnglishDialect, Language, linting::Linter};
 
     create_test_pool!(
         LintGroup,
         LintGroup,
-        LintGroup::new_curated(FstDictionary::curated(), EnglishDialect::American)
+        crate::lang::en::linting::new_curated(
+            crate::lang::en::dictionary::dictionary(),
+            EnglishDialect::American
+        )
     );
 
     #[test]
@@ -488,7 +491,7 @@ mod tests {
 
     #[test]
     fn can_get_all_descriptions() {
-        let group = LintGroup::new_curated(
+        let group = crate::lang::en::linting::new_curated(
             Arc::new(MutableDictionary::default()),
             EnglishDialect::American,
         );
@@ -497,7 +500,7 @@ mod tests {
 
     #[test]
     fn can_get_all_descriptions_as_html() {
-        let group = LintGroup::new_curated(
+        let group = crate::lang::en::linting::new_curated(
             Arc::new(MutableDictionary::default()),
             EnglishDialect::American,
         );
@@ -604,8 +607,10 @@ mod tests {
     ///    in the context of another linter's description.
     #[test]
     fn lint_descriptions_are_clean() {
-        let lints_to_check =
-            LintGroup::new_curated(FstDictionary::curated(), EnglishDialect::American);
+        let lints_to_check = crate::lang::en::linting::new_curated(
+            crate::lang::en::dictionary::dictionary(),
+            EnglishDialect::American,
+        );
 
         let name_description_pairs: Vec<_> = lints_to_check
             .all_descriptions()
@@ -632,7 +637,7 @@ mod tests {
 
     #[test]
     fn no_linter_names_clash() {
-        let group = LintGroup::new_curated(
+        let group = crate::lang::en::linting::new_curated(
             Arc::new(MutableDictionary::default()),
             EnglishDialect::American,
         );
@@ -659,12 +664,12 @@ mod tests {
 
     #[test]
     fn english_group_matches_new_curated() {
-        let dict = FstDictionary::curated();
+        let dict = crate::lang::en::dictionary::dictionary();
         let english = LintGroup::new_curated_for_language(
             dict.clone(),
             Language::English(EnglishDialect::British),
         );
-        let curated = LintGroup::new_curated(dict, EnglishDialect::British);
+        let curated = crate::lang::en::linting::new_curated(dict, EnglishDialect::British);
         assert_eq!(english.config, curated.config);
     }
 }

@@ -402,7 +402,7 @@ mod tests {
         SpellCheck,
         SpellCheck<Arc<FstDictionary>, EnglishSpelling>,
         SpellCheck::new(
-            FstDictionary::curated(),
+            crate::lang::en::dictionary::dictionary(),
             Language::English(EnglishDialect::American),
             EnglishSpelling::new()
         )
@@ -411,7 +411,7 @@ mod tests {
     #[test]
     fn close_spelling_guesses_have_priority_over_generic_splits() {
         let mut linter = SpellCheck::new(
-            FstDictionary::curated(),
+            FstDictionary::curated_for(crate::LanguageFamily::English),
             Language::English(EnglishDialect::American),
             EnglishSpelling::new(),
         );
@@ -446,7 +446,7 @@ mod tests {
         assert_lint_count(
             "Do you like the color?",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -459,7 +459,7 @@ mod tests {
         assert_good_and_bad_suggestions(
             "We flew to the uk.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -473,7 +473,7 @@ mod tests {
         assert_good_and_bad_suggestions(
             "We flew to Nz.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -487,7 +487,7 @@ mod tests {
         assert_lint_count(
             "We anonymise it with the customisable tokeniser, then we synthesised the results.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -500,7 +500,7 @@ mod tests {
         assert_lint_count(
             "We anonymise it with the customisable tokeniser, then we synthesised the results.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::American),
                 EnglishSpelling::new(),
             ),
@@ -513,7 +513,7 @@ mod tests {
         assert_lint_count(
             "The attack on Pearl Harbor came before Labor Day.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -526,7 +526,7 @@ mod tests {
         assert_lint_count(
             "The Ministry of Defence met the Labour Party.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::American),
                 EnglishSpelling::new(),
             ),
@@ -539,7 +539,7 @@ mod tests {
         assert_lint_count(
             "The ship left the harbor near Pearl Harbor.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -552,7 +552,7 @@ mod tests {
         assert_lint_count(
             "Does your mom like yogourt?",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
@@ -565,7 +565,7 @@ mod tests {
         assert_lint_count(
             "We mine bauxite to make aluminium.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Canadian),
                 EnglishSpelling::new(),
             ),
@@ -587,7 +587,7 @@ mod tests {
         assert_lint_count(
             "Our house has a verandah.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
@@ -605,7 +605,7 @@ mod tests {
         assert_lint_count(
             "Our house has a verandah.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -618,7 +618,7 @@ mod tests {
         assert_lint_count(
             "Our house has a verandah.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Canadian),
                 EnglishSpelling::new(),
             ),
@@ -631,7 +631,7 @@ mod tests {
         assert_lint_count(
             "In summer we sit on the verandah and eat yogourt.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
@@ -644,7 +644,7 @@ mod tests {
         assert_lint_count(
             "In summer we sit on the verandah and eat yogourt.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Canadian),
                 EnglishSpelling::new(),
             ),
@@ -666,7 +666,7 @@ mod tests {
         assert_lint_count(
             "In summer we sit on the verandah and eat yogourt.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -679,7 +679,7 @@ mod tests {
         assert_lint_count(
             "In Australia we write 'labour' but the political party is the 'Labor Party'.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
@@ -701,7 +701,7 @@ mod tests {
         assert_lint_count(
             "In general, utes have unibody construction while pickups have frames.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
@@ -714,7 +714,7 @@ mod tests {
         assert_suggestion_result(
             "abanonedware",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
@@ -749,7 +749,7 @@ mod tests {
         assert_lint_count(
             "afterward",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
@@ -762,7 +762,7 @@ mod tests {
         assert_lint_count(
             "afterwards",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Australian),
                 EnglishSpelling::new(),
             ),
@@ -775,7 +775,7 @@ mod tests {
         assert_lint_count(
             "afterward",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Canadian),
                 EnglishSpelling::new(),
             ),
@@ -788,7 +788,7 @@ mod tests {
         assert_lint_count(
             "afterwards",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Canadian),
                 EnglishSpelling::new(),
             ),
@@ -801,7 +801,7 @@ mod tests {
         assert_lint_count(
             "afterward",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -814,7 +814,7 @@ mod tests {
         assert_lint_count(
             "afterwards",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -827,7 +827,7 @@ mod tests {
         assert_suggestion_result(
             "hes",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -840,7 +840,7 @@ mod tests {
         assert_suggestion_result(
             "shes",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -864,7 +864,7 @@ mod tests {
 
         // Create a merged dictionary, using curated first.
         let mut merged_dict = MergedDictionary::new();
-        merged_dict.add_dictionary(FstDictionary::curated());
+        merged_dict.add_dictionary(crate::lang::en::dictionary::dictionary());
         merged_dict.add_dictionary(std::sync::Arc::from(user_dict));
         assert!(merged_dict.contains_word_str("Calibre"));
 
@@ -904,7 +904,7 @@ mod tests {
             assert_no_lints(
                 "Matt is a great name.",
                 SpellCheck::new(
-                    FstDictionary::curated(),
+                    crate::lang::en::dictionary::dictionary(),
                     Language::English(dialect),
                     EnglishSpelling::new(),
                 ),
@@ -917,7 +917,7 @@ mod tests {
         assert_suggestion_result(
             "'Tere' is supposed to be 'There'",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -927,7 +927,7 @@ mod tests {
         assert_suggestion_result(
             "'fll' is supposed to be 'fill'",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -939,7 +939,7 @@ mod tests {
         assert_suggestion_result(
             "Generaly",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -957,7 +957,7 @@ mod tests {
         assert_no_lints(
             "We had to prepone the meeting",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::Indian),
                 EnglishSpelling::new(),
             ),
@@ -1016,7 +1016,7 @@ mod tests {
         assert_suggestion_result(
             "color",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1036,7 +1036,7 @@ mod tests {
         assert_suggestion_result(
             "Color",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1057,7 +1057,7 @@ mod tests {
         assert_suggestion_result(
             "COLOR",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1074,7 +1074,7 @@ mod tests {
         assert_suggestion_result(
             "realize",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1093,7 +1093,7 @@ mod tests {
         assert_suggestion_result(
             "Realize",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1113,7 +1113,7 @@ mod tests {
         assert_suggestion_result(
             "REALIZE",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1133,7 +1133,7 @@ mod tests {
         assert_suggestion_result(
             "defense",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1151,7 +1151,7 @@ mod tests {
         assert_suggestion_result(
             "Defense",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1170,7 +1170,7 @@ mod tests {
         assert_suggestion_result(
             "DEFENSE",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1190,7 +1190,7 @@ mod tests {
         assert_suggestion_result(
             "skeptic",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1208,7 +1208,7 @@ mod tests {
         assert_suggestion_result(
             "Skeptic",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1228,7 +1228,7 @@ mod tests {
         assert_suggestion_result(
             "SKEPTIC",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1254,7 +1254,7 @@ mod tests {
         assert_suggestion_result(
             "centimeter",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1273,7 +1273,7 @@ mod tests {
         assert_suggestion_result(
             "Centimeter",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1293,7 +1293,7 @@ mod tests {
         assert_suggestion_result(
             "CENTIMETER",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1313,7 +1313,7 @@ mod tests {
         assert_suggestion_result(
             "traveler",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1332,7 +1332,7 @@ mod tests {
         assert_suggestion_result(
             "Traveler",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1352,7 +1352,7 @@ mod tests {
         assert_suggestion_result(
             "TRAVELER",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1368,7 +1368,7 @@ mod tests {
         assert_suggestion_result(
             "I've got a gray cat.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1391,7 +1391,7 @@ mod tests {
         assert_suggestion_result(
             "I've Got a Gray Cat.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1414,7 +1414,7 @@ mod tests {
         assert_suggestion_result(
             "GRAY",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1436,7 +1436,7 @@ mod tests {
         assert_suggestion_result(
             "The cheif recieved a letter.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1450,7 +1450,7 @@ mod tests {
         assert_suggestion_result(
             "The Cheif Recieved a Letter.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1464,7 +1464,7 @@ mod tests {
         assert_suggestion_result(
             "THE CHEIF RECIEVED A LETTER.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1477,7 +1477,7 @@ mod tests {
         assert_suggestion_result(
             "v's",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1490,7 +1490,7 @@ mod tests {
         assert_suggestion_result(
             "v’s",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1503,7 +1503,7 @@ mod tests {
         assert_suggestion_result(
             "childrens",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1528,7 +1528,7 @@ mod tests {
         assert_no_lints(
             "The suspect was closely surveilled by the agents.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1536,7 +1536,7 @@ mod tests {
         assert_no_lints(
             "They were surveilling the premises.",
             SpellCheck::new(
-                FstDictionary::curated(),
+                crate::lang::en::dictionary::dictionary(),
                 Language::English(EnglishDialect::British),
                 EnglishSpelling::new(),
             ),
@@ -1554,7 +1554,7 @@ mod test_context_ranking {
 
     fn suggestions(text: &str) -> Vec<String> {
         SpellCheck::new(
-            FstDictionary::curated(),
+            FstDictionary::curated_for(crate::LanguageFamily::English),
             Language::English(EnglishDialect::American),
             EnglishSpelling::new(),
         )
@@ -1632,7 +1632,7 @@ mod test_context_ranking {
     fn context_finds_words_beyond_the_spelling_top_three() {
         use crate::spell::spelling_candidates;
 
-        let dictionary = FstDictionary::curated();
+        let dictionary = FstDictionary::curated_for(crate::LanguageFamily::English);
         let examples = [
             ("one two three four fibe", "fibe", "five"),
             ("I wark at Automattic", "wark", "work"),

@@ -17,10 +17,10 @@ macro_rules! create_test {
                     )
                 );
 
-                let dict = FstDictionary::curated();
+                let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
                 let document = Document::new(source, &GitCommitParser::default(), &dict);
 
-                let mut linter = LintGroup::new_curated(dict, EnglishDialect::American);
+                let mut linter = LintGroup::new_curated_for_language(dict, harper_core::Language::English(EnglishDialect::American));
                 let lints = linter.lint(&document);
 
                 dbg!(&lints);
@@ -41,7 +41,7 @@ create_test!(markdown_body_commit.txt, 3);
 
 #[test]
 fn conventional_commit_prefixes_are_not_parsed() {
-    let dict = FstDictionary::curated();
+    let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
 
     for prefix in [
         "feat(harper): ",
@@ -70,8 +70,11 @@ fn conventional_commit_prefixes_are_not_parsed() {
 
 #[test]
 fn conventional_commit_descriptions_are_still_spellchecked() {
-    let dict = FstDictionary::curated();
-    let mut linter = LintGroup::new_curated(dict.clone(), EnglishDialect::American);
+    let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
+    let mut linter = LintGroup::new_curated_for_language(
+        dict.clone(),
+        harper_core::Language::English(EnglishDialect::American),
+    );
 
     for source in [
         "feat(harper): add mising files\n",
@@ -94,8 +97,11 @@ fn conventional_commit_descriptions_are_still_spellchecked() {
 
 #[test]
 fn ordinary_subjects_and_commit_bodies_are_still_spellchecked() {
-    let dict = FstDictionary::curated();
-    let mut linter = LintGroup::new_curated(dict.clone(), EnglishDialect::American);
+    let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
+    let mut linter = LintGroup::new_curated_for_language(
+        dict.clone(),
+        harper_core::Language::English(EnglishDialect::American),
+    );
 
     for source in [
         "add mising files\n",
@@ -116,8 +122,11 @@ fn ordinary_subjects_and_commit_bodies_are_still_spellchecked() {
 
 #[test]
 fn hash_prefixed_descriptions_are_not_treated_as_comments() {
-    let dict = FstDictionary::curated();
-    let mut linter = LintGroup::new_curated(dict.clone(), EnglishDialect::American);
+    let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
+    let mut linter = LintGroup::new_curated_for_language(
+        dict.clone(),
+        harper_core::Language::English(EnglishDialect::American),
+    );
 
     for source in [
         "feat(harper): #123 add mising files\n",

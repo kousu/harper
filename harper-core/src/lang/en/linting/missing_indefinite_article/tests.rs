@@ -347,7 +347,10 @@ fn overlapping_subject_and_verb_candidates_insert_only_once() {
 fn public_setting_controls_all_private_children() {
     use crate::spell::FstDictionary;
     let document = Document::new_markdown_default_curated("She needs umbrella.");
-    let mut group = LintGroup::new_curated(FstDictionary::curated(), EnglishDialect::American);
+    let mut group = LintGroup::new_curated_for_language(
+        FstDictionary::curated_for(crate::LanguageFamily::English),
+        crate::Language::English(EnglishDialect::American),
+    );
     group.set_all_rules_to(Some(false));
     assert!(group.lint(&document).is_empty());
     group
@@ -529,7 +532,10 @@ fn supports_vowel_pronunciation() {
 #[test]
 fn explicitly_enabled_curated_rule_inserts_once() {
     use crate::{linting::LintGroup, spell::FstDictionary};
-    let mut group = LintGroup::new_curated(FstDictionary::curated(), EnglishDialect::American);
+    let mut group = LintGroup::new_curated_for_language(
+        FstDictionary::curated_for(crate::LanguageFamily::English),
+        crate::Language::English(EnglishDialect::American),
+    );
     group
         .config
         .set_rule_enabled("MissingIndefiniteArticle", true);

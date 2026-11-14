@@ -44,10 +44,7 @@ impl<D: Dictionary> Linter for MassNouns<D> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        linting::tests::{assert_lint_count, assert_suggestion_result},
-        spell::FstDictionary,
-    };
+    use crate::linting::tests::{assert_lint_count, assert_suggestion_result};
 
     use super::MassNouns;
 
@@ -55,7 +52,7 @@ mod tests {
     fn flag_advices_and_an_advice() {
         assert_lint_count(
             "I asked for an advice. He gave me two advices!",
-            MassNouns::new(FstDictionary::curated()),
+            MassNouns::new(crate::lang::en::dictionary::dictionary()),
             2,
         );
     }
@@ -64,7 +61,7 @@ mod tests {
     fn correct_a_luggage() {
         assert_suggestion_result(
             "I managed to pack all my clothing into one luggage.",
-            MassNouns::new(FstDictionary::curated()),
+            MassNouns::new(crate::lang::en::dictionary::dictionary()),
             "I managed to pack all my clothing into one suitcase.",
         );
     }
@@ -73,7 +70,7 @@ mod tests {
     fn correct_clothings() {
         assert_suggestion_result(
             "I managed to pack all my clothings into one suitcase.",
-            MassNouns::new(FstDictionary::curated()),
+            MassNouns::new(crate::lang::en::dictionary::dictionary()),
             "I managed to pack all my clothing into one suitcase.",
         );
     }
@@ -82,7 +79,7 @@ mod tests {
     fn ignore_a_fun_and_fantastic() {
         assert_lint_count(
             "It was such a fun and fantastic adventure together that ...",
-            MassNouns::new(FstDictionary::curated()),
+            MassNouns::new(crate::lang::en::dictionary::dictionary()),
             0,
         );
     }

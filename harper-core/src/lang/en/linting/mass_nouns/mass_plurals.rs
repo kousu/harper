@@ -146,11 +146,7 @@ impl<D: Dictionary> ExprLinter for MassPlurals<D> {
 mod tests {
     use crate::{
         EnglishDialect,
-        linting::{
-            LintGroup,
-            tests::{assert_lint_count, assert_suggestion_result},
-        },
-        spell::FstDictionary,
+        linting::tests::{assert_lint_count, assert_suggestion_result},
     };
 
     use super::MassPlurals;
@@ -159,7 +155,7 @@ mod tests {
     fn fix_bad_advices() {
         assert_suggestion_result(
             "You gave me bad advices.",
-            MassPlurals::new(FstDictionary::curated()),
+            MassPlurals::new(crate::lang::en::dictionary::dictionary()),
             "You gave me bad advice.",
         );
     }
@@ -168,7 +164,10 @@ mod tests {
     fn fix_kind_of_advices() {
         assert_suggestion_result(
             "IMO these kind of advices never matters.",
-            LintGroup::new_curated(FstDictionary::curated(), EnglishDialect::American),
+            crate::lang::en::linting::new_curated(
+                crate::lang::en::dictionary::dictionary(),
+                EnglishDialect::American,
+            ),
             "IMO these kind of advice never matters.",
         );
     }
@@ -177,7 +176,7 @@ mod tests {
     fn flag_source_codes_and_softwares() {
         assert_lint_count(
             "Do we have the source codes for these softwares?",
-            MassPlurals::new(FstDictionary::curated()),
+            MassPlurals::new(crate::lang::en::dictionary::dictionary()),
             2,
         );
     }
@@ -186,7 +185,7 @@ mod tests {
     fn flag_noun_ending_in_ies() {
         assert_lint_count(
             "Celibacies are better than sex.",
-            MassPlurals::new(FstDictionary::curated()),
+            MassPlurals::new(crate::lang::en::dictionary::dictionary()),
             1,
         );
     }
@@ -195,7 +194,7 @@ mod tests {
     fn flag_real_estates() {
         assert_lint_count(
             "Instead of giving any of her many luxury real estates or multi-million dollar fortune ...",
-            MassPlurals::new(FstDictionary::curated()),
+            MassPlurals::new(crate::lang::en::dictionary::dictionary()),
             1,
         );
     }
@@ -204,7 +203,7 @@ mod tests {
     fn flag_wear_and_tears() {
         assert_lint_count(
             "Transit costs were high in terms of time, finances, and vehicle wear and tears, which posed significant obstacles to international commerce",
-            MassPlurals::new(FstDictionary::curated()),
+            MassPlurals::new(crate::lang::en::dictionary::dictionary()),
             1,
         );
     }
@@ -213,7 +212,7 @@ mod tests {
     fn fix_wear_and_tears() {
         assert_suggestion_result(
             "Transit costs were high in terms of time, finances, and vehicle wear and tears, which posed significant obstacles to international commerce",
-            MassPlurals::new(FstDictionary::curated()),
+            MassPlurals::new(crate::lang::en::dictionary::dictionary()),
             "Transit costs were high in terms of time, finances, and vehicle wear and tear, which posed significant obstacles to international commerce",
         );
     }
@@ -222,7 +221,7 @@ mod tests {
     fn fix_horsepowers() {
         assert_suggestion_result(
             "It's around about 60 horsepowers. So, you can't go in and say, \"Well, we got more horsepowers than our rivals.\" because it's got the same and through that restriction they've created an absolute banger. I'm so excited about this car.",
-            MassPlurals::new(FstDictionary::curated()),
+            MassPlurals::new(crate::lang::en::dictionary::dictionary()),
             "It's around about 60 horsepower. So, you can't go in and say, \"Well, we got more horsepower than our rivals.\" because it's got the same and through that restriction they've created an absolute banger. I'm so excited about this car.",
         );
     }
