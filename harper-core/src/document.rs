@@ -2,22 +2,28 @@ use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::fmt::Display;
 
-use harper_brill::{Chunker, Tagger, brill_tagger, burn_chunker};
+use harper_brill::UPOS;
 use itertools::Itertools;
 
 use crate::expr::{Expr, ExprExt, FirstMatchOf, Repeating, SequenceExpr};
-use crate::parsers::{Markdown, MarkdownOptions, Parser, PlainEnglish};
+use crate::parsers::Parser;
+use crate::parsers::{Markdown, MarkdownOptions, PlainEnglish};
 use crate::punctuation::Punctuation;
 use crate::spell::Dictionary;
 use crate::vec_ext::VecExt;
 use crate::{CharStringExt, FatStringToken, FatToken, Lrc, Token, TokenKind, TokenStringExt};
-use crate::{EnglishOrdinalSuffix, Span};
+use crate::{EnglishOrdinalSuffix, LanguageFamily, Span};
 
 /// A document containing some amount of lexed and parsed English text.
 #[derive(Debug, Clone)]
 pub struct Document {
     source: Lrc<[char]>,
     tokens: Vec<Token>,
+}
+
+/// Tag each word of a sentence with its part of speech, and mark which words are in a noun phrase.
+fn tag_and_chunk(sentence: &[String], language: LanguageFamily) -> (Vec<Option<UPOS>>, Vec<bool>) {
+    language.data().tag_and_chunk(sentence)
 }
 
 impl Default for Document {
@@ -76,10 +82,20 @@ impl Document {
         parser: &impl Parser,
         dictionary: &impl Dictionary,
     ) -> Self {
+        Self::new_from_parts(source, parser, dictionary, LanguageFamily::English)
+    }
+
+    /// Parses `source` in `language` with `parser`, looking words up in `dictionary`.
+    fn new_from_parts(
+        source: Lrc<[char]>,
+        parser: &impl Parser,
+        dictionary: &impl Dictionary,
+        language: LanguageFamily,
+    ) -> Self {
         let tokens = parser.parse(&source);
 
         let mut document = Self { source, tokens };
-        document.parse(dictionary);
+        document.parse(dictionary, language);
 
         document
     }
@@ -184,11 +200,8 @@ impl Document {
     /// Re-parse important language constructs.
     ///
     /// Should be run after every change to the underlying [`Self::source`].
-    fn parse(&mut self, dictionary: &impl Dictionary) {
+    fn parse(&mut self, dictionary: &impl Dictionary, language: LanguageFamily) {
         self.apply_fixups();
-
-        let chunker = burn_chunker();
-        let tagger = brill_tagger();
 
         for sent in self.tokens.iter_sentences_mut() {
             let token_strings: Vec<_> = sent
@@ -197,8 +210,7 @@ impl Document {
                 .map(|t| t.get_str(&self.source))
                 .collect();
 
-            let token_tags = tagger.tag_sentence(&token_strings);
-            let np_flags = chunker.chunk_sentence(&token_strings, &token_tags);
+            let (token_tags, np_flags) = tag_and_chunk(&token_strings, language);
 
             // Annotate DictWord metadata
             let word_sources: Vec<_> = sent
