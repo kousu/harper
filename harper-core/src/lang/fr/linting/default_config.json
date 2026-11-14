@@ -1,0 +1,62 @@
+{
+	"settings": [
+		{
+			"Group": {
+				"label": "Spelling and Orthography",
+				"description": "Flags misspellings and words that should be elided, like `le arbre` for `l'arbre`.",
+				"child": {
+					"settings": [
+						{
+							"Bool": {
+								"name": "SpellCheck",
+								"state": true,
+								"label": "Spell Check"
+							}
+						},
+						{
+							"Bool": {
+								"name": "FrenchElision",
+								"state": true,
+								"label": "Elision"
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"Group": {
+				"label": "Grammar and Agreement",
+				"description": "Catches articles that don't agree with their noun's gender.",
+				"child": {
+					"settings": [
+						{
+							"Bool": {
+								"name": "FrenchArticleGender",
+								"state": true,
+								"label": "Article Gender"
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"Group": {
+				"label": "Numbers and Units",
+				"description": "Checks how numbers are written, such as ordinal suffixes like `1er` and `2e`.",
+				"child": {
+					"settings": [
+						{
+							"Bool": {
+								"name": "FrenchCorrectNumberSuffix",
+								"state": true,
+								"label": "Correct Number Suffix"
+							}
+						}
+					]
+				}
+			}
+		}
+	]
+}
