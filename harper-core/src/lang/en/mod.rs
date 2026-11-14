@@ -9,6 +9,7 @@ pub(crate) mod irregular_nouns;
 pub(crate) mod irregular_verbs;
 pub(crate) mod lexing;
 pub(crate) mod linting;
+pub(crate) mod ordinal;
 pub(crate) mod patterns;
 pub(crate) mod regular_nouns;
 pub(crate) mod thesaurus_helper;

@@ -64,6 +64,7 @@ pub type Dialect = EnglishDialect;
 /// The old name of [`EnglishDialectFlags`].
 #[deprecated(note = "renamed to `EnglishDialectFlags`")]
 pub type DialectFlags = EnglishDialectFlags;
+pub use lang::en::ordinal::EnglishOrdinalSuffix;
 use linting::Lint;
 pub use mask::{Mask, Masker, RegexMasker};
 pub use number::{Number, OrdinalSuffix};
