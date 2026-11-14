@@ -5,7 +5,7 @@ use crate::expr::FixedPhrase;
 use crate::expr::LongestMatchOf;
 use crate::linting::Suggestion;
 use crate::linting::expr_linter::Chunk;
-use crate::{Token, TokenStringExt};
+use crate::{LanguageFamily, Token, TokenStringExt};
 
 pub struct MapPhraseSetLinter<'a> {
     description: String,
@@ -23,9 +23,27 @@ impl<'a> MapPhraseSetLinter<'a> {
         description: impl ToString,
         lint_kind: Option<LintKind>,
     ) -> Self {
+        Self::one_to_one_for(
+            wrong_forms_to_correct_forms,
+            message,
+            description,
+            lint_kind,
+            LanguageFamily::English,
+        )
+    }
+
+    /// Like [`Self::one_to_one`], with the phrases in `language`.
+    pub fn one_to_one_for(
+        wrong_forms_to_correct_forms: &'a [(&'a str, &'a str)],
+        message: impl ToString,
+        description: impl ToString,
+        lint_kind: Option<LintKind>,
+        language: LanguageFamily,
+    ) -> Self {
         let expr = LongestMatchOf::new(wrong_forms_to_correct_forms.iter().map(
             |(wrong_form, _correct_form)| {
-                let expr: Box<dyn Expr> = Box::new(FixedPhrase::from_phrase(wrong_form));
+                let expr: Box<dyn Expr> =
+                    Box::new(FixedPhrase::from_phrase_for(wrong_form, language));
                 expr
             },
         ));
@@ -46,10 +64,27 @@ impl<'a> MapPhraseSetLinter<'a> {
         description: impl ToString,
         lint_kind: Option<LintKind>,
     ) -> Self {
+        Self::many_to_many_for(
+            multi_wrong_forms_to_multi_correct_forms,
+            message,
+            description,
+            lint_kind,
+            LanguageFamily::English,
+        )
+    }
+
+    /// Like [`Self::many_to_many`], with the phrases in `language`.
+    pub fn many_to_many_for(
+        multi_wrong_forms_to_multi_correct_forms: &'a [(&'a [&'a str], &'a [&'a str])],
+        message: impl ToString,
+        description: impl ToString,
+        lint_kind: Option<LintKind>,
+        language: LanguageFamily,
+    ) -> Self {
         let mut lmo = LongestMatchOf::new(Vec::<Box<dyn Expr>>::new());
         for (wrong_forms, _correct_forms) in multi_wrong_forms_to_multi_correct_forms {
             for wrong_form in wrong_forms.iter() {
-                lmo.add(FixedPhrase::from_phrase(wrong_form));
+                lmo.add(FixedPhrase::from_phrase_for(wrong_form, language));
             }
         }
         let expr = lmo;
