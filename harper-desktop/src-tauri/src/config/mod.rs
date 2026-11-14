@@ -4,7 +4,7 @@ mod integration;
 use crate::{PlatformBroker, os_broker::OsBroker};
 pub use error::Error;
 use harper_core::{
-    Dialect, IgnoredLints,
+    EnglishDialect, IgnoredLints,
     linting::{FlatConfig, LintGroup},
     spell::{FstDictionary, MergedDictionary, MutableDictionary},
 };
@@ -28,7 +28,7 @@ pub enum OnboardingState {
 /// User-controlled app state needed by Tauri commands and the highlighter process.
 pub struct Config {
     pub mutable_dictionary: MutableDictionary,
-    pub dialect: Dialect,
+    pub dialect: EnglishDialect,
     pub ignored_lints: IgnoredLints,
     pub lint_config: FlatConfig,
     pub integrations: Vec<Integration>,
@@ -60,10 +60,10 @@ impl Config {
         }
     }
 
-    fn detect_system_dialect() -> Dialect {
+    fn detect_system_dialect() -> EnglishDialect {
         tauri_plugin_os::locale()
-            .and_then(|bcp47| Dialect::try_from_bcp47(&bcp47))
-            .unwrap_or(Dialect::American)
+            .and_then(|bcp47| EnglishDialect::try_from_bcp47(&bcp47))
+            .unwrap_or(EnglishDialect::American)
     }
 
     pub fn is_integration_enabled(&self, bundle_id: &str) -> bool {
