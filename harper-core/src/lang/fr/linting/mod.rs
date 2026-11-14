@@ -2,9 +2,11 @@
 //! [`LanguageFamily::French`](crate::LanguageFamily::French), so that elisions like "l'" are words of their own.
 
 mod article_gender;
+mod correct_number_suffix;
 mod elision;
 
 pub use article_gender::ArticleGender;
+pub use correct_number_suffix::CorrectNumberSuffix;
 pub use elision::Elision;
 
 use crate::Token;
