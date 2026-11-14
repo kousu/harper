@@ -7,10 +7,7 @@ use strum_macros::EnumTryAs;
 use harper_asciidoc::AsciidocParser;
 use harper_comments::CommentParser;
 use harper_core::parsers::{Markdown, OrgMode, Parser};
-use harper_core::{
-    Document, LanguageFamily,
-    parsers::{MarkdownOptions, PlainEnglish},
-};
+use harper_core::{Document, LanguageFamily, parsers::MarkdownOptions};
 use harper_ink::InkParser;
 use harper_literate_haskell::LiterateHaskellParser;
 use harper_python::PythonParser;
@@ -29,7 +26,7 @@ pub(crate) trait SingleInputTrait: InputTrait {
         markdown_options: MarkdownOptions,
         language: LanguageFamily,
     ) -> anyhow::Result<(Document, Cow<'_, str>)> {
-        self.load_with_parser(&self.get_parser(markdown_options), language)
+        self.load_with_parser(&self.get_parser(markdown_options, language), language)
     }
 
     /// Loads the contained file/string, as text in `language`, into a conventional format using
@@ -45,9 +42,13 @@ pub(crate) trait SingleInputTrait: InputTrait {
         Ok((document, text))
     }
 
-    /// The parser that should be used to parse this input.
-    fn get_parser(&self, _markdown_options: MarkdownOptions) -> Box<dyn Parser> {
-        Box::new(PlainEnglish)
+    /// The parser that should be used to parse this input, for prose in `language`.
+    fn get_parser(
+        &self,
+        _markdown_options: MarkdownOptions,
+        language: LanguageFamily,
+    ) -> Box<dyn Parser> {
+        Box::new(language.lexer())
     }
 
     /// Get/load the raw content of this input.
@@ -133,34 +134,46 @@ impl SingleInputTrait for FileInput {
         Ok(std::fs::read_to_string(&self.path)?.into())
     }
 
-    /// Detect the parser that should be used for the given file.
-    fn get_parser(&self, _markdown_options: MarkdownOptions) -> Box<dyn Parser> {
+    /// Detect the parser that should be used for the given file, for prose in `language`.
+    fn get_parser(
+        &self,
+        _markdown_options: MarkdownOptions,
+        language: LanguageFamily,
+    ) -> Box<dyn Parser> {
         match self.path.extension().map(|ext| ext.to_str().unwrap()) {
             Some(
                 "md" | "markdown" | "mkd" | "mdwn" | "mdown" | "mdtxt" | "mdtext" | "qmd" | "Rmd"
                 | "rmd",
-            ) => Box::new(Markdown::default()),
-            Some("ink") => Box::new(InkParser::default()),
-            Some("lhs") => Box::new(LiterateHaskellParser::new_markdown(
+            ) => Box::new(Markdown::with_language(
                 MarkdownOptions::default(),
+                language,
             )),
-            Some("org") => Box::new(OrgMode::default()),
-            Some("tex" | "latex" | "sty" | "cls" | "dtx") => Box::new(harper_tex::TeX::default()),
-            Some("typ") => Box::new(harper_typst::Typst::default()),
-            Some("py") | Some("pyi") => Box::new(PythonParser::default()),
-            Some("adoc") | Some("asciidoc") => Box::new(AsciidocParser::default()),
-            Some("txt") => Box::new(PlainEnglish),
+            Some("ink") => Box::new(InkParser::with_language(language)),
+            Some("lhs") => Box::new(LiterateHaskellParser::new_markdown_with_language(
+                MarkdownOptions::default(),
+                language,
+            )),
+            Some("org") => Box::new(OrgMode::with_language(language)),
+            Some("tex" | "latex" | "sty" | "cls" | "dtx") => {
+                Box::new(harper_tex::TeX::with_language(language))
+            }
+            Some("typ") => Box::new(harper_typst::Typst::with_language(language)),
+            Some("py") | Some("pyi") => Box::new(PythonParser::with_language(language)),
+            Some("adoc") | Some("asciidoc") => Box::new(AsciidocParser::with_language(language)),
+            Some("txt") => Box::new(language.lexer()),
             _ => {
-                if let Some(comment_parser) =
-                    CommentParser::new_from_filename(&self.path, _markdown_options)
-                {
+                if let Some(comment_parser) = CommentParser::new_from_filename_with_language(
+                    &self.path,
+                    _markdown_options,
+                    language,
+                ) {
                     Box::new(comment_parser)
                 } else {
                     eprintln!(
-                        "{}: Warning: Could not detect language ID; falling back to PlainEnglish parser.",
+                        "{}: Warning: Could not detect language ID; falling back to plain text.",
                         self.get_identifier()
                     );
-                    Box::new(PlainEnglish)
+                    Box::new(language.lexer())
                 }
             }
         }

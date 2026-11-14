@@ -18,8 +18,8 @@ use serde::Serialize;
 use serde_json::Value;
 
 use harper_core::{
-    CharStringExt, DictWordMetadata, EnglishDialect, Language, LanguageFamily, OrthFlags, Span,
-    TokenKind, TokenStringExt,
+    CharStringExt, DictWordMetadata, Language, LanguageFamily, OrthFlags, Span, TokenKind,
+    TokenStringExt,
     linting::LintGroup,
     parsers::{IsolateEnglish, MarkdownOptions},
     spell::{CanonicalWordId, Dictionary, FstDictionary, MutableDictionary},
@@ -52,6 +52,10 @@ struct Cli {
     #[arg(long, global = true)]
     no_color: bool,
 
+    /// The language of the text: `en` (English).
+    #[arg(long, global = true, default_value = "en")]
+    language: String,
+
     #[command(subcommand)]
     command: Args,
 }
@@ -79,9 +83,9 @@ enum Args {
         #[arg(short = 'o', long)]
         keep_overlapping_lints: bool,
         /// Specify the dialect of the language. Common synonyms, abbreviations, and codes are
-        /// supported.
-        #[arg(short, long, default_value = "us")]
-        dialect: String,
+        /// supported. Defaults to the language's most common dialect: `us` for English.
+        #[arg(short, long)]
+        dialect: Option<String>,
         /// Path to the user dictionary.
         #[arg(short, long, default_value = config_dir().unwrap().join("harper-ls/dictionary.txt").into_os_string(), value_hint = ValueHint::FilePath)]
         user_dict_path: PathBuf,
@@ -256,7 +260,9 @@ fn main() -> anyhow::Result<()> {
     }
 
     let markdown_options = MarkdownOptions::default();
-    let curated_dictionary = FstDictionary::curated_for(harper_core::LanguageFamily::English);
+    let language = Language::try_from_names(&cli.language, None)?;
+    let family = language.family();
+    let curated_dictionary = FstDictionary::curated_for(family);
 
     match cli.command {
         Args::Lint {
@@ -273,7 +279,7 @@ fn main() -> anyhow::Result<()> {
             quiet,
             no_parallel,
         } => {
-            let language = Language::try_from_names("en", Some(&dialect_str))?;
+            let language = Language::try_from_names(&cli.language, dialect_str.as_deref())?;
 
             lint(
                 markdown_options,
@@ -301,7 +307,7 @@ fn main() -> anyhow::Result<()> {
             let input = input.unwrap_or_read_from_stdin();
 
             // Load the file/text.
-            let (doc, _) = input.load(markdown_options, LanguageFamily::English)?;
+            let (doc, _) = input.load(markdown_options, family)?;
 
             for token in doc.tokens() {
                 let json = serde_json::to_string(&token)?;
@@ -318,7 +324,7 @@ fn main() -> anyhow::Result<()> {
             let input = input.unwrap_or_read_from_stdin();
 
             // Load the file/text.
-            let (doc, source) = input.load(markdown_options, LanguageFamily::English)?;
+            let (doc, source) = input.load(markdown_options, family)?;
 
             let primary_color = Color::Blue;
             let secondary_color = Color::Magenta;
@@ -366,17 +372,19 @@ fn main() -> anyhow::Result<()> {
             // Try to read from standard input if `input` was not provided.
             let input = input.unwrap_or_read_from_stdin();
 
+            // `IsolateEnglish` looks for English words, whatever the text's language.
+            let english_dictionary = FstDictionary::curated_for(LanguageFamily::English);
             let parser = if isolate_english {
                 Box::new(IsolateEnglish::new(
-                    input.get_parser(markdown_options),
-                    &curated_dictionary,
+                    input.get_parser(markdown_options, family),
+                    &english_dictionary,
                 ))
             } else {
-                input.get_parser(markdown_options)
+                input.get_parser(markdown_options, family)
             };
 
             // Load the file/text.
-            let (doc, source) = input.load_with_parser(&parser, LanguageFamily::English)?;
+            let (doc, source) = input.load_with_parser(&parser, family)?;
 
             let input_identifier = input.get_identifier();
 
@@ -535,10 +543,7 @@ fn main() -> anyhow::Result<()> {
                 description: String,
             }
 
-            let linter = LintGroup::new_curated_for_language(
-                curated_dictionary,
-                harper_core::Language::English(EnglishDialect::American),
-            );
+            let linter = LintGroup::new_curated_for_language(curated_dictionary, language);
 
             let default_config: HashMap<String, bool> =
                 serde_json::from_str(&serde_json::to_string(&linter.config).unwrap()).unwrap();
@@ -561,7 +566,7 @@ fn main() -> anyhow::Result<()> {
         }
         Args::MineWords { input } => {
             let input = input.unwrap_or_read_from_stdin();
-            let (doc, _source) = input.load(MarkdownOptions::default(), LanguageFamily::English)?;
+            let (doc, _source) = input.load(MarkdownOptions::default(), family)?;
 
             let mut words = HashMap::new();
 
@@ -959,7 +964,7 @@ fn main() -> anyhow::Result<()> {
             // Get input from either file or direct text
             let (doc, _) = input
                 .unwrap_or_read_from_stdin()
-                .load(MarkdownOptions::default(), LanguageFamily::English)?;
+                .load(MarkdownOptions::default(), family)?;
 
             let phrases: Vec<_> = doc
                 .iter_nominal_phrases()
