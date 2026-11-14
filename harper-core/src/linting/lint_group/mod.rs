@@ -237,7 +237,9 @@ impl LintGroup {
         language: Language,
     ) -> Self {
         match language {
-            Language::English(dialect) => Self::new_curated(dictionary, dialect),
+            Language::English(dialect) => {
+                crate::lang::en::linting::new_curated(dictionary, dialect)
+            }
         }
     }
 
@@ -253,7 +255,15 @@ impl LintGroup {
         dictionary: Arc<impl Dictionary + 'static>,
         dialect: EnglishDialect,
     ) -> Self {
-        let mut group = Self::new_curated(dictionary, dialect);
+        Self::new_curated_empty_config_for_language(dictionary, Language::English(dialect))
+    }
+
+    /// Create the curated group of rules for `language`, with all config values cleared out.
+    pub fn new_curated_empty_config_for_language(
+        dictionary: Arc<impl Dictionary + 'static>,
+        language: Language,
+    ) -> Self {
+        let mut group = Self::new_curated_for_language(dictionary, language);
         group.config.clear();
         group
     }

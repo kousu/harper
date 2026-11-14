@@ -2,7 +2,7 @@
 
 use std::sync::{Arc, LazyLock};
 
-use crate::spell::{FstDictionary, MutableDictionary};
+use crate::spell::{FstDictionary, MutableDictionary, TrieDictionary};
 
 pub(crate) const DICTIONARY: &str = include_str!("dictionary.dict");
 pub(crate) const ANNOTATIONS: &str = include_str!("annotations.json");
@@ -22,6 +22,14 @@ pub(crate) fn mutable_dictionary() -> Arc<MutableDictionary> {
 pub(crate) fn dictionary() -> Arc<FstDictionary> {
     static DICT: LazyLock<Arc<FstDictionary>> =
         LazyLock::new(|| Arc::new((*mutable_dictionary()).clone().into()));
+
+    (*DICT).clone()
+}
+
+/// English's curated dictionary, as a [`TrieDictionary`] for prefix and suffix searches.
+pub(crate) fn trie_dictionary() -> Arc<TrieDictionary<Arc<FstDictionary>>> {
+    static DICT: LazyLock<Arc<TrieDictionary<Arc<FstDictionary>>>> =
+        LazyLock::new(|| Arc::new(TrieDictionary::new(dictionary())));
 
     (*DICT).clone()
 }

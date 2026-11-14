@@ -3,6 +3,7 @@ use std::{collections::BTreeMap, path::Path, sync::Arc};
 use hashbrown::HashMap;
 
 use harper_core::{
+    Language,
     linting::{Lint, LintGroup, LintKind},
     parsers::MarkdownOptions,
     remove_overlaps_map,
@@ -85,7 +86,10 @@ pub fn lint_one_input(
             }
             Ok((doc, source)) => {
                 // Create the Lint Group from which we will lint this input, using the combined dictionary and the specified dialect
-                let mut lint_group = LintGroup::new_curated(merged_dictionary.into(), *dialect);
+                let mut lint_group = LintGroup::new_curated_for_language(
+                    merged_dictionary.into(),
+                    Language::English(*dialect),
+                );
 
                 for pack in weirpacks {
                     let pack_group = pack.to_lint_group()?;

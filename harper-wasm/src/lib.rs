@@ -134,7 +134,10 @@ impl Linter {
     /// in Harper.
     pub fn new(dialect: Dialect) -> Self {
         let dictionary = Self::construct_merged_dict(&[Arc::new(MutableDictionary::default())]);
-        let lint_group = LintGroup::new_curated_empty_config(dictionary.clone(), dialect.into());
+        let lint_group = LintGroup::new_curated_empty_config_for_language(
+            dictionary.clone(),
+            harper_core::Language::English(dialect.into()),
+        );
 
         Self {
             lint_group,
@@ -157,8 +160,10 @@ impl Linter {
 
         self.dictionary = Self::construct_merged_dict(&constituent_dictionaries);
 
-        self.lint_group =
-            LintGroup::new_curated_empty_config(self.dictionary.clone(), self.dialect.into());
+        self.lint_group = LintGroup::new_curated_empty_config_for_language(
+            self.dictionary.clone(),
+            harper_core::Language::English(self.dialect.into()),
+        );
 
         self.lint_group.config.merge_from(lint_config);
     }
@@ -168,7 +173,9 @@ impl Linter {
     fn construct_merged_dict(dicts: &[Arc<impl Dictionary + 'static>]) -> Arc<MergedDictionary> {
         let mut lint_dict = MergedDictionary::new();
 
-        lint_dict.add_dictionary(FstDictionary::curated());
+        lint_dict.add_dictionary(FstDictionary::curated_for(
+            harper_core::LanguageFamily::English,
+        ));
 
         for dict in dicts {
             lint_dict.add_dictionary(Arc::new(dict.clone()));
@@ -227,7 +234,7 @@ impl Linter {
     }
 
     pub fn get_structured_lint_config_as_json(&self) -> String {
-        let mut config = StructuredConfig::curated();
+        let mut config = StructuredConfig::curated_for(harper_core::LanguageFamily::English);
         config.copy_from_flat_config(&self.lint_group.config);
 
         let human = HumanReadableStructuredConfig::from_structured_config(&config);
@@ -266,7 +273,7 @@ impl Linter {
     pub fn get_structured_lint_config_as_object(&self) -> JsValue {
         let serializer = Serializer::json_compatible();
 
-        let mut config = StructuredConfig::curated();
+        let mut config = StructuredConfig::curated_for(harper_core::LanguageFamily::English);
         config.copy_from_flat_config(&self.lint_group.config);
 
         let human = HumanReadableStructuredConfig::from_structured_config(&config);
@@ -345,7 +352,9 @@ impl Linter {
 
     fn with_curated_config<T>(&mut self, lint: impl FnOnce(&mut LintGroup) -> T) -> T {
         let config = self.lint_group.config.clone();
-        self.lint_group.config.fill_with_curated();
+        self.lint_group
+            .config
+            .fill_with_curated_for(harper_core::LanguageFamily::English);
 
         let output = lint(&mut self.lint_group);
 
@@ -577,7 +586,11 @@ fn create_lint(lint: harper_core::linting::Lint, source: &[char], language: Lang
 
 #[wasm_bindgen]
 pub fn to_title_case(text: String) -> String {
-    harper_core::make_title_case_str(&text, &PlainEnglish, &FstDictionary::curated())
+    harper_core::make_title_case_str(
+        &text,
+        &PlainEnglish,
+        &FstDictionary::curated_for(harper_core::LanguageFamily::English),
+    )
 }
 
 /// A suggestion to fix a Lint.
@@ -710,7 +723,7 @@ fn char_idx_to_js_str_idx(char_idx: usize, char_str: &[char]) -> usize {
 #[wasm_bindgen]
 pub fn get_default_lint_config_as_json() -> String {
     let config =
-        LintGroup::new_curated(MutableDictionary::new().into(), Dialect::American.into()).config;
+        harper_core::linting::FlatConfig::new_curated_for(harper_core::LanguageFamily::English);
 
     serde_json::to_string(&config).unwrap()
 }
@@ -718,7 +731,7 @@ pub fn get_default_lint_config_as_json() -> String {
 #[wasm_bindgen]
 pub fn get_default_lint_config() -> JsValue {
     let config =
-        LintGroup::new_curated(MutableDictionary::new().into(), Dialect::American.into()).config;
+        harper_core::linting::FlatConfig::new_curated_for(harper_core::LanguageFamily::English);
 
     // Important for downstream JSON serialization
     let serializer = Serializer::json_compatible();

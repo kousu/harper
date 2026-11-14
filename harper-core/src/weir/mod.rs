@@ -22,7 +22,6 @@ use crate::linting::{
     Suggestion,
 };
 use crate::parsers::Markdown;
-use crate::spell::FstDictionary;
 use crate::{Document, Lrc, Token, TokenStringExt};
 
 use self::ast::{Ast, AstVariable};
@@ -242,7 +241,7 @@ impl WeirLinter {
                 let doc = Document::new_from_chars(
                     current.chars().collect::<Vec<_>>().into(),
                     &Markdown::default(),
-                    &FstDictionary::curated(),
+                    &crate::lang::en::dictionary::dictionary(),
                 );
                 let lints = linter.lint(&doc);
 
@@ -268,7 +267,7 @@ impl WeirLinter {
                 let test = Document::new_from_chars(
                     text_chars.clone().into(),
                     &Markdown::default(),
-                    &FstDictionary::curated(),
+                    &crate::lang::en::dictionary::dictionary(),
                 );
                 let lints = linter.lint(&test);
 
@@ -295,7 +294,7 @@ impl WeirLinter {
             let document = Document::new_from_chars(
                 text.chars().collect::<Vec<_>>().into(),
                 &Markdown::default(),
-                &FstDictionary::curated(),
+                &crate::lang::en::dictionary::dictionary(),
             );
 
             linter.lint(&document).len()

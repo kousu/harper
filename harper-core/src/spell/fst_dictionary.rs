@@ -1,5 +1,7 @@
 use std::{borrow::Cow, cell::RefCell, sync::Arc};
 
+use crate::LanguageFamily;
+
 use fst::{IntoStreamer, Map as FstMap, Streamer, map::StreamWithState};
 use hashbrown::HashMap;
 use levenshtein_automata::{DFA, LevenshteinAutomatonBuilder};
@@ -43,6 +45,11 @@ impl FstDictionary {
     /// in the Harper binary.
     pub fn curated() -> Arc<Self> {
         crate::lang::en::dictionary::dictionary()
+    }
+
+    /// The curated dictionary for `language`.
+    pub fn curated_for(language: LanguageFamily) -> Arc<Self> {
+        language.data().dictionary()
     }
 
     /// Construct a new [`FstDictionary`] using a wordlist as a source.

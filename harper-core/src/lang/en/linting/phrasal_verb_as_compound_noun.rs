@@ -20,7 +20,7 @@ enum Confidence {
 impl PhrasalVerbAsCompoundNoun {
     pub fn new() -> Self {
         Self {
-            dict: FstDictionary::curated(),
+            dict: crate::lang::en::dictionary::dictionary(),
         }
     }
 }
@@ -28,7 +28,7 @@ impl PhrasalVerbAsCompoundNoun {
 impl Default for PhrasalVerbAsCompoundNoun {
     fn default() -> Self {
         Self {
-            dict: FstDictionary::curated(),
+            dict: crate::lang::en::dictionary::dictionary(),
         }
     }
 }
