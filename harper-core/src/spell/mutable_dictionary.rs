@@ -39,7 +39,7 @@ impl MutableDictionary {
 
     /// Create a dictionary from the curated English dictionary included
     /// in the Harper binary.
-    /// Consider using [`super::FstDictionary::curated()`] instead, as it is more performant for spellchecking.
+    #[deprecated(note = "use `MutableDictionary::curated_for(LanguageFamily::English)`")]
     pub fn curated() -> Arc<Self> {
         crate::lang::en::dictionary::mutable_dictionary()
     }
