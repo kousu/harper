@@ -2,6 +2,8 @@
 
 use std::sync::Arc;
 
+use harper_brill::UPOS;
+
 use crate::linting::{FlatConfig, StructuredConfig};
 use crate::spell::{FstDictionary, MutableDictionary, TrieDictionary};
 
@@ -22,6 +24,10 @@ pub(crate) trait LanguageData: Sync {
 
     /// The curated dictionary, as a [`TrieDictionary`].
     fn trie_dictionary(&self) -> Arc<TrieDictionary<Arc<FstDictionary>>>;
+
+    /// Tag each word of a sentence with its part of speech, and mark which words are in a noun
+    /// phrase.
+    fn tag_and_chunk(&self, sentence: &[String]) -> (Vec<Option<UPOS>>, Vec<bool>);
 
     /// The structured config of the curated rules, including labels.
     fn default_config(&self) -> StructuredConfig;

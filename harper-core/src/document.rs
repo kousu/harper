@@ -2,16 +2,17 @@ use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::fmt::Display;
 
-use harper_brill::{Chunker, Tagger, brill_tagger, burn_chunker};
+use harper_brill::UPOS;
 use itertools::Itertools;
 
 use crate::expr::{Expr, ExprExt, FirstMatchOf, Repeating, SequenceExpr};
-use crate::parsers::{Markdown, MarkdownOptions, Parser, PlainEnglish};
+use crate::parsers::Parser;
+use crate::parsers::{Markdown, MarkdownOptions, PlainEnglish};
 use crate::punctuation::Punctuation;
 use crate::spell::Dictionary;
 use crate::vec_ext::VecExt;
 use crate::{CharStringExt, FatStringToken, FatToken, Lrc, Token, TokenKind, TokenStringExt};
-use crate::{EnglishOrdinalSuffix, Span};
+use crate::{EnglishOrdinalSuffix, LanguageFamily, Span};
 
 /// A document containing some amount of lexed and parsed English text.
 #[derive(Debug, Clone)]
@@ -20,13 +21,18 @@ pub struct Document {
     tokens: Vec<Token>,
 }
 
+/// Tag each word of a sentence with its part of speech, and mark which words are in a noun phrase.
+fn tag_and_chunk(sentence: &[String], language: LanguageFamily) -> (Vec<Option<UPOS>>, Vec<bool>) {
+    language.data().tag_and_chunk(sentence)
+}
+
+/// An empty document, in no particular language.
 impl Default for Document {
     fn default() -> Self {
-        Self::new(
-            "",
-            &PlainEnglish,
-            &crate::lang::en::dictionary::dictionary(),
-        )
+        Self {
+            source: Lrc::from([]),
+            tokens: Vec::new(),
+        }
     }
 }
 
@@ -76,10 +82,20 @@ impl Document {
         parser: &impl Parser,
         dictionary: &impl Dictionary,
     ) -> Self {
+        Self::new_from_parts(source, parser, dictionary, LanguageFamily::English)
+    }
+
+    /// Parses `source` in `language` with `parser`, looking words up in `dictionary`.
+    fn new_from_parts(
+        source: Lrc<[char]>,
+        parser: &impl Parser,
+        dictionary: &impl Dictionary,
+        language: LanguageFamily,
+    ) -> Self {
         let tokens = parser.parse(&source);
 
         let mut document = Self { source, tokens };
-        document.parse(dictionary);
+        document.parse(dictionary, language);
 
         document
     }
@@ -109,11 +125,15 @@ impl Document {
     ///
     /// This avoids running potentially expensive metadata generation code, so this is more
     /// efficient if you don't need that information.
-    pub(crate) fn new_basic_tokenize(text: &str, parser: &impl Parser) -> Self {
+    pub(crate) fn new_basic_tokenize(
+        text: &str,
+        parser: &impl Parser,
+        language: LanguageFamily,
+    ) -> Self {
         let source: Lrc<_> = text.chars().collect();
         let tokens = parser.parse(&source);
         let mut document = Self { source, tokens };
-        document.apply_fixups();
+        document.apply_fixups(Some(language));
         document
     }
 
@@ -165,30 +185,41 @@ impl Document {
         Self::new_markdown(text, MarkdownOptions::default(), dictionary)
     }
 
-    fn apply_fixups(&mut self) {
+    /// Join and adjust tokens the lexer split or got wrong. Some fixups apply to every language,
+    /// such as top-level domains and file names; others only to `language`, such as English's
+    /// "1st" and "R&D".
+    fn apply_fixups(&mut self, language: Option<LanguageFamily>) {
+        let english = match language {
+            Some(LanguageFamily::English) => true,
+            _ => false,
+        };
+
         self.condense_spaces();
         self.condense_newlines();
         self.newlines_to_breaks();
         self.condense_dotted_initialisms();
-        self.condense_number_suffixes();
+        if english {
+            self.condense_number_suffixes();
+        }
         self.condense_ellipsis();
-        self.condense_dotted_truncations();
+        if english {
+            self.condense_dotted_truncations();
+        }
         self.condense_common_top_level_domains();
         self.condense_filename_extensions();
-        self.condense_tldr();
-        self.condense_ampersand_pairs();
-        self.condense_slash_pairs();
+        if english {
+            self.condense_tldr();
+            self.condense_ampersand_pairs();
+            self.condense_slash_pairs();
+        }
         self.match_quotes();
     }
 
     /// Re-parse important language constructs.
     ///
     /// Should be run after every change to the underlying [`Self::source`].
-    fn parse(&mut self, dictionary: &impl Dictionary) {
-        self.apply_fixups();
-
-        let chunker = burn_chunker();
-        let tagger = brill_tagger();
+    fn parse(&mut self, dictionary: &impl Dictionary, language: LanguageFamily) {
+        self.apply_fixups(Some(language));
 
         for sent in self.tokens.iter_sentences_mut() {
             let token_strings: Vec<_> = sent
@@ -197,8 +228,7 @@ impl Document {
                 .map(|t| t.get_str(&self.source))
                 .collect();
 
-            let token_tags = tagger.tag_sentence(&token_strings);
-            let np_flags = chunker.chunk_sentence(&token_strings, &token_tags);
+            let (token_tags, np_flags) = tag_and_chunk(&token_strings, language);
 
             // Annotate DictWord metadata
             let word_sources: Vec<_> = sent

@@ -1,6 +1,5 @@
-use std::{borrow::Cow, cell::RefCell, sync::Arc};
-
 use crate::LanguageFamily;
+use std::{borrow::Cow, cell::RefCell, sync::Arc};
 
 use fst::{IntoStreamer, Map as FstMap, Streamer, map::StreamWithState};
 use hashbrown::HashMap;
@@ -41,7 +40,7 @@ impl PartialEq for FstDictionary {
 }
 
 impl FstDictionary {
-    /// Create a dictionary from the curated dictionary included
+    /// Create a dictionary from the curated English dictionary included
     /// in the Harper binary.
     #[deprecated(note = "use `FstDictionary::curated_for(LanguageFamily::English)`")]
     pub fn curated() -> Arc<Self> {
@@ -254,7 +253,6 @@ impl Dictionary for FstDictionary {
         self.mutable_dict.find_words_with_common_prefix(word)
     }
 }
-
 #[cfg(test)]
 mod tests {
     use itertools::Itertools;

@@ -25,7 +25,8 @@ impl FixedPhrase {
     /// Creates a [`FixedPhrase`] from a plaintext string.
     /// Uses plain English tokenization rules.
     pub fn from_phrase(text: &str) -> Self {
-        let document = Document::new_basic_tokenize(text, &PlainEnglish);
+        let document =
+            Document::new_basic_tokenize(text, &PlainEnglish, crate::LanguageFamily::English);
         Self::from_document(&document)
     }
 
