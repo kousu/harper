@@ -26,13 +26,13 @@ fn tag_and_chunk(sentence: &[String], language: LanguageFamily) -> (Vec<Option<U
     language.data().tag_and_chunk(sentence)
 }
 
+/// An empty document, in no particular language.
 impl Default for Document {
     fn default() -> Self {
-        Self::new(
-            "",
-            &PlainEnglish,
-            &crate::lang::en::dictionary::dictionary(),
-        )
+        Self {
+            source: Lrc::from([]),
+            tokens: Vec::new(),
+        }
     }
 }
 
