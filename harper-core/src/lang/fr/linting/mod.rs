@@ -10,6 +10,15 @@ pub use correct_number_suffix::CorrectNumberSuffix;
 pub use elision::Elision;
 
 use crate::Token;
+use crate::linting::{HumanReadableStructuredConfig, StructuredConfig};
+
+/// French's default rule settings, from `default_config.json` next to this module.
+pub(crate) fn default_config() -> StructuredConfig {
+    let human: HumanReadableStructuredConfig =
+        serde_json::from_str(include_str!("default_config.json")).unwrap();
+
+    human.to_structured_config().unwrap()
+}
 
 /// The word token after `index`, if only a single space separates them.
 fn next_word(tokens: &[Token], index: usize) -> Option<&Token> {
@@ -76,5 +85,36 @@ pub(crate) mod tests {
     pub fn assert_allows(text: &str, mut linter: impl Linter) {
         let lints = linter.lint(&french_document(text));
         assert!(lints.is_empty(), "unexpected lints in {text:?}: {lints:#?}");
+    }
+
+    #[test]
+    fn default_config_lists_every_registered_rule() {
+        use std::collections::BTreeSet;
+
+        fn names(settings: &serde_json::Value, out: &mut BTreeSet<String>) {
+            for setting in settings["settings"].as_array().unwrap() {
+                if let Some(group) = setting.get("Group") {
+                    names(&group["child"], out);
+                } else {
+                    out.insert(setting["Bool"]["name"].as_str().unwrap().to_owned());
+                }
+            }
+        }
+
+        let mut configured = BTreeSet::new();
+        names(
+            &serde_json::from_str(include_str!("default_config.json")).unwrap(),
+            &mut configured,
+        );
+
+        let registered: BTreeSet<String> = crate::linting::LintGroup::new_curated_for_language(
+            crate::spell::MutableDictionary::new().into(),
+            crate::Language::French(crate::FrenchDialect::France),
+        )
+        .iter_keys()
+        .map(str::to_owned)
+        .collect();
+
+        assert_eq!(configured, registered);
     }
 }

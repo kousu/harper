@@ -42,11 +42,8 @@ impl LanguageData for French {
         (vec![None; sentence.len()], vec![false; sentence.len()])
     }
 
-    /// French has no labeled default config yet: all of its rules are on.
     fn default_config(&self) -> StructuredConfig {
-        StructuredConfig {
-            settings: Vec::new(),
-        }
+        linting::default_config()
     }
 
     fn default_flat_config(&self) -> FlatConfig {
