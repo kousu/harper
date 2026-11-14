@@ -1,5 +1,5 @@
 use super::{Lint, LintKind, Linter, Suggestion};
-use crate::{Document, OrdinalSuffix, Span, TokenKind};
+use crate::{Document, EnglishOrdinalSuffix, OrdinalSuffix, Span, TokenKind};
 use crate::{Number, TokenStringExt};
 
 /// Detect incorrect number suffix (e.g. "2st").
@@ -17,10 +17,10 @@ impl Linter for CorrectNumberSuffix {
 
             if let TokenKind::Number(Number {
                 value,
-                suffix: Some(suffix),
+                suffix: Some(OrdinalSuffix::English(suffix)),
                 ..
             }) = number_tok.kind
-                && let Some(correct_suffix) = OrdinalSuffix::correct_suffix_for(value)
+                && let Some(correct_suffix) = EnglishOrdinalSuffix::correct_suffix_for(value)
                 && suffix != correct_suffix
             {
                 output.push(Lint {
