@@ -1,16 +1,19 @@
-use crate::TokenKind;
-use crate::lexing::{FoundToken, lex_base_token};
+use crate::lexing::{FoundToken, lex_base_token, lex_hex_number};
+use crate::{Number, TokenKind};
 
-/// Lex one token of English prose: the shared tokens (see [`lex_base_token`]), plus plural
-/// numbers like "1990s" and "4s".
+/// Lex one token of English prose: the shared tokens (see [`lex_base_token`]), plus decimal
+/// numbers like "3.14" and plural numbers like "1990s" and "4s".
 pub fn lex_english_token(source: &[char]) -> FoundToken {
     lex_english_extras(source).unwrap_or_else(|| lex_base_token(source))
 }
 
-/// The tokens only English has: plural decades like "1990s" and plural digits like "4s".
+/// The tokens only English has: plural decades like "1990s", plural digits like "4s", and
+/// numbers with a decimal point like "3.14".
 pub(crate) fn lex_english_extras(source: &[char]) -> Option<FoundToken> {
     // Before the shared number lexers, which would match only the digits.
-    lex_plural_digit(source).or_else(|| lex_long_decade(source))
+    lex_plural_digit(source)
+        .or_else(|| lex_long_decade(source))
+        .or_else(|| lex_number(source))
 }
 pub(super) fn lex_long_decade(source: &[char]) -> Option<FoundToken> {
     // lex 4-digit decades in their plural such as: 1980s 1990s 2000s 2020s
@@ -64,13 +67,61 @@ pub(super) fn lex_plural_digit(src: &[char]) -> Option<FoundToken> {
     }
     None
 }
+/// Lex a number the way English writes it: digits with an optional decimal point, as in "3.14".
+pub(crate) fn lex_number(source: &[char]) -> Option<FoundToken> {
+    if source.is_empty() {
+        return None;
+    }
+
+    // Hexadecimal numbers are the shared lexer's; this would match only their "0".
+    if lex_hex_number(source).is_some() {
+        return None;
+    }
+
+    if !source[0].is_numeric() {
+        return None;
+    }
+
+    let end = source
+        .iter()
+        .enumerate()
+        .rev()
+        .find_map(|(i, v)| v.is_ascii_digit().then_some(i))?;
+
+    let mut s: String = source[0..end + 1].iter().collect();
+
+    // Find the longest possible valid number
+    while !s.is_empty() {
+        if let Ok(n) = s.parse::<f64>() {
+            let precision = s.chars().rev().position(|c| c == '.').unwrap_or_default();
+
+            if !s.ends_with('.') {
+                return Some(FoundToken {
+                    token: TokenKind::Number(Number {
+                        value: n.into(),
+                        suffix: None,
+                        radix: 10,
+                        precision,
+                    }),
+                    next_index: s.len(),
+                });
+            }
+        }
+
+        s.pop();
+    }
+
+    None
+}
+
 #[cfg(test)]
 mod tests {
+    use super::lex_number;
     use super::{lex_english_token, lex_long_decade, lex_plural_digit};
     use crate::TokenKind;
     use crate::char_string::char_string;
     use crate::lexing::FoundToken;
-    use crate::lexing::{lex_number, lex_word};
+    use crate::lexing::lex_word;
 
     // test various kinds of number
     #[test]

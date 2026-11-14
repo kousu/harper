@@ -58,8 +58,8 @@ fn lex_shared_token(source: &[char]) -> FoundToken {
         lex_tabs,
         lex_spaces,
         lex_newlines,
-        lex_hex_number, // Before lex_number, which would match the initial 0
-        lex_number,
+        lex_hex_number, // Before lex_integer, which would match the initial 0
+        lex_integer,
         lex_url,
         lex_email_address,
         lex_hostname_token,
@@ -98,45 +98,25 @@ pub(crate) fn lex_word(source: &[char]) -> Option<FoundToken> {
     }
 }
 
-pub(crate) fn lex_number(source: &[char]) -> Option<FoundToken> {
-    if source.is_empty() {
+/// Lex a whole number, such as "42". Decimal separators differ between languages ("3.14" in
+/// English, "3,14" in French), so each language's lexer handles decimals itself.
+pub(crate) fn lex_integer(source: &[char]) -> Option<FoundToken> {
+    let len = source.iter().take_while(|c| c.is_ascii_digit()).count();
+    if len == 0 {
         return None;
     }
 
-    if !source[0].is_numeric() {
-        return None;
-    }
+    let digits: String = source[..len].iter().collect();
 
-    let end = source
-        .iter()
-        .enumerate()
-        .rev()
-        .find_map(|(i, v)| v.is_ascii_digit().then_some(i))?;
-
-    let mut s: String = source[0..end + 1].iter().collect();
-
-    // Find the longest possible valid number
-    while !s.is_empty() {
-        if let Ok(n) = s.parse::<f64>() {
-            let precision = s.chars().rev().position(|c| c == '.').unwrap_or_default();
-
-            if !s.ends_with('.') {
-                return Some(FoundToken {
-                    token: TokenKind::Number(Number {
-                        value: n.into(),
-                        suffix: None,
-                        radix: 10,
-                        precision,
-                    }),
-                    next_index: s.len(),
-                });
-            }
-        }
-
-        s.pop();
-    }
-
-    None
+    Some(FoundToken {
+        token: TokenKind::Number(Number {
+            value: digits.parse::<f64>().ok()?.into(),
+            suffix: None,
+            radix: 10,
+            precision: 0,
+        }),
+        next_index: len,
+    })
 }
 
 // Often in comments we mention partial- or pseudo- regexes. Here's an example from Ghidra:
@@ -175,7 +155,7 @@ fn lex_regexish(src: &[char]) -> Option<FoundToken> {
     })
 }
 
-fn lex_hex_number(source: &[char]) -> Option<FoundToken> {
+pub(crate) fn lex_hex_number(source: &[char]) -> Option<FoundToken> {
     // < 3 to avoid accepting 0x alone
     if source.len() < 3 || source[0] != '0' || source[1] != 'x' || !source[2].is_ascii_hexdigit() {
         return None;
@@ -297,6 +277,16 @@ mod tests {
     use super::lex_hex_number;
     use super::{FoundToken, TokenKind};
     use crate::Punctuation;
+
+    /// The shared lexer has no decimal separator: that's each language's. English reads "3.14"
+    /// as one number.
+    #[test]
+    fn decimals_are_each_languages() {
+        let source: Vec<_> = "3.14".chars().collect();
+
+        assert_eq!(super::lex_with(&source, super::lex_base_token).len(), 3);
+        assert_eq!(super::lex_with(&source, lex_english_token).len(), 1);
+    }
 
     #[test]
     fn lexes_youtube_as_hostname() {
