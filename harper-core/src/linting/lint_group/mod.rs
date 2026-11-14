@@ -750,6 +750,13 @@ mod french_tests {
     }
 
     #[test]
+    fn french_group_accepts_french_numbers() {
+        assert!(
+            french_lints("Le 1er janvier, la 2e fois, le 3ème jour et 3,14 mètres.").is_empty()
+        );
+    }
+
+    #[test]
     fn french_group_has_only_spell_check() {
         use crate::{FrenchDialect, LanguageFamily};
 

@@ -3,6 +3,7 @@
 pub(crate) mod dialect;
 pub(crate) mod dictionary;
 pub(crate) mod lexing;
+pub(crate) mod ordinal;
 
 use std::sync::Arc;
 

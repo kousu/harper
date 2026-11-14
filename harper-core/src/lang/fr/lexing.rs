@@ -1,6 +1,7 @@
+use super::ordinal::FrenchOrdinalSuffix;
 use crate::char_ext::CharExt;
-use crate::lexing::{FoundToken, Lexer, lex_base_token, lex_punctuation, lex_with};
-use crate::{Token, TokenKind};
+use crate::lexing::{FoundToken, Lexer, lex_base_token, lex_hex_number, lex_punctuation, lex_with};
+use crate::{Number, Token, TokenKind};
 
 /// Elided words that French splits off the following word, as in "l'homme" → "l'" + "homme".
 ///
@@ -14,11 +15,61 @@ const KEPT_WHOLE: &[&str] = &["l'on"];
 
 /// Lex one token of French text.
 ///
-/// The shared tokens (see [`lex_base_token`]), except that an elided word and its apostrophe
-/// ("l'", "qu'", "jusqu'") becomes its own word, as in the Universal Dependencies French
-/// treebank.
+/// The shared tokens (see [`lex_base_token`]), except that:
+/// - an elided word and its apostrophe ("l'", "qu'", "jusqu'") becomes its own word, as in the
+///   Universal Dependencies French treebank;
+/// - numbers are written the French way: "3,14", and ordinals like "1er" and "2e".
 pub fn lex_french_token(source: &[char]) -> FoundToken {
-    lex_elision(source).unwrap_or_else(|| lex_base_token(source))
+    lex_elision(source)
+        .or_else(|| lex_french_number(source))
+        .unwrap_or_else(|| lex_base_token(source))
+}
+
+/// Lex a number the way French writes it: digits with an optional decimal comma ("3,14"), or a
+/// whole number with an ordinal suffix ("1er", "2e", "2nde").
+fn lex_french_number(source: &[char]) -> Option<FoundToken> {
+    // Hexadecimal numbers are the shared lexer's; this would match only their "0".
+    if lex_hex_number(source).is_some() {
+        return None;
+    }
+
+    let whole = source.iter().take_while(|c| c.is_ascii_digit()).count();
+    if whole == 0 {
+        return None;
+    }
+
+    let fraction = match source.get(whole) {
+        Some(',') => source[whole + 1..]
+            .iter()
+            .take_while(|c| c.is_ascii_digit())
+            .count(),
+        _ => 0,
+    };
+    let len = if fraction > 0 {
+        whole + 1 + fraction
+    } else {
+        whole
+    };
+
+    let digits: String = source[..len]
+        .iter()
+        .map(|&c| if c == ',' { '.' } else { c })
+        .collect();
+    let value: f64 = digits.parse().ok()?;
+
+    let suffix = (fraction == 0)
+        .then(|| FrenchOrdinalSuffix::lex(&source[len..]))
+        .flatten();
+
+    Some(FoundToken {
+        token: TokenKind::Number(Number {
+            value: value.into(),
+            suffix: suffix.map(|(suffix, _)| suffix.into()),
+            radix: 10,
+            precision: fraction,
+        }),
+        next_index: len + suffix.map_or(0, |(_, suffix_len)| suffix_len),
+    })
 }
 
 fn lex_elision(source: &[char]) -> Option<FoundToken> {
@@ -68,7 +119,8 @@ fn starts_with_kept_whole(source: &[char]) -> bool {
 }
 
 /// A lexer for French prose. It is like [`PlainEnglish`](crate::lexers::PlainEnglish), except
-/// that elided words ("l'", "qu'", "jusqu'") are words of their own (see `lex_french_token`).
+/// that elided words ("l'", "qu'", "jusqu'") are words of their own and numbers are written the
+/// French way (see `lex_french_token`).
 ///
 /// To check French in other file formats, build their parsers with
 /// [`LanguageFamily::French`](crate::LanguageFamily::French), as in
@@ -98,6 +150,45 @@ mod tests {
             .filter(|t| t.kind.is_word())
             .map(|t| t.span.get_content_string(&source))
             .collect()
+    }
+
+    fn numbers(text: &str) -> Vec<crate::Number> {
+        let source: Vec<char> = text.chars().collect();
+        lex_with(&source, lex_french_token)
+            .into_iter()
+            .filter_map(|t| t.kind.as_number().copied())
+            .collect()
+    }
+
+    #[test]
+    fn lexes_decimal_commas() {
+        let numbers = numbers("3,14 et 1,5");
+        assert_eq!(numbers.len(), 2);
+        assert_eq!(numbers[0].value.0, 3.14);
+        assert_eq!(numbers[0].precision, 2);
+        assert_eq!(numbers[1].value.0, 1.5);
+    }
+
+    #[test]
+    fn lexes_ordinals_as_one_number() {
+        use crate::{FrenchOrdinalSuffix as S, OrdinalSuffix};
+
+        let suffixes: Vec<_> = numbers("le 1er, la 1re, la 2e, le 3ème, la 2nde")
+            .into_iter()
+            .map(|n| n.suffix)
+            .collect();
+        assert_eq!(
+            suffixes,
+            [S::Er, S::Re, S::E, S::Eme, S::Nde].map(|s| Some(OrdinalSuffix::French(s)))
+        );
+        assert!(words("le 1er janvier").iter().all(|w| w != "er"));
+    }
+
+    #[test]
+    fn keeps_numbers_and_words_apart() {
+        assert_eq!(numbers("10 euros")[0].suffix, None);
+        assert_eq!(words("10 euros"), ["euros"]);
+        assert_eq!(numbers("0x1F")[0].radix, 16);
     }
 
     #[test]
