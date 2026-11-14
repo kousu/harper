@@ -51,6 +51,13 @@ pub(crate) trait SpellingConventions: LSend {
     }
 }
 
+/// Spelling conventions with nothing language-specific, for languages that have none yet.
+#[cfg(feature = "fr")]
+pub(crate) struct PlainSpelling;
+
+#[cfg(feature = "fr")]
+impl SpellingConventions for PlainSpelling {}
+
 pub struct SpellCheck<T, C>
 where
     T: Dictionary,

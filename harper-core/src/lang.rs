@@ -1,5 +1,7 @@
 #[cfg(feature = "en")]
 pub mod en;
+#[cfg(feature = "fr")]
+pub(crate) mod fr;
 mod language_data;
 
 pub(crate) use language_data::LanguageData;
@@ -9,6 +11,8 @@ use strum_macros::{Display, EnumDiscriminants, EnumIter, EnumString};
 
 #[cfg(feature = "en")]
 use crate::EnglishDialect;
+#[cfg(feature = "fr")]
+use crate::FrenchDialect;
 use crate::Lrc;
 use crate::lexers::Lexer;
 
@@ -20,11 +24,16 @@ use crate::lexers::Lexer;
 #[strum_discriminants(
     name(LanguageFamily),
     derive(Display, EnumString, EnumIter, Hash, Serialize, Deserialize),
-    doc = "A natural language Harper can check, without its regional variant."
+    doc = "A natural language Harper can check, without its regional variant.",
+    non_exhaustive
 )]
+#[non_exhaustive]
 pub enum Language {
     #[cfg(feature = "en")]
     English(EnglishDialect),
+    /// Experimental; needs the `fr` feature.
+    #[cfg(feature = "fr")]
+    French(FrenchDialect),
 }
 
 impl Language {
@@ -57,7 +66,7 @@ impl Language {
     /// # }
     /// assert!(Language::try_from_names("xx", None).is_err());
     /// ```
-    #[cfg_attr(not(feature = "en"), allow(unused_variables))]
+    #[cfg_attr(not(any(feature = "en", feature = "fr")), allow(unused_variables))]
     pub fn try_from_names(
         language: &str,
         dialect: Option<&str>,
@@ -83,18 +92,26 @@ impl Language {
                 Some(d) => EnglishDialect::try_from_name(d).ok_or_else(|| unknown_dialect(d))?,
                 None => EnglishDialect::American,
             })),
+            #[cfg(feature = "fr")]
+            LanguageFamily::French => Ok(Self::French(match dialect {
+                Some(d) => FrenchDialect::try_from_name(d).ok_or_else(|| unknown_dialect(d))?,
+                None => FrenchDialect::default(),
+            })),
         }
     }
 }
 
 impl LanguageFamily {
     /// Tries to get a language from its name or ISO 639 code, in any case: "English", "en" or
-    /// "eng". Returns `None` if the name is not recognized.
+    /// "eng"; with the `fr` feature, "French", "Français", "fr", "fra" or "fre". Returns `None` if
+    /// the name is not recognized.
     #[must_use]
     pub fn try_from_name(name: &str) -> Option<Self> {
         match name.to_lowercase().as_str() {
             #[cfg(feature = "en")]
             n if ENGLISH_NAMES.contains(&n) => Some(Self::English),
+            #[cfg(feature = "fr")]
+            n if FRENCH_NAMES.contains(&n) => Some(Self::French),
             _ => None,
         }
     }
@@ -107,6 +124,8 @@ impl LanguageFamily {
         match self {
             #[cfg(feature = "en")]
             Self::English => &en::English,
+            #[cfg(feature = "fr")]
+            Self::French => &fr::French,
         }
     }
 }
@@ -114,10 +133,13 @@ impl LanguageFamily {
 /// How English can be named: its name and its ISO 639 codes.
 const ENGLISH_NAMES: &[&str] = &["en", "eng", "english"];
 
+/// How French can be named: its English and French names and its ISO 639 codes.
+const FRENCH_NAMES: &[&str] = &["fr", "fra", "fre", "french", "français", "francais"];
+
 /// Every language Harper knows, whether or not this build includes it, with the names it can be
 /// written as (lowercase). A name found here but not in [`LanguageFamily::try_from_name`] belongs
 /// to a language this build leaves out.
-const KNOWN_LANGUAGES: &[(&str, &[&str])] = &[("English", ENGLISH_NAMES)];
+const KNOWN_LANGUAGES: &[(&str, &[&str])] = &[("English", ENGLISH_NAMES), ("French", FRENCH_NAMES)];
 
 /// Why [`Language::try_from_names`] didn't recognize a language or dialect.
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
@@ -200,6 +222,14 @@ mod tests {
         );
     }
 
+    #[cfg(not(feature = "fr"))]
+    #[test]
+    fn french_needs_the_feature() {
+        let error = Language::try_from_names("fr", None).unwrap_err();
+        assert_eq!(error, LanguageNameError::NotInThisBuild("French"));
+        assert_eq!(error.to_string(), "This build has no French support.");
+    }
+
     #[test]
     fn unknown_names_are_errors() {
         assert_eq!(
@@ -270,5 +300,176 @@ mod without_english_tests {
         let error = Language::try_from_names("en", None).unwrap_err();
         assert_eq!(error, LanguageNameError::NotInThisBuild("English"));
         assert_eq!(error.to_string(), "This build has no English support.");
+    }
+}
+
+#[cfg(all(test, feature = "fr"))]
+mod french_tests {
+    use super::{FrenchDialect, Language, LanguageFamily, LanguageNameError};
+
+    #[test]
+    fn french_words_have_french_dialects() {
+        use crate::DictWordMetadata;
+
+        let quebecois = DictWordMetadata {
+            dialects: Some(FrenchDialect::Canada.into()),
+            ..Default::default()
+        };
+        assert!(quebecois.allows_language(Language::French(FrenchDialect::Canada)));
+        assert!(!quebecois.allows_language(Language::French(FrenchDialect::France)));
+    }
+
+    /// English's fixups, such as joining "R&D" into one word, don't apply to French text.
+    #[test]
+    fn english_fixups_skip_french_text() {
+        use crate::Document;
+
+        let french = Document::new_with_language("R&D", LanguageFamily::French);
+        assert_eq!(french.get_tokens().len(), 3);
+
+        #[cfg(feature = "en")]
+        {
+            let english = Document::new_with_language("R&D", LanguageFamily::English);
+            assert_eq!(english.get_tokens().len(), 1);
+        }
+    }
+
+    /// User dictionaries tag their words with the language being checked, so a French user's
+    /// words must count as French.
+    #[test]
+    fn a_language_tags_words_as_its_own() {
+        use crate::WordDialects;
+
+        let canada = Language::French(FrenchDialect::Canada);
+        let dialects = WordDialects::from(canada);
+        assert!(dialects.allows(canada));
+        assert!(!dialects.allows(Language::French(FrenchDialect::France)));
+        #[cfg(feature = "en")]
+        assert!(!dialects.allows(Language::English(crate::EnglishDialect::American)));
+    }
+
+    #[cfg(feature = "en")]
+    #[test]
+    fn french_and_english_dialects_dont_mix() {
+        use crate::{DictWordMetadata, EnglishDialect, WordDialects};
+
+        let quebecois = DictWordMetadata {
+            dialects: Some(FrenchDialect::Canada.into()),
+            ..Default::default()
+        };
+        assert!(!quebecois.allows_language(Language::English(EnglishDialect::Canadian)));
+
+        let british = WordDialects::from(EnglishDialect::British);
+        assert!(!british.allows(Language::French(FrenchDialect::France)));
+        assert_eq!(british.union(FrenchDialect::Belgium.into()), british);
+    }
+
+    #[test]
+    fn french_dialects_read_from_annotation_strings() {
+        use crate::{FrenchDialectFlags, WordDialects};
+
+        let dialects: WordDialects = serde_json::from_str(r#""CANADA | BELGIUM""#).unwrap();
+        assert_eq!(
+            dialects,
+            WordDialects::French(FrenchDialectFlags::CANADA | FrenchDialectFlags::BELGIUM)
+        );
+        assert_eq!(
+            serde_json::to_string(&dialects).unwrap(),
+            r#""CANADA | BELGIUM""#
+        );
+    }
+
+    #[test]
+    fn french_from_name_or_code() {
+        for name in ["fr", "FR", "fra", "fre", "French", "français", "Francais"] {
+            assert_eq!(
+                LanguageFamily::try_from_name(name),
+                Some(LanguageFamily::French),
+                "{name}"
+            );
+        }
+    }
+
+    #[test]
+    fn french_dialect_from_name() {
+        for (name, dialect) in [
+            ("France", FrenchDialect::France),
+            ("fr_FR", FrenchDialect::France),
+            ("ca", FrenchDialect::Canada),
+            ("Québec", FrenchDialect::Canada),
+            ("fr-CA", FrenchDialect::Canada),
+            ("Belgique", FrenchDialect::Belgium),
+            ("be", FrenchDialect::Belgium),
+            ("Suisse", FrenchDialect::Switzerland),
+            ("CH", FrenchDialect::Switzerland),
+        ] {
+            assert_eq!(FrenchDialect::try_from_name(name), Some(dialect), "{name}");
+        }
+        assert_eq!(FrenchDialect::try_from_name("uk"), None);
+    }
+
+    #[test]
+    fn french_from_names() {
+        assert_eq!(
+            Language::try_from_names("fr", Some("ca")),
+            Ok(Language::French(FrenchDialect::Canada))
+        );
+        assert_eq!(
+            Language::try_from_names("French", None),
+            Ok(Language::French(FrenchDialect::France))
+        );
+    }
+
+    #[test]
+    fn english_dialect_is_not_french() {
+        assert_eq!(
+            Language::try_from_names("fr", Some("British")),
+            Err(LanguageNameError::UnknownDialect {
+                family: LanguageFamily::French,
+                dialect: "British".to_owned()
+            })
+        );
+    }
+
+    #[test]
+    fn french_family() {
+        assert_eq!(
+            Language::French(FrenchDialect::Canada).family(),
+            LanguageFamily::French
+        );
+    }
+
+    #[test]
+    fn french_defaults_to_france() {
+        assert_eq!(FrenchDialect::default(), FrenchDialect::France);
+    }
+
+    #[test]
+    fn french_round_trips_through_json() {
+        let language = Language::French(FrenchDialect::Belgium);
+        let json = serde_json::to_string(&language).unwrap();
+
+        assert_eq!(json, r#"{"French":"Belgium"}"#);
+        assert_eq!(serde_json::from_str::<Language>(&json).unwrap(), language);
+    }
+}
+
+#[cfg(all(test, feature = "en"))]
+mod document_tests {
+    use super::LanguageFamily;
+    use crate::Document;
+    use crate::parsers::Markdown;
+
+    #[test]
+    fn english_document_matches_default() {
+        let text = "# Title\n\nI can't see the *tree*.";
+        let english = Document::new_with_parser_and_language(
+            text,
+            &Markdown::default(),
+            LanguageFamily::English,
+        );
+        let default = Document::new_with_parser(text, &Markdown::default());
+
+        assert_eq!(english.get_tokens(), default.get_tokens());
     }
 }

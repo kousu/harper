@@ -121,3 +121,34 @@ fn unknown_language_is_an_error_for_every_subcommand() {
     assert!(!output.status.success());
     assert!(String::from_utf8_lossy(&output.stderr).contains("Unknown language: xx"));
 }
+
+#[cfg(feature = "fr")]
+#[test]
+fn french_only_spell_checks() {
+    // "an" before a consonant is an English `AnA` lint; French gets only spell checking.
+    for args in [
+        &["--language", "fr"][..],
+        &["--language", "French", "--dialect", "ca"],
+    ] {
+        let found = lints(args, "Un an plus tard.");
+        assert!(
+            found.iter().all(|(rule, _)| rule == "SpellCheck"),
+            "{found:?}"
+        );
+    }
+}
+
+#[cfg(feature = "fr")]
+#[test]
+fn unknown_french_dialect_is_an_error() {
+    assert!(
+        lint_error(&["--language", "fr", "--dialect", "us"])
+            .contains("Invalid dialect 'us' for French")
+    );
+}
+
+#[cfg(not(feature = "fr"))]
+#[test]
+fn french_needs_the_feature() {
+    assert!(lint_error(&["--language", "fr"]).contains("This build has no French support."));
+}
