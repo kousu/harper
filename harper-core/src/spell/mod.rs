@@ -4,7 +4,9 @@
 use itertools::Itertools;
 use smallvec::ToSmallVec;
 
-use crate::{CharString, CharStringExt, DictWordMetadata, EnglishDialect, LanguageFamily};
+use crate::{
+    CharString, CharStringExt, DictWordMetadata, EnglishDialect, Language, LanguageFamily,
+};
 
 pub use self::dictionary::Dictionary;
 pub use self::fst_dictionary::FstDictionary;
@@ -196,7 +198,7 @@ pub fn spelling_candidates(
         word,
         dictionary,
         limit,
-        |meta| meta.dialects.is_dialect_enabled(dialect),
+        |meta| meta.allows_language(Language::English(dialect)),
         |misspelled, suggestion, distance| data.score_adjustment(misspelled, suggestion, distance),
     )
 }

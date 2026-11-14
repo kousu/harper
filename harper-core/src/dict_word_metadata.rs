@@ -1,11 +1,12 @@
-use crate::EnglishDialectFlags;
-use crate::dict_word_metadata_orthography::OrthFlags;
 use harper_brill::UPOS;
 use is_macro::Is;
 use itertools::Itertools;
 use paste::paste;
 use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
+
+use crate::dict_word_metadata_orthography::OrthFlags;
+use crate::{EnglishDialect, EnglishDialectFlags, Language};
 
 pub mod derived_from;
 use derived_from::DerivedFrom;
@@ -32,11 +33,11 @@ pub struct DictWordMetadata {
     pub swear: Option<bool>,
     /// Whether the word is an abbreviation of any kind.
     pub abbreviation: Option<bool>,
-    /// The dialects this word belongs to.
+    /// The language of this word and the dialects of it the word belongs to.
     /// If no dialects are defined, it can be assumed that the word is
-    /// valid in all dialects of English.
-    #[serde(default = "default_default")]
-    pub dialects: EnglishDialectFlags,
+    /// valid in all dialects of its language.
+    #[serde(default)]
+    pub dialects: Option<WordDialects>,
     /// Orthographic information: letter case, spaces, hyphens, etc.
     #[serde(default = "OrthFlags::empty")]
     pub orth_info: OrthFlags,
@@ -850,7 +851,10 @@ impl DictWordMetadata {
         self.determiner = merge!(self.determiner, other.determiner);
         self.affix = merge!(self.affix, other.affix);
         self.preposition |= other.preposition;
-        self.dialects |= other.dialects;
+        self.dialects = match (self.dialects, other.dialects) {
+            (Some(a), Some(b)) => Some(a.union(b)),
+            (a, b) => a.or(b),
+        };
         self.orth_info |= other.orth_info;
         self.swear = self.swear.or(other.swear);
         self.abbreviation = self.abbreviation.or(other.abbreviation);
@@ -1097,6 +1101,77 @@ impl AffixData {
     }
 }
 
+/// The language a word belongs to, with the dialects of that language it belongs to.
+///
+/// Each language has its own set of dialect flags. An empty set means every dialect of the
+/// language.
+///
+/// It serializes as its flags alone, like `"AMERICAN | BRITISH"`, as dictionary annotations
+/// write it. Each language's flag names are distinct, so they say which language it is.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, PartialOrd, Eq, Hash)]
+#[serde(untagged)]
+#[non_exhaustive]
+pub enum WordDialects {
+    English(EnglishDialectFlags),
+}
+
+impl WordDialects {
+    /// Whether a word with these dialects belongs to `language`: it is a word of that language,
+    /// and either in `language`'s dialect or in no particular dialect.
+    #[must_use]
+    pub fn allows(self, language: Language) -> bool {
+        match (self, language) {
+            (Self::English(flags), Language::English(dialect)) => flags.is_dialect_enabled(dialect),
+        }
+    }
+
+    /// The dialects in either `self` or `other`. If they are of different languages, `self` wins.
+    #[must_use]
+    pub fn union(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::English(a), Self::English(b)) => Self::English(a | b),
+        }
+    }
+
+    /// The English dialects, if this is an English word.
+    #[must_use]
+    pub fn english(self) -> Option<EnglishDialectFlags> {
+        match self {
+            Self::English(flags) => Some(flags),
+        }
+    }
+}
+
+impl From<EnglishDialectFlags> for WordDialects {
+    fn from(flags: EnglishDialectFlags) -> Self {
+        Self::English(flags)
+    }
+}
+
+impl From<EnglishDialect> for WordDialects {
+    fn from(dialect: EnglishDialect) -> Self {
+        Self::English(EnglishDialectFlags::from_dialect(dialect))
+    }
+}
+
+/// A word of `language`, in its dialect only.
+impl From<Language> for WordDialects {
+    fn from(language: Language) -> Self {
+        match language {
+            Language::English(dialect) => dialect.into(),
+        }
+    }
+}
+
+impl DictWordMetadata {
+    /// Whether this word belongs to `language`: see [`WordDialects::allows`]. A word with no
+    /// dialects belongs to every language and dialect, as words did before they had a language.
+    #[must_use]
+    pub fn allows_language(&self, language: Language) -> bool {
+        self.dialects.is_none_or(|d| d.allows(language))
+    }
+}
+
 #[cfg(test)]
 pub mod tests {
     use crate::DictWordMetadata;
@@ -1110,9 +1185,96 @@ pub mod tests {
             .into_owned()
     }
 
+    mod word_dialects {
+        use super::super::{EnglishDialect, EnglishDialectFlags, WordDialects};
+        use crate::{DictWordMetadata, Language};
+
+        #[test]
+        fn reads_annotation_strings() {
+            let dialects: WordDialects = serde_json::from_str(r#""AMERICAN | BRITISH""#).unwrap();
+
+            assert_eq!(
+                dialects,
+                WordDialects::English(EnglishDialectFlags::AMERICAN | EnglishDialectFlags::BRITISH)
+            );
+            assert_eq!(
+                serde_json::to_string(&dialects).unwrap(),
+                r#""AMERICAN | BRITISH""#
+            );
+        }
+
+        #[test]
+        fn metadata_without_dialects_reads_as_none() {
+            let metadata: DictWordMetadata = serde_json::from_str("{}").unwrap();
+            assert_eq!(metadata.dialects, None);
+
+            let metadata: DictWordMetadata =
+                serde_json::from_str(r#"{ "dialects": "CANADIAN" }"#).unwrap();
+            assert_eq!(metadata.dialects, Some(EnglishDialect::Canadian.into()));
+        }
+
+        #[test]
+        fn allows_its_dialects_only() {
+            let dialects = WordDialects::from(EnglishDialect::British);
+
+            assert!(dialects.allows(Language::English(EnglishDialect::British)));
+            assert!(!dialects.allows(Language::English(EnglishDialect::American)));
+            assert!(
+                WordDialects::English(EnglishDialectFlags::empty())
+                    .allows(Language::English(EnglishDialect::Indian))
+            );
+        }
+
+        #[test]
+        fn word_without_dialects_allows_every_language() {
+            let metadata = DictWordMetadata::default();
+
+            assert!(metadata.allows_language(Language::English(EnglishDialect::Australian)));
+        }
+
+        #[test]
+        fn union_of_english_dialects() {
+            let a = WordDialects::from(EnglishDialect::Australian);
+            let b = WordDialects::from(EnglishDialect::Canadian);
+
+            assert_eq!(
+                a.union(b),
+                WordDialects::English(
+                    EnglishDialectFlags::AUSTRALIAN | EnglishDialectFlags::CANADIAN
+                )
+            );
+        }
+
+        #[test]
+        fn merging_metadata_unions_dialects() {
+            let mut a = DictWordMetadata {
+                dialects: Some(EnglishDialect::American.into()),
+                ..Default::default()
+            };
+            a.merge(&DictWordMetadata {
+                dialects: Some(EnglishDialect::Indian.into()),
+                ..Default::default()
+            });
+            assert_eq!(
+                a.dialects,
+                Some(WordDialects::English(
+                    EnglishDialectFlags::AMERICAN | EnglishDialectFlags::INDIAN
+                ))
+            );
+
+            a.merge(&DictWordMetadata::default());
+            assert_eq!(
+                a.dialects
+                    .and_then(WordDialects::english)
+                    .map(|d| d.bits().count_ones()),
+                Some(2)
+            );
+        }
+    }
+
     mod dialect {
+        use super::super::{EnglishDialect, EnglishDialectFlags};
         use crate::Document;
-        use crate::{EnglishDialect, EnglishDialectFlags};
 
         #[test]
         fn guess_british_dialect() {

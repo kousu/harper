@@ -742,7 +742,6 @@ use vicious_loop::{ViciousCircle, ViciousCircleOrCycle, ViciousCycle};
 use crate::linting::spell_check::SpellCheck;
 use dashes::Dashes;
 // The shared linting framework, which the rules reach through `super::`.
-use crate::EnglishDialect;
 #[cfg(test)]
 use crate::linting::tests;
 use crate::linting::{
@@ -750,6 +749,7 @@ use crate::linting::{
     MapPhraseLinter, MapPhraseSetLinter, StructuredConfig, Suggestion, expr_linter, merge_linters,
 };
 use crate::spell::Dictionary;
+use crate::{EnglishDialect, Language};
 
 /// English's curated rules for `dialect`, with their default settings.
 pub(crate) fn new_curated(
@@ -1223,7 +1223,7 @@ impl LintGroup {
             "SpellCheck",
             SpellCheck::new(
                 dictionary.clone(),
-                dialect,
+                Language::English(dialect),
                 spell_check::EnglishSpelling::new(),
             ),
         );

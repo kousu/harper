@@ -6,7 +6,7 @@ pub use weirpack::InstalledWeirpack;
 use crate::{PlatformBroker, os_broker::OsBroker};
 pub use error::Error;
 use harper_core::{
-    EnglishDialect, IgnoredLints,
+    EnglishDialect, IgnoredLints, Language,
     linting::{FlatConfig, LintGroup},
     spell::{FstDictionary, MergedDictionary, MutableDictionary},
 };
@@ -162,7 +162,8 @@ impl Config {
         let serialized = fs::read_to_string(main_path)?;
         let mut config = Self::deserialize_main(&serialized)?;
         config.lint_config.fill_with_curated();
-        config.mutable_dictionary = load_dict(dictionary_path, config.dialect).await?;
+        config.mutable_dictionary =
+            load_dict(dictionary_path, Language::English(config.dialect)).await?;
 
         Ok(config)
     }
