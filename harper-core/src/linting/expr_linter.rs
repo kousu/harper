@@ -243,7 +243,7 @@ pub fn surrounded_by_words(
     false
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests_context {
     use crate::expr::{Expr, FixedPhrase};
     use crate::linting::expr_linter::{Chunk, Sentence};

@@ -3,6 +3,7 @@ use std::fmt::Display;
 use ordered_float::OrderedFloat;
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "en")]
 use crate::EnglishOrdinalSuffix;
 
 /// Represents a written number.
@@ -43,6 +44,7 @@ impl Display for Number {
 #[serde(untagged)]
 #[non_exhaustive]
 pub enum OrdinalSuffix {
+    #[cfg(feature = "en")]
     English(EnglishOrdinalSuffix),
 }
 
@@ -50,12 +52,14 @@ impl OrdinalSuffix {
     /// The suffix as written.
     pub const fn to_chars(self) -> &'static [char] {
         match self {
+            #[cfg(feature = "en")]
             Self::English(suffix) => suffix.to_chars(),
         }
     }
 }
 
 /// The old English variants, for code written before suffixes had a language.
+#[cfg(feature = "en")]
 #[allow(non_upper_case_globals)]
 impl OrdinalSuffix {
     #[deprecated(note = "use `OrdinalSuffix::English(EnglishOrdinalSuffix::Th)`")]
@@ -78,6 +82,7 @@ impl OrdinalSuffix {
     }
 }
 
+#[cfg(feature = "en")]
 impl From<EnglishOrdinalSuffix> for OrdinalSuffix {
     fn from(suffix: EnglishOrdinalSuffix) -> Self {
         Self::English(suffix)
@@ -88,6 +93,7 @@ impl From<EnglishOrdinalSuffix> for OrdinalSuffix {
 mod tests {
     use ordered_float::OrderedFloat;
 
+    #[cfg(feature = "en")]
     use crate::EnglishOrdinalSuffix;
 
     use super::Number;
@@ -120,6 +126,7 @@ mod tests {
         )
     }
 
+    #[cfg(feature = "en")]
     #[test]
     fn decimal_fifteen_suffix() {
         assert_eq!(
@@ -134,6 +141,7 @@ mod tests {
         )
     }
 
+    #[cfg(feature = "en")]
     /// Suffixes serialize as they did before they had a language.
     #[test]
     fn suffix_serializes_as_before() {

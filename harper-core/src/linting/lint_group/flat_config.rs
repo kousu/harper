@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 use std::hash::{Hash, Hasher};
-#[cfg(feature = "en")]
 use std::mem;
 
 use hashbrown::HashMap;

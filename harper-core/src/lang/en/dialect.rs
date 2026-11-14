@@ -1,13 +1,10 @@
 //! The regional dialects of English.
 
-#[cfg(feature = "en")]
 use itertools::Itertools as _;
 use serde::{Deserialize, Serialize};
-#[cfg(feature = "en")]
 use strum::{EnumCount as _, VariantArray as _};
 use strum_macros::{Display, EnumCount, EnumIter, EnumString, VariantArray};
 
-#[cfg(feature = "en")]
 use crate::{Document, Language, TokenKind, TokenStringExt};
 
 /// A regional dialect of English.
@@ -42,7 +39,6 @@ impl EnglishDialect {
     /// Tries to guess the dialect used in the document by finding which dialect is used the most.
     /// Returns `None` if it fails to find a single dialect that is used the most.
     #[must_use]
-    #[cfg(feature = "en")]
     pub fn try_guess_from_document(document: &Document) -> Option<Self> {
         Self::try_from(EnglishDialectFlags::get_most_used_dialects_from_document(
             document,
@@ -203,7 +199,6 @@ impl EnglishDialectFlags {
     /// `EnglishDialectFlags`. On the other hand, if there is a single dialect that is used the most, it
     /// will be the only one enabled.
     #[must_use]
-    #[cfg(feature = "en")]
     pub fn get_most_used_dialects_from_document(document: &Document) -> Self {
         // Initialize counters.
         let mut dialect_counters: [(EnglishDialect, usize); EnglishDialect::COUNT] =

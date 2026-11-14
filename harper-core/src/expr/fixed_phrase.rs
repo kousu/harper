@@ -9,12 +9,14 @@ use super::{Expr, SequenceExpr};
 /// # Example
 ///
 /// ```rust
+/// # #[cfg(feature = "en")] {
 /// use harper_core::expr::{FixedPhrase, Expr};
 /// use harper_core::{Document, LanguageFamily};
 ///
 /// let doc = Document::new_plain_english_curated("Hello, world!");
 /// let phrase = FixedPhrase::from_phrase_for("Hello, world!", LanguageFamily::English);
 /// assert!(phrase.run(0, doc.get_tokens(), doc.get_source()).is_some());
+/// # }
 /// ```
 pub struct FixedPhrase {
     inner: SequenceExpr,
@@ -70,7 +72,7 @@ impl Expr for FixedPhrase {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::FixedPhrase;
     use crate::expr::Expr;

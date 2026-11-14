@@ -243,7 +243,7 @@ impl Parser for OrgMode {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::super::StrParser;
     use super::OrgMode;

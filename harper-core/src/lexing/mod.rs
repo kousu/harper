@@ -1,4 +1,5 @@
 mod email_address;
+#[cfg(feature = "en")]
 use crate::lang::en::lexing as english;
 mod hostname;
 mod url;
@@ -7,6 +8,7 @@ use hostname::lex_hostname_token;
 use ordered_float::OrderedFloat;
 use url::lex_url;
 
+#[cfg(feature = "en")]
 pub use english::lex_english_token;
 
 use self::email_address::lex_email_address;
@@ -70,10 +72,14 @@ fn lex_shared_token(source: &[char]) -> FoundToken {
     .unwrap_or_else(lex_catch)
 }
 
-/// Lex one token of a Weir rule. It lexes "1990s" and "4s" as English does, so rules match
-/// English text.
+/// Lex one token of a Weir rule. With English built in, it also lexes "1990s" and "4s" as
+/// English does, so rules match English text.
 pub fn lex_weir_token(source: &[char]) -> FoundToken {
-    english::lex_english_extras(source).unwrap_or_else(|| lex_shared_token(source))
+    #[cfg(feature = "en")]
+    if let Some(token) = english::lex_english_extras(source) {
+        return token;
+    }
+    lex_shared_token(source)
 }
 
 pub(crate) fn lex_word(source: &[char]) -> Option<FoundToken> {
@@ -271,7 +277,7 @@ fn lex_catch() -> FoundToken {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::lex_english_token;
     use super::lex_hex_number;

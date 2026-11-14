@@ -292,7 +292,7 @@ impl Parser for Markdown {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "en"))]
 mod tests {
     use super::super::StrParser;
     use super::Markdown;

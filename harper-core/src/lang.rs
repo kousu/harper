@@ -1,3 +1,4 @@
+#[cfg(feature = "en")]
 pub mod en;
 mod language_data;
 
@@ -38,7 +39,10 @@ impl Language {
     /// # Examples
     ///
     /// ```
-    /// use harper_core::{EnglishDialect, Language};
+    /// use harper_core::Language;
+    ///
+    /// # #[cfg(feature = "en")] {
+    /// use harper_core::EnglishDialect;
     ///
     /// assert_eq!(
     ///     Language::try_from_names("en", Some("uk")),
@@ -48,8 +52,10 @@ impl Language {
     ///     Language::try_from_names("English", None),
     ///     Ok(Language::English(EnglishDialect::American))
     /// );
+    /// # }
     /// assert!(Language::try_from_names("xx", None).is_err());
     /// ```
+    #[cfg_attr(not(feature = "en"), allow(unused_variables))]
     pub fn try_from_names(
         language: &str,
         dialect: Option<&str>,
@@ -97,6 +103,7 @@ impl LanguageFamily {
     /// build includes: everything else asks the language for its data.
     pub(crate) fn data(self) -> &'static dyn LanguageData {
         match self {
+            #[cfg(feature = "en")]
             Self::English => &en::English,
         }
     }
@@ -125,9 +132,6 @@ pub enum LanguageNameError {
         dialect: String,
     },
 }
-
-#[cfg(not(feature = "en"))]
-compile_error!("harper-core needs at least one language: enable the `en` feature.");
 
 #[cfg(all(test, feature = "en"))]
 mod tests {
@@ -244,5 +248,17 @@ mod tests {
 
         assert_eq!(json, r#"{"English":"Canadian"}"#);
         assert_eq!(serde_json::from_str::<Language>(&json).unwrap(), language);
+    }
+}
+
+#[cfg(all(test, not(feature = "en")))]
+mod without_english_tests {
+    use super::{Language, LanguageNameError};
+
+    #[test]
+    fn english_needs_the_feature() {
+        let error = Language::try_from_names("en", None).unwrap_err();
+        assert_eq!(error, LanguageNameError::NotInThisBuild("English"));
+        assert_eq!(error.to_string(), "This build has no English support.");
     }
 }

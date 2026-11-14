@@ -13,6 +13,7 @@ use super::{AsBoxedExpr, Expr};
 /// space.
 ///
 /// ``` rust
+/// # #[cfg(feature = "en")] {
 /// use harper_core::patterns::WhitespacePattern;
 /// use harper_core::expr::{AsBoxedExpr, Expr, SequenceExpr, Filter, ExprExt};
 /// use harper_core::{Span, Document};
@@ -25,6 +26,7 @@ use super::{AsBoxedExpr, Expr};
 ///
 /// let matches: Vec<_> = filter.iter_matches_in_doc(&doc).collect();
 /// assert_eq!(vec![Span::new(7, 8)], matches)
+/// # }
 /// ```
 pub struct Filter {
     steps: Vec<Box<dyn Expr>>,

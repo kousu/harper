@@ -114,10 +114,10 @@ pub trait TokenStringExt: private::Sealed {
     ///
     /// # Examples
     /// ```
-    /// # use harper_core::{Token, TokenStringExt, parsers::{Parser, PlainEnglish}};
+    /// # use harper_core::{Token, TokenStringExt, parsers::{Parser, PlainText}};
     /// # fn main() {
     /// let source = "The cat sat on the mat.".chars().collect::<Vec<_>>();
-    /// let tokens = PlainEnglish.parse(&source);
+    /// let tokens = PlainText.parse(&source);
     /// assert_eq!(tokens.get_rel(0).unwrap().get_str(&source), "The");
     /// assert_eq!(tokens.get_rel(1).unwrap().kind.is_whitespace(), true);
     /// assert_eq!(tokens.get_rel(-1).unwrap().kind.is_punctuation(), true);
@@ -149,10 +149,10 @@ pub trait TokenStringExt: private::Sealed {
     ///
     /// # Examples
     /// ```
-    /// # use harper_core::{Token, TokenStringExt, parsers::{Parser, PlainEnglish}};
+    /// # use harper_core::{Token, TokenStringExt, parsers::{Parser, PlainText}};
     /// # fn main() {
     /// let source = "The cat sat on the mat.".chars().collect::<Vec<_>>();
-    /// let tokens = PlainEnglish.parse(&source);
+    /// let tokens = PlainText.parse(&source);
     /// assert_eq!(tokens.get_rel_slice(0, 2).unwrap().span().unwrap().get_content_string(&source), "The cat");
     /// assert_eq!(tokens.get_rel_slice(-3, -1).unwrap().span().unwrap().get_content_string(&source), " mat.");
     /// # }

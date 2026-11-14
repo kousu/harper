@@ -1,4 +1,4 @@
-#![doc = include_str!("../README.md")]
+#![cfg_attr(feature = "en", doc = include_str!("../README.md"))]
 #![allow(dead_code)]
 
 mod case;
@@ -47,26 +47,27 @@ pub use dict_word_metadata_orthography::{OrthFlags, Orthography};
 pub use document::Document;
 pub use fat_token::{FatStringToken, FatToken};
 pub use ignored_lints::{IgnoredLints, LintContext};
+#[cfg(feature = "en")]
 pub use lang::en::{
     dialect::{EnglishDialect, EnglishDialectFlags},
     indefinite_article::{InitialSound, starts_with_vowel},
-    regular_nouns::{get_plurals, get_singulars},
-};
-#[cfg(feature = "en")]
-pub use lang::en::{
     irregular_nouns::IrregularNouns,
     irregular_verbs::IrregularVerbs,
+    regular_nouns::{get_plurals, get_singulars},
     title_case::{make_title_case, make_title_case_str},
 };
 pub use lang::{Language, LanguageFamily, LanguageNameError};
 
 /// The old name of [`EnglishDialect`].
+#[cfg(feature = "en")]
 #[deprecated(note = "renamed to `EnglishDialect`")]
 pub type Dialect = EnglishDialect;
 
 /// The old name of [`EnglishDialectFlags`].
+#[cfg(feature = "en")]
 #[deprecated(note = "renamed to `EnglishDialectFlags`")]
 pub type DialectFlags = EnglishDialectFlags;
+#[cfg(feature = "en")]
 pub use lang::en::ordinal::EnglishOrdinalSuffix;
 use linting::Lint;
 pub use mask::{Mask, Masker, RegexMasker};
