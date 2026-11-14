@@ -125,11 +125,15 @@ impl Document {
     ///
     /// This avoids running potentially expensive metadata generation code, so this is more
     /// efficient if you don't need that information.
-    pub(crate) fn new_basic_tokenize(text: &str, parser: &impl Parser) -> Self {
+    pub(crate) fn new_basic_tokenize(
+        text: &str,
+        parser: &impl Parser,
+        language: LanguageFamily,
+    ) -> Self {
         let source: Lrc<_> = text.chars().collect();
         let tokens = parser.parse(&source);
         let mut document = Self { source, tokens };
-        document.apply_fixups();
+        document.apply_fixups(Some(language));
         document
     }
 
@@ -181,19 +185,33 @@ impl Document {
         Self::new_markdown(text, MarkdownOptions::default(), dictionary)
     }
 
-    fn apply_fixups(&mut self) {
+    /// Join and adjust tokens the lexer split or got wrong. Some fixups apply to every language,
+    /// such as top-level domains and file names; others only to `language`, such as English's
+    /// "1st" and "R&D".
+    fn apply_fixups(&mut self, language: Option<LanguageFamily>) {
+        let english = match language {
+            Some(LanguageFamily::English) => true,
+            _ => false,
+        };
+
         self.condense_spaces();
         self.condense_newlines();
         self.newlines_to_breaks();
         self.condense_dotted_initialisms();
-        self.condense_number_suffixes();
+        if english {
+            self.condense_number_suffixes();
+        }
         self.condense_ellipsis();
-        self.condense_dotted_truncations();
+        if english {
+            self.condense_dotted_truncations();
+        }
         self.condense_common_top_level_domains();
         self.condense_filename_extensions();
-        self.condense_tldr();
-        self.condense_ampersand_pairs();
-        self.condense_slash_pairs();
+        if english {
+            self.condense_tldr();
+            self.condense_ampersand_pairs();
+            self.condense_slash_pairs();
+        }
         self.match_quotes();
     }
 
@@ -201,7 +219,7 @@ impl Document {
     ///
     /// Should be run after every change to the underlying [`Self::source`].
     fn parse(&mut self, dictionary: &impl Dictionary, language: LanguageFamily) {
-        self.apply_fixups();
+        self.apply_fixups(Some(language));
 
         for sent in self.tokens.iter_sentences_mut() {
             let token_strings: Vec<_> = sent
