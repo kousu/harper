@@ -4,7 +4,7 @@ use crate::{
 };
 
 #[cfg(feature = "thesaurus")]
-use crate::spell::{Dictionary, FstDictionary};
+use crate::spell::Dictionary;
 
 /// Gets synonyms for a provided word.
 ///
@@ -32,7 +32,7 @@ pub fn get_synonyms_sorted(_word: &str, _token: &TokenKind) -> Option<Vec<&'stat
 
         // Sorting by TokenKind difference.
         if let Some(Some(word_meta)) = _token.as_word() {
-            let dict = FstDictionary::curated();
+            let dict = crate::lang::en::dictionary::dictionary();
             syns.sort_by_key(|syn| {
                 if let Some(syn_meta) = dict.get_word_metadata_str(syn) {
                     word_meta.difference(&syn_meta)
