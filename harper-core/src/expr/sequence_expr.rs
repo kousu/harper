@@ -1,7 +1,7 @@
 use paste::paste;
 
 use crate::{
-    CharStringExt, Lrc, Span, Token, TokenKind,
+    CharStringExt, LanguageFamily, Lrc, Span, Token, TokenKind,
     expr::{AsBoxedExpr, FirstMatchOf, FixedPhrase, LongestMatchOf},
     patterns::{AnyPattern, IndefiniteArticle, RelativePronoun, WhitespacePattern, Word, WordSet},
 };
@@ -161,6 +161,11 @@ impl SequenceExpr {
     /// Match a fixed phrase.
     pub fn fixed_phrase(phrase: &'static str) -> Self {
         Self::default().then_fixed_phrase(phrase)
+    }
+
+    /// Match a fixed phrase in `language`.
+    pub fn fixed_phrase_for(phrase: &'static str, language: LanguageFamily) -> Self {
+        Self::default().then_fixed_phrase_for(phrase, language)
     }
 
     // Multiple expressions
@@ -361,6 +366,11 @@ impl SequenceExpr {
     /// Match a fixed phrase.
     pub fn then_fixed_phrase(self, phrase: &'static str) -> Self {
         self.then(FixedPhrase::from_phrase(phrase))
+    }
+
+    /// Match a fixed phrase in `language`.
+    pub fn then_fixed_phrase_for(self, phrase: &'static str, language: LanguageFamily) -> Self {
+        self.then(FixedPhrase::from_phrase_for(phrase, language))
     }
 
     /// Match any word except the ones in `words`.
@@ -633,6 +643,7 @@ impl SequenceExpr {
     gen_then_from_is!(subject_pronoun);
     gen_then_from_is!(object_pronoun);
 
+    #[deprecated(note = "English only: use `.then(RelativePronoun::default())`")]
     pub fn then_relative_pronoun(self) -> Self {
         self.then(RelativePronoun::default())
     }
@@ -671,6 +682,7 @@ impl SequenceExpr {
     gen_then_from_is!(non_demonstrative_determiner);
 
     /// Push an [`IndefiniteArticle`] to the end of the operation list.
+    #[deprecated(note = "English only: use `.then(IndefiniteArticle::default())`")]
     pub fn then_indefinite_article(self) -> Self {
         self.then(IndefiniteArticle::default())
     }

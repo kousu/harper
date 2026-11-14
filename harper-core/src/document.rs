@@ -137,6 +137,12 @@ impl Document {
         document
     }
 
+    /// Like [`Self::new_basic_tokenize`], lexing `text` as plain prose in `language`. For building
+    /// expressions from curated phrases.
+    pub(crate) fn new_basic_tokenize_for(text: &str, language: LanguageFamily) -> Self {
+        Self::new_basic_tokenize(text, &language.data().prose_parser(), language)
+    }
+
     /// Parse text to produce a document using the built-in [`PlainEnglish`]
     /// parser and a provided dictionary.
     pub fn new_plain_english(text: &str, dictionary: &impl Dictionary) -> Self {

@@ -1,5 +1,6 @@
 use crate::Token;
 use crate::expr::{Expr, SequenceExpr};
+use crate::patterns::IndefiniteArticle;
 
 use super::{ExprLinter, Lint, LintKind, Suggestion};
 use crate::linting::expr_linter::Chunk;
@@ -12,7 +13,7 @@ pub struct QuantifierNeedsOf {
 impl Default for QuantifierNeedsOf {
     fn default() -> Self {
         let expr = SequenceExpr::default()
-            .then_indefinite_article()
+            .then(IndefiniteArticle::default())
             .t_ws()
             .then_word_set(["couple", "lot"])
             .t_ws()

@@ -1,5 +1,5 @@
 use crate::patterns::{WithinEditDistance, Word};
-use crate::{Document, Span, Token, TokenKind};
+use crate::{Document, LanguageFamily, Span, Token, TokenKind};
 
 use super::{Expr, SequenceExpr};
 
@@ -19,6 +19,14 @@ impl SimilarToPhrase {
         let document = Document::new_plain_english_curated(text);
 
         Self::from_doc(&document, max_edit_dist)
+    }
+
+    /// Like [`Self::from_phrase`], with the phrase in `language`.
+    pub fn from_phrase_for(text: &str, max_edit_dist: u8, language: LanguageFamily) -> Self {
+        Self::from_doc(
+            &Document::new_basic_tokenize_for(text, language),
+            max_edit_dist,
+        )
     }
 
     /// Create an error-tolerant SequenceExpr that looks for phrases similar to (but not the same as) that contained

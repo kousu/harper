@@ -5,6 +5,7 @@ use std::sync::Arc;
 use harper_brill::UPOS;
 
 use crate::linting::{FlatConfig, StructuredConfig};
+use crate::parsers::Parser;
 use crate::spell::{FstDictionary, MutableDictionary, TrieDictionary};
 
 /// What shared code needs from one language.
@@ -24,6 +25,9 @@ pub(crate) trait LanguageData: Sync {
 
     /// The curated dictionary, as a [`TrieDictionary`].
     fn trie_dictionary(&self) -> Arc<TrieDictionary<Arc<FstDictionary>>>;
+
+    /// The parser that splits plain prose into tokens.
+    fn prose_parser(&self) -> &'static dyn Parser;
 
     /// Tag each word of a sentence with its part of speech, and mark which words are in a noun
     /// phrase.
