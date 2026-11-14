@@ -329,6 +329,42 @@ mod tests {
         assert!(parse(json!({ "language": "Klingon" })).is_err());
     }
 
+    #[cfg(feature = "fr")]
+    #[test]
+    fn parses_french() {
+        use harper_core::FrenchDialect;
+
+        assert_eq!(
+            parse(json!({ "language": "French" })).unwrap().language,
+            Language::French(FrenchDialect::France)
+        );
+        assert_eq!(
+            parse(json!({ "language": "French", "dialect": "Canada" }))
+                .unwrap()
+                .language,
+            Language::French(FrenchDialect::Canada)
+        );
+    }
+
+    #[cfg(feature = "fr")]
+    #[test]
+    fn rejects_english_dialect_for_french() {
+        assert!(parse(json!({ "language": "French", "dialect": "British" })).is_err());
+    }
+
+    /// harper-ls takes French exactly when harper-core has it. That depends on harper-core's `fr`
+    /// feature, which a workspace build can turn on even when harper-ls's own is off.
+    #[test]
+    fn french_follows_harper_core() {
+        let core = Language::try_from_names("French", None);
+        let config = parse(json!({ "language": "French" }));
+
+        assert_eq!(config.as_ref().map(|c| c.language).ok(), core.clone().ok());
+        if let Err(error) = core {
+            assert!(config.unwrap_err().to_string().contains(&error.to_string()));
+        }
+    }
+
     #[test]
     fn parses_diagnostic_delay() {
         let config = Config::from_lsp_config(

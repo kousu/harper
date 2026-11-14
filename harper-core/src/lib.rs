@@ -57,6 +57,8 @@ pub use lang::en::{
     regular_nouns::{get_plurals, get_singulars},
     title_case::{make_title_case, make_title_case_str},
 };
+#[cfg(feature = "fr")]
+pub use lang::fr::dialect::{FrenchDialect, FrenchDialectFlags};
 pub use lang::{Language, LanguageFamily, LanguageNameError};
 
 /// The old name of [`EnglishDialect`].

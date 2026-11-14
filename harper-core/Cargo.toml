@@ -61,6 +61,8 @@ default = ["en", "thesaurus", "concurrent", "context-ranking"]
 # English: its dictionary, rules, tagger and chunkers.
 en = ["harper-brill/en"]
 concurrent = ["dep:boxcar"]
+# Experimental French support.
+fr = []
 # Synonym suggestions for the English rules.
 thesaurus = ["en", "dep:harper-thesaurus"]
 # Reorder spelling suggestions with a model of English context.
