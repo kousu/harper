@@ -1,7 +1,8 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Token,
-    expr::{Expr, FixedPhrase, SequenceExpr},
+    expr::{Expr, SequenceExpr},
     linting::{ExprLinter, Lint, LintKind, Suggestion},
     token_string_ext::TokenStringExt,
 };
@@ -25,7 +26,7 @@ impl Default for WouldNeverHave {
 
         let expr: Vec<Box<dyn Expr>> = phrases
             .iter()
-            .map(|&phrase| Box::new(FixedPhrase::from_phrase(phrase)) as Box<dyn Expr>)
+            .map(|&phrase| Box::new(fixed_phrase(phrase)) as Box<dyn Expr>)
             .collect();
 
         // TODO: verb should be perfect form ("done", "happened", etc.) when verb property changes are merged

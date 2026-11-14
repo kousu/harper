@@ -1,7 +1,8 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::{
     CharStringExt, Lint, Token,
     char_ext::CharExt,
-    expr::{Expr, FixedPhrase, SequenceExpr},
+    expr::{Expr, SequenceExpr},
     lang::en::irregular_verbs::IrregularVerbs,
     linting::{ExprLinter, LintKind, Suggestion, expr_linter::Chunk},
     patterns::WordSet,
@@ -18,7 +19,7 @@ impl<D: Dictionary> DidPast<D> {
         Self {
             expr: SequenceExpr::longest_of([
                 Box::new(WordSet::new(["did", "didn't", "didnt"])) as Box<dyn Expr>,
-                Box::new(FixedPhrase::from_phrase("did not")),
+                Box::new(fixed_phrase("did not")),
             ])
             .then_optional(SequenceExpr::default().t_ws().then_subject_pronoun())
             .t_ws()

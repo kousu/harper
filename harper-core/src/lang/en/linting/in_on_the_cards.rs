@@ -1,3 +1,4 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::lang::en::patterns::InflectionOfBe;
 use crate::{
     CharStringExt, EnglishDialect, Token,
@@ -32,7 +33,7 @@ impl InOnTheCards {
         let expr = SequenceExpr::with(pre_context)
             .t_ws()
             .t_aco(preposition)
-            .then_fixed_phrase(" the cards");
+            .then(fixed_phrase(" the cards"));
 
         Self { expr, dialect }
     }

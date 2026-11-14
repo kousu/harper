@@ -1,4 +1,5 @@
-use crate::expr::{All, Expr, FixedPhrase, SequenceExpr};
+use crate::expr::{All, Expr, SequenceExpr};
+use crate::lang::en::expr::fixed_phrase;
 use crate::linting::expr_linter::Chunk;
 use crate::linting::{ExprLinter, LintKind, Suggestion};
 use crate::patterns::WordSet;
@@ -23,7 +24,7 @@ impl Default for AndTheLike {
                 Box::new(SequenceExpr::unless(
                     SequenceExpr::word_set(["and", "or"]).t_ws().then_any_of([
                         // But not the correct variants
-                        Box::new(FixedPhrase::from_phrase("the like")) as Box<dyn Expr>,
+                        Box::new(fixed_phrase("the like")) as Box<dyn Expr>,
                         // And not the phrases that were coincidentally caught in the net
                         Box::new(WordSet::new(["like", "likes"])),
                     ]),

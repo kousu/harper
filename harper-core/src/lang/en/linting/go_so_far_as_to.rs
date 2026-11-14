@@ -1,6 +1,7 @@
 use crate::Token;
 use crate::TokenStringExt;
 use crate::expr::{Expr, SequenceExpr};
+use crate::lang::en::expr::fixed_phrase;
 use crate::linting::Suggestion;
 use crate::linting::expr_linter::Chunk;
 use crate::linting::{ExprLinter, Lint, LintKind};
@@ -13,7 +14,7 @@ impl Default for GoSoFarAsTo {
     fn default() -> Self {
         Self {
             exp: SequenceExpr::word_set(["go", "goes", "going", "gone", "went"])
-                .then_fixed_phrase(" so far to ")
+                .then(fixed_phrase(" so far to "))
                 .then_optional(SequenceExpr::default().then_adverb().t_ws())
                 .then_any_word(),
         }

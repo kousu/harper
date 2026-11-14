@@ -1,7 +1,8 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Span, Token, TokenStringExt,
-    expr::{Expr, FixedPhrase, LongestMatchOf, SequenceExpr},
+    expr::{Expr, LongestMatchOf, SequenceExpr},
     linting::{ExprLinter, Lint, LintKind, Suggestion},
     patterns::WordSet,
 };
@@ -24,14 +25,14 @@ impl Default for AmInTheMorning {
             Box::new(SequenceExpr::whitespace().then(pm)),
         ]);
 
-        let ws_in_periods = SequenceExpr::fixed_phrase(" in the ").then_word_set([
+        let ws_in_periods = SequenceExpr::with(fixed_phrase(" in the ")).then_word_set([
             "morning",
             "afternoon",
             "evening",
             "night",
         ]);
 
-        let ws_at_periods = FixedPhrase::from_phrase(" at night");
+        let ws_at_periods = fixed_phrase(" at night");
 
         let expr = SequenceExpr::any_of([
             Box::new(maybe_ws_am) as Box<dyn Expr>,

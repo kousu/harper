@@ -1,7 +1,8 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::{
     EnglishDialect::{self, American, Australian, British, Canadian, Indian},
     Token, TokenStringExt,
-    expr::{Expr, FirstMatchOf, FixedPhrase},
+    expr::{Expr, FirstMatchOf},
     linting::{Lint, LintKind, Suggestion},
 };
 
@@ -697,7 +698,7 @@ impl Regionalisms {
         let terms: Vec<Box<dyn Expr>> = REGIONAL_TERMS
             .iter()
             .filter(|row| row.flag == Flag)
-            .map(|row| Box::new(FixedPhrase::from_phrase(row.term)) as Box<dyn Expr>)
+            .map(|row| Box::new(fixed_phrase(row.term)) as Box<dyn Expr>)
             .collect();
 
         Self {

@@ -1,6 +1,6 @@
 use crate::expr::Expr;
 use crate::expr::FirstMatchOf;
-use crate::expr::FixedPhrase;
+use crate::lang::en::expr::fixed_phrase;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Token, TokenStringExt,
@@ -14,10 +14,10 @@ pub struct APart {
 impl Default for APart {
     fn default() -> Self {
         let pattern = FirstMatchOf::new(vec![
-            Box::new(FixedPhrase::from_phrase("a part from")),
-            Box::new(FixedPhrase::from_phrase("apart of")),
-            Box::new(FixedPhrase::from_phrase("fall a part")),
-            Box::new(FixedPhrase::from_phrase("far a part")),
+            Box::new(fixed_phrase("a part from")),
+            Box::new(fixed_phrase("apart of")),
+            Box::new(fixed_phrase("fall a part")),
+            Box::new(fixed_phrase("far a part")),
         ]);
 
         Self { expr: pattern }

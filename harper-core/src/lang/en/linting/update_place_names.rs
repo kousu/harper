@@ -1,4 +1,5 @@
-use crate::expr::{Expr, FixedPhrase, LongestMatchOf};
+use crate::expr::{Expr, LongestMatchOf};
+use crate::lang::en::expr::fixed_phrase;
 use crate::linting::expr_linter::Chunk;
 use crate::linting::{ExprLinter, LintKind, Suggestion};
 use crate::{Lint, Token, TokenStringExt};
@@ -79,7 +80,7 @@ impl<'a> Default for UpdatePlaceNames<'a> {
             place_name_mappings
                 .iter()
                 .flat_map(|(_, old_names)| old_names.iter())
-                .map(|old_name| Box::new(FixedPhrase::from_phrase(old_name)) as Box<dyn Expr>),
+                .map(|old_name| Box::new(fixed_phrase(old_name)) as Box<dyn Expr>),
         );
 
         Self::new(expr, place_name_mappings)
