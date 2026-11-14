@@ -47,7 +47,7 @@ pub use char_string::{CharString, CharStringExt};
 pub use currency::Currency;
 pub use dict_word_metadata::{
     AdverbData, ConjunctionData, Degree, DeterminerData, DictWordMetadata, NounData, PronounData,
-    VerbData, VerbForm, VerbFormFlags,
+    VerbData, VerbForm, VerbFormFlags, WordDialects,
 };
 pub use dict_word_metadata_orthography::{OrthFlags, Orthography};
 pub use document::Document;
@@ -57,13 +57,15 @@ pub use indefinite_article::{InitialSound, starts_with_vowel};
 pub use irregular_nouns::IrregularNouns;
 pub use irregular_verbs::IrregularVerbs;
 pub use lang::en::dialect::{EnglishDialect, EnglishDialectFlags};
-// The old name, so code written for it keeps working.
-pub use lang::en::dialect::EnglishDialectFlags as DialectFlags;
 pub use lang::{Language, LanguageFamily};
 
 /// The old name of [`EnglishDialect`].
 #[deprecated(note = "renamed to `EnglishDialect`")]
 pub type Dialect = EnglishDialect;
+
+/// The old name of [`EnglishDialectFlags`].
+#[deprecated(note = "renamed to `EnglishDialectFlags`")]
+pub type DialectFlags = EnglishDialectFlags;
 use linting::Lint;
 pub use mask::{Mask, Masker, RegexMasker};
 pub use number::{Number, OrdinalSuffix};

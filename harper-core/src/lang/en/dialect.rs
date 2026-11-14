@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use strum::{EnumCount as _, VariantArray as _};
 use strum_macros::{Display, EnumCount, EnumIter, EnumString, VariantArray};
 
-use crate::{Document, TokenKind, TokenStringExt};
+use crate::{Document, Language, TokenKind, TokenStringExt};
 
 /// A regional dialect of English.
 ///
@@ -188,7 +188,7 @@ impl EnglishDialectFlags {
                 // If the token is a word, iterate though the dialects in `dialect_counters` and
                 // increment those counters where the word has the respective dialect enabled.
                 dialect_counters.iter_mut().for_each(|(dialect, count)| {
-                    if lexeme_metadata.dialects.is_dialect_enabled(*dialect) {
+                    if lexeme_metadata.allows_language(Language::English(*dialect)) {
                         *count += 1;
                     }
                 });
