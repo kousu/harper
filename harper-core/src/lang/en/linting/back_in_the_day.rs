@@ -1,8 +1,8 @@
 use crate::expr::Expr;
-use crate::expr::FixedPhrase;
 use crate::expr::LongestMatchOf;
 use crate::expr::OwnedExprExt;
 use crate::expr::SequenceExpr;
+use crate::lang::en::expr::fixed_phrase;
 use crate::{
     Lrc, Token, TokenStringExt,
     patterns::{Pattern, WordSet},
@@ -20,7 +20,7 @@ pub struct BackInTheDay {
 impl Default for BackInTheDay {
     fn default() -> Self {
         let exceptions = Lrc::new(WordSet::new(["before", "of", "when"]));
-        let phrase = Lrc::new(FixedPhrase::from_phrase("back in the days"));
+        let phrase = Lrc::new(fixed_phrase("back in the days"));
 
         let pattern = SequenceExpr::with(phrase.clone())
             .then_whitespace()

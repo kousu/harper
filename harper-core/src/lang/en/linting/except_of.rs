@@ -1,3 +1,4 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::{
     CharStringExt, Lint, Token,
     expr::{Expr, FixedPhrase},
@@ -14,7 +15,7 @@ pub struct ExceptOf {
 impl Default for ExceptOf {
     fn default() -> Self {
         Self {
-            expr: FixedPhrase::from_phrase("except of"),
+            expr: fixed_phrase("except of"),
         }
     }
 }

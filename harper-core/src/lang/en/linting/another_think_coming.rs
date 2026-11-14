@@ -1,3 +1,4 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Token, TokenStringExt,
@@ -14,7 +15,7 @@ impl Default for AnotherThinkComing {
     fn default() -> Self {
         Self {
             expr: SequenceExpr::word_set(["had", "has", "have", "got"])
-                .then_fixed_phrase(" another thing coming"),
+                .then(fixed_phrase(" another thing coming")),
         }
     }
 }

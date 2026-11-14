@@ -1,6 +1,7 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::{
     CharStringExt, Token, TokenKind,
-    expr::{All, Expr, FirstMatchOf, FixedPhrase, SequenceExpr},
+    expr::{All, Expr, FirstMatchOf, SequenceExpr},
     linting::{
         ExprLinter, Lint, LintKind, Suggestion,
         expr_linter::{Chunk, find_the_only_token_matching},
@@ -45,12 +46,12 @@ impl ThenThan {
         Self {
             expr: FirstMatchOf::new([
                 Box::new(comparison) as Box<dyn Expr>,
-                Box::new(FixedPhrase::from_phrase("easier said then done")),
-                Box::new(FixedPhrase::from_phrase("now and than")),
-                Box::new(FixedPhrase::from_phrase("other then")),
-                Box::new(FixedPhrase::from_phrase("rather then")),
-                Box::new(FixedPhrase::from_phrase("than again")),
-                Box::new(FixedPhrase::from_phrase("until than")),
+                Box::new(fixed_phrase("easier said then done")),
+                Box::new(fixed_phrase("now and than")),
+                Box::new(fixed_phrase("other then")),
+                Box::new(fixed_phrase("rather then")),
+                Box::new(fixed_phrase("than again")),
+                Box::new(fixed_phrase("until than")),
             ]),
         }
     }

@@ -161,7 +161,7 @@ impl SequenceExpr {
 
     /// Match a fixed phrase.
     pub fn fixed_phrase(phrase: &'static str) -> Self {
-        Self::default().then_fixed_phrase(phrase)
+        Self::default().then_fixed_phrase_for(phrase, LanguageFamily::English)
     }
 
     /// Match a fixed phrase in `language`.
@@ -366,7 +366,10 @@ impl SequenceExpr {
 
     /// Match a fixed phrase.
     pub fn then_fixed_phrase(self, phrase: &'static str) -> Self {
-        self.then(FixedPhrase::from_phrase(phrase))
+        self.then(FixedPhrase::from_phrase_for(
+            phrase,
+            LanguageFamily::English,
+        ))
     }
 
     /// Match a fixed phrase in `language`.

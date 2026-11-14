@@ -1,4 +1,5 @@
 use crate::lang::en::expr::SpelledNumberExpr;
+use crate::lang::en::expr::fixed_phrase;
 use crate::{
     CharStringExt, EnglishDialect, IrregularNouns, Lint, Lrc, Token, TokenStringExt,
     expr::{Expr, FirstMatchOf, OwnedExprExt, SequenceExpr},
@@ -96,7 +97,7 @@ impl<D: Dictionary> ThereIsAgreement<D> {
             }) as Box<dyn Expr>
         })
         .chain(std::iter::once(Box::new(
-            SequenceExpr::fixed_phrase("there's ").then(plural_noun.clone()),
+            SequenceExpr::with(fixed_phrase("there's ")).then(plural_noun.clone()),
         ) as Box<dyn Expr>))
         .collect();
 

@@ -1,3 +1,4 @@
+use crate::LanguageFamily;
 use crate::linting::LintKind;
 
 use super::{LintGroup, MapPhraseSetLinter};
@@ -20,12 +21,11 @@ pub fn lint_group() -> LintGroup {
                 $group.add_chunk_expr_linter(
                     $name,
                     Box::new(
-                        MapPhraseSetLinter::one_to_one(
+                        MapPhraseSetLinter::one_to_one_for(
                             $input_correction_pairs,
                             $message,
                             $description,
-                            None$(.or(Some($lint_kind)))?,
-                        ),
+                            None$(.or(Some($lint_kind)))?, LanguageFamily::English),
                     ),
                 );
             )+
@@ -41,12 +41,11 @@ pub fn lint_group() -> LintGroup {
                 $group.add_chunk_expr_linter(
                     $name,
                     Box::new(
-                        MapPhraseSetLinter::many_to_many(
+                        MapPhraseSetLinter::many_to_many_for(
                             $input_correction_multi_pairs,
                             $message,
                             $description,
-                            None$(.or(Some($lint_kind)))?,
-                        ),
+                            None$(.or(Some($lint_kind)))?, LanguageFamily::English),
                     ),
                 );
             )+

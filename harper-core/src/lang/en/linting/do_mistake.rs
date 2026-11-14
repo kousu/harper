@@ -1,6 +1,7 @@
+use crate::lang::en::expr::fixed_phrase;
 use crate::{
     CharStringExt, Lint, Token,
-    expr::{Expr, FixedPhrase, SequenceExpr},
+    expr::{Expr, SequenceExpr},
     linting::{
         ExprLinter, LintKind, Suggestion,
         expr_linter::{Chunk, followed_by_word},
@@ -23,16 +24,16 @@ impl Default for DoMistake {
                             "a", "an", "the", "that", "these", "this", "those", "another", "many",
                             "several", "some", "my", "our", "your", "his", "her", "its", "their",
                         ])) as Box<dyn Expr>,
-                        Box::new(FixedPhrase::from_phrase("a lot of")),
-                        Box::new(FixedPhrase::from_phrase("lots of")),
-                        Box::new(FixedPhrase::from_phrase("that kind of")),
-                        Box::new(FixedPhrase::from_phrase("these kinds of")),
-                        Box::new(FixedPhrase::from_phrase("this kind of")),
-                        Box::new(FixedPhrase::from_phrase("those kinds of")),
-                        Box::new(FixedPhrase::from_phrase("so many")),
-                        Box::new(FixedPhrase::from_phrase("too many")),
-                        Box::new(FixedPhrase::from_phrase("tons of")),
-                        Box::new(FixedPhrase::from_phrase("tonnes of")),
+                        Box::new(fixed_phrase("a lot of")),
+                        Box::new(fixed_phrase("lots of")),
+                        Box::new(fixed_phrase("that kind of")),
+                        Box::new(fixed_phrase("these kinds of")),
+                        Box::new(fixed_phrase("this kind of")),
+                        Box::new(fixed_phrase("those kinds of")),
+                        Box::new(fixed_phrase("so many")),
+                        Box::new(fixed_phrase("too many")),
+                        Box::new(fixed_phrase("tons of")),
+                        Box::new(fixed_phrase("tonnes of")),
                     ])
                     .t_ws()
                     .then_word_set(["mistake", "mistakes"]),

@@ -1,5 +1,6 @@
 use crate::TokenKind;
 use crate::expr::{AnchorStart, Expr, ExprMap, SequenceExpr};
+use crate::lang::en::expr::fixed_phrase;
 use crate::linting::expr_linter::Chunk;
 use crate::{
     Token,
@@ -24,14 +25,14 @@ impl Default for OughtToBe {
             .then_whitespace()
             .then_pronoun()
             .then_whitespace()
-            .then_fixed_phrase("out to be");
+            .then(fixed_phrase("out to be"));
 
         // 2) start-of-sentence + pronoun + "out to be" → index of `out` = 2 tokens after start
         //    [AnchorStart] [pronoun] [ws] [out] [ws] [to] [ws] [be]
         let branch_anchor_pronoun = SequenceExpr::with(AnchorStart)
             .then_pronoun()
             .then_whitespace()
-            .then_fixed_phrase("out to be");
+            .then(fixed_phrase("out to be"));
 
         // 3) punctuation + pronoun + "out to be" → index of `out` = 4 tokens after start
         //    [punct] [ws] [pronoun] [ws] [out] [ws] [to] [ws] [be]
@@ -40,7 +41,7 @@ impl Default for OughtToBe {
             .then_whitespace()
             .then_pronoun()
             .then_whitespace()
-            .then_fixed_phrase("out to be");
+            .then(fixed_phrase("out to be"));
 
         let mut map = ExprMap::default();
         map.insert(branch_nonverb_pronoun, 4);
