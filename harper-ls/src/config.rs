@@ -74,7 +74,7 @@ pub struct Config {
     pub code_action_config: CodeActionConfig,
     pub isolate_english: bool,
     pub markdown_options: MarkdownOptions,
-    /// The language of the documents. English, in the dialect from the `dialect` setting.
+    /// The language of the documents, from the `language` and `dialect` settings.
     pub language: Language,
     /// Maximum length (in bytes) a file can have before it's skipped.
     /// Above this limit, the file will not be linted.
@@ -165,9 +165,11 @@ impl Config {
             base.diagnostic_severity = serde_json::from_value(v.clone())?;
         }
 
-        if let Some(dialect) = string_setting(value, "dialect")? {
+        let language = string_setting(value, "language")?;
+        let dialect = string_setting(value, "dialect")?;
+        if language.is_some() || dialect.is_some() {
             let family = base.language.family().to_string();
-            base.language = Language::try_from_names(&family, Some(dialect))?;
+            base.language = Language::try_from_names(language.unwrap_or(&family), dialect)?;
         }
 
         if let Some(v) = value.get("codeActions") {
@@ -303,6 +305,28 @@ mod tests {
     #[test]
     fn rejects_non_string_dialect() {
         assert!(parse(json!({ "dialect": true })).is_err());
+    }
+
+    #[test]
+    fn parses_language_and_dialect() {
+        for language in ["English", "en"] {
+            assert_eq!(
+                parse(json!({ "language": language, "dialect": "Canadian" }))
+                    .unwrap()
+                    .language,
+                Language::English(EnglishDialect::Canadian)
+            );
+        }
+    }
+
+    #[test]
+    fn rejects_non_string_language() {
+        assert!(parse(json!({ "language": 1 })).is_err());
+    }
+
+    #[test]
+    fn rejects_unknown_language() {
+        assert!(parse(json!({ "language": "Klingon" })).is_err());
     }
 
     #[test]
