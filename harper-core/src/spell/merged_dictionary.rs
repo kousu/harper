@@ -4,9 +4,10 @@ use std::sync::Arc;
 
 use foldhash::quality::FixedState;
 use itertools::Itertools;
+use strum::IntoEnumIterator;
 
-use super::{CanonicalWordId, FuzzyMatchResult, dictionary::Dictionary};
-use crate::{CharString, DictWordMetadata};
+use super::{CanonicalWordId, FstDictionary, FuzzyMatchResult, dictionary::Dictionary};
+use crate::{CharString, DictWordMetadata, LanguageFamily};
 
 /// A simple wrapper over [`Dictionary`] that allows
 /// one to merge multiple dictionaries without copying.
@@ -35,12 +36,14 @@ impl MergedDictionary {
     }
 
     fn hash_dictionary(&self, dictionary: &Arc<dyn Dictionary>) -> u64 {
-        // Hashing the curated dictionary isn't super helpful and takes a long time.
-        if Arc::ptr_eq(
-            dictionary,
-            &(crate::lang::en::dictionary::dictionary() as Arc<dyn Dictionary>),
-        ) {
-            return 1;
+        // Hashing a curated dictionary isn't super helpful and takes a long time.
+        if let Some(family) = LanguageFamily::iter().find(|family| {
+            Arc::ptr_eq(
+                dictionary,
+                &(FstDictionary::curated_for(*family) as Arc<dyn Dictionary>),
+            )
+        }) {
+            return 1 + family as u64;
         }
 
         let mut hasher = self.hasher_builder.build_hasher();
