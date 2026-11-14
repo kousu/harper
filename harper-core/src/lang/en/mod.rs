@@ -15,6 +15,8 @@ pub(crate) mod regular_nouns;
 pub(crate) mod thesaurus_helper;
 pub(crate) mod title_case;
 
+pub use linting::spell_check::is_th_h_missing;
+
 use std::sync::{Arc, OnceLock};
 
 use harper_brill::{Chunker, Tagger, UPOS, brill_tagger, burn_chunker};
