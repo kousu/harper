@@ -14,9 +14,7 @@ use futures::future::join;
 use harper_asciidoc::AsciidocParser;
 use harper_comments::CommentParser;
 use harper_core::linting::{FlatConfig, LintGroup};
-use harper_core::parsers::{
-    CollapseIdentifiers, IsolateEnglish, Markdown, OrgMode, Parser, PlainEnglish,
-};
+use harper_core::parsers::{CollapseIdentifiers, IsolateEnglish, Markdown, OrgMode, Parser};
 use harper_core::spell::{Dictionary, FstDictionary, MergedDictionary, MutableDictionary};
 use harper_core::{DictWordMetadata, Document, IgnoredLints, Language};
 use harper_dictionary_wordlist::{load_dict, save_dict};
@@ -203,9 +201,8 @@ impl Backend {
 
     async fn generate_global_dictionary(&self) -> Result<MergedDictionary> {
         let mut dict = MergedDictionary::new();
-        dict.add_dictionary(FstDictionary::curated_for(
-            harper_core::LanguageFamily::English,
-        ));
+        let language = self.config.read().await.language;
+        dict.add_dictionary(FstDictionary::curated_for(language.family()));
         let user_dict = self.load_user_dictionary().await;
         dict.add_dictionary(Arc::new(user_dict));
         let ws_dict = self.load_workspace_dictionary().await;
@@ -346,7 +343,12 @@ impl Backend {
         }
 
         let source: Vec<char> = text.chars().collect();
-        let ts_parser = CommentParser::new_from_language_id(language_id, markdown_options);
+        let family = language.family();
+        let ts_parser = CommentParser::new_from_language_id_with_language(
+            language_id,
+            markdown_options,
+            family,
+        );
         let parser: Option<Box<dyn Parser>> = match language_id.as_str() {
             _ if ts_parser.is_some() => {
                 let ts_parser = ts_parser.unwrap();
@@ -368,17 +370,19 @@ impl Backend {
                     Some(Box::new(ts_parser))
                 }
             }
-            "git-commit" | "gitcommit" | "octo" | "scminput" => {
-                Some(Box::new(GitCommitParser::default()))
-            }
-            "html" => Some(Box::new(HtmlParser::default())),
-            "asciidoc" => Some(Box::new(AsciidocParser::default())),
-            "ink" => Some(Box::new(InkParser::default())),
-            "jj-commit" | "jjdescription" => {
-                Some(Box::new(JJDescriptionParser::new(markdown_options)))
-            }
+            "git-commit" | "gitcommit" | "octo" | "scminput" => Some(Box::new(
+                GitCommitParser::with_language(markdown_options, family),
+            )),
+            "html" => Some(Box::new(HtmlParser::with_language(family))),
+            "asciidoc" => Some(Box::new(AsciidocParser::with_language(family))),
+            "ink" => Some(Box::new(InkParser::with_language(family))),
+            "jj-commit" | "jjdescription" => Some(Box::new(JJDescriptionParser::with_language(
+                markdown_options,
+                family,
+            ))),
             "lhaskell" | "literate haskell" => {
-                let parser = LiterateHaskellParser::new_markdown(markdown_options);
+                let parser =
+                    LiterateHaskellParser::new_markdown_with_language(markdown_options, family);
 
                 if let Some(new_dict) =
                     parser.create_ident_dict(&Arc::new(source), markdown_options)
@@ -399,15 +403,15 @@ impl Backend {
                     Some(Box::new(parser))
                 }
             }
-            "mail" => Some(Box::new(PlainEnglish)),
+            "mail" => Some(Box::new(family.lexer())),
             "markdown" | "quarto" | "rmarkdown" | "rmd" => {
-                Some(Box::new(Markdown::new(markdown_options)))
+                Some(Box::new(Markdown::with_language(markdown_options, family)))
             }
-            "org" => Some(Box::new(OrgMode::default())),
-            "plaintext" | "text" => Some(Box::new(PlainEnglish)),
-            "python" => Some(Box::new(PythonParser::default())),
-            "typst" => Some(Box::new(Typst::default())),
-            "tex" | "plaintex" | "latex" => Some(Box::new(TeX::default())),
+            "org" => Some(Box::new(OrgMode::with_language(family))),
+            "plaintext" | "text" => Some(Box::new(family.lexer())),
+            "python" => Some(Box::new(PythonParser::with_language(family))),
+            "typst" => Some(Box::new(Typst::with_language(family))),
+            "tex" | "plaintex" | "latex" => Some(Box::new(TeX::with_language(family))),
             _ => None,
         };
 
@@ -422,11 +426,8 @@ impl Backend {
 
                 // Don't lint on documents larger than the configured maximum length.
                 if text.len() <= max_file_length {
-                    doc_state.document = Document::new_with_parser_and_language(
-                        text,
-                        &parser,
-                        harper_core::LanguageFamily::English,
-                    );
+                    doc_state.document =
+                        Document::new_with_parser_and_language(text, &parser, language.family());
                 } else {
                     // Ensures that existing lints are cleared when we stop linting the file.
                     // Otherwise, prior lints will remain, and they will quickly fall out of sync
