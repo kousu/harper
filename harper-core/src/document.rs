@@ -8,7 +8,7 @@ use itertools::Itertools;
 use crate::expr::{Expr, ExprExt, FirstMatchOf, Repeating, SequenceExpr};
 use crate::parsers::{Markdown, MarkdownOptions, Parser, PlainEnglish};
 use crate::punctuation::Punctuation;
-use crate::spell::{Dictionary, FstDictionary};
+use crate::spell::Dictionary;
 use crate::vec_ext::VecExt;
 use crate::{CharStringExt, FatStringToken, FatToken, Lrc, Token, TokenKind, TokenStringExt};
 use crate::{OrdinalSuffix, Span};
@@ -22,7 +22,11 @@ pub struct Document {
 
 impl Default for Document {
     fn default() -> Self {
-        Self::new("", &PlainEnglish, &FstDictionary::curated())
+        Self::new(
+            "",
+            &PlainEnglish,
+            &crate::lang::en::dictionary::dictionary(),
+        )
     }
 }
 

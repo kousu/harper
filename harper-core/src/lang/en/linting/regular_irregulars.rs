@@ -245,13 +245,12 @@ mod tests {
     mod nouns {
         use super::super::RegularIrregulars;
         use crate::linting::tests::assert_suggestion_result;
-        use crate::spell::FstDictionary;
 
         #[test]
         fn fix_irregulars() {
             assert_suggestion_result(
                 "Womans and childs first",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "Women and children first",
             );
         }
@@ -260,7 +259,7 @@ mod tests {
         fn fix_ys_and_fs() {
             assert_suggestion_result(
                 "Kittys playing on the shelfs.",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "Kitties playing on the shelves.",
             );
         }
@@ -269,7 +268,7 @@ mod tests {
         fn fix_os_and_oes() {
             assert_suggestion_result(
                 "The heros climb the volcanos",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "The heroes climb the volcanoes",
             );
         }
@@ -278,7 +277,7 @@ mod tests {
         fn fix_oxen_and_meatloaves() {
             assert_suggestion_result(
                 "These meatloafs are made out of oxes.",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "These meatloaves are made out of oxen.",
             );
         }
@@ -287,13 +286,12 @@ mod tests {
     mod verbs {
         use super::super::RegularIrregulars;
         use crate::linting::tests::assert_suggestion_result;
-        use crate::spell::FstDictionary;
 
         #[test]
         fn fix_irregular_past_verb() {
             assert_suggestion_result(
                 "I eated the banana.",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "I ate the banana.",
             );
         }
@@ -302,7 +300,7 @@ mod tests {
         fn fix_readed() {
             assert_suggestion_result(
                 "He readed the newspaper",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "He read the newspaper",
             );
         }
@@ -311,7 +309,7 @@ mod tests {
         fn fix_writed() {
             assert_suggestion_result(
                 "She writed many lines of code.",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "She wrote many lines of code.",
             );
         }
@@ -320,7 +318,7 @@ mod tests {
         fn fix_runned() {
             assert_suggestion_result(
                 "I runned faster than ever!",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "I ran faster than ever!",
             );
         }
@@ -329,7 +327,7 @@ mod tests {
         fn fix_resetted() {
             assert_suggestion_result(
                 "I resetted the phone to factory settings.",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "I reset the phone to factory settings.",
             );
         }
@@ -338,7 +336,7 @@ mod tests {
         fn fix_eat_drink_sleep() {
             assert_suggestion_result(
                 "I eated and drinked too much but I sleeped good.",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "I ate and drank too much but I slept good.",
             );
         }
@@ -347,7 +345,7 @@ mod tests {
         fn fix_digged() {
             assert_suggestion_result(
                 "I digged a bit deeper.",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 "I dug a bit deeper.",
             );
         }
@@ -355,12 +353,11 @@ mod tests {
         #[test]
         fn fix_feeded() {
             use crate::EnglishDialect;
-            use crate::spell::FstDictionary;
 
             assert_suggestion_result(
                 "Rune is a TUI editor, so I feeded the same terminal sequences to the old and new apps.",
-                crate::linting::LintGroup::new_curated(
-                    FstDictionary::curated(),
+                crate::lang::en::linting::new_curated(
+                    crate::lang::en::dictionary::dictionary(),
                     EnglishDialect::American,
                 ),
                 "Rune is a TUI editor, so I fed the same terminal sequences to the old and new apps.",
@@ -370,12 +367,11 @@ mod tests {
         #[test]
         fn fix_gatekepped() {
             use crate::EnglishDialect;
-            use crate::spell::FstDictionary;
 
             assert_suggestion_result(
                 "Foundational principles between languages are the same, I don’t understand why positions are gatekeeped based on implementation trivia.",
-                crate::linting::LintGroup::new_curated(
-                    FstDictionary::curated(),
+                crate::lang::en::linting::new_curated(
+                    crate::lang::en::dictionary::dictionary(),
                     EnglishDialect::American,
                 ),
                 "Foundational principles between languages are the same, I don’t understand why positions are gatekept based on implementation trivia.",
@@ -386,13 +382,12 @@ mod tests {
     mod adjectives {
         use super::super::RegularIrregulars;
         use crate::linting::tests::assert_good_and_bad_suggestions;
-        use crate::spell::FstDictionary;
 
         #[test]
         fn fix_adjectives() {
             assert_good_and_bad_suggestions(
                 "This way is farer.",
-                RegularIrregulars::new(FstDictionary::curated()),
+                RegularIrregulars::new(crate::lang::en::dictionary::dictionary()),
                 &["This way is farther.", "This way is further."],
                 &[],
             );

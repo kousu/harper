@@ -114,10 +114,7 @@ impl<D: Dictionary> ExprLinter for WentAheadAndAgreement<D> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        linting::tests::{assert_no_lints, assert_suggestion_result},
-        spell::FstDictionary,
-    };
+    use crate::linting::tests::{assert_no_lints, assert_suggestion_result};
 
     use super::WentAheadAndAgreement;
 
@@ -127,7 +124,7 @@ mod tests {
     fn went_ban() {
         assert_suggestion_result(
             "He went ahead and spam the Discord so I've gone ahead and ban him.",
-            WentAheadAndAgreement::new(FstDictionary::curated()),
+            WentAheadAndAgreement::new(crate::lang::en::dictionary::dictionary()),
             "He went ahead and spammed the Discord so I've gone ahead and banned him.",
         )
     }
@@ -138,7 +135,7 @@ mod tests {
     fn went_add() {
         assert_suggestion_result(
             "I went ahead and add a note to it's javadocs that the reason argument doesn't impact it's equality",
-            WentAheadAndAgreement::new(FstDictionary::curated()),
+            WentAheadAndAgreement::new(crate::lang::en::dictionary::dictionary()),
             "I went ahead and added a note to it's javadocs that the reason argument doesn't impact it's equality",
         );
     }
@@ -147,7 +144,7 @@ mod tests {
     fn went_build() {
         assert_suggestion_result(
             "I went ahead and build out creating a shiny input from a json schema as as separate package using reactR and react-jsonschema-form",
-            WentAheadAndAgreement::new(FstDictionary::curated()),
+            WentAheadAndAgreement::new(crate::lang::en::dictionary::dictionary()),
             "I went ahead and build out creating a shiny input from a json schema as as separate package using reactR and react-jsonschema-form",
         );
     }
@@ -156,7 +153,7 @@ mod tests {
     fn went_change() {
         assert_suggestion_result(
             "So I went ahead and change the behavior to explicitly fills the default domain into the domain field if no domain is specified.",
-            WentAheadAndAgreement::new(FstDictionary::curated()),
+            WentAheadAndAgreement::new(crate::lang::en::dictionary::dictionary()),
             "So I went ahead and changed the behavior to explicitly fills the default domain into the domain field if no domain is specified.",
         );
     }
@@ -165,7 +162,7 @@ mod tests {
     fn went_do() {
         assert_suggestion_result(
             "compiler automatically identified vectorization opportunities and went ahead and do vectorization",
-            WentAheadAndAgreement::new(FstDictionary::curated()),
+            WentAheadAndAgreement::new(crate::lang::en::dictionary::dictionary()),
             "compiler automatically identified vectorization opportunities and went ahead and did vectorization",
         )
     }
@@ -174,7 +171,7 @@ mod tests {
     fn went_enable() {
         assert_suggestion_result(
             "I went ahead and enable it for those systems and fixed the resulting errors that were previously unsurfaced.",
-            WentAheadAndAgreement::new(FstDictionary::curated()),
+            WentAheadAndAgreement::new(crate::lang::en::dictionary::dictionary()),
             "I went ahead and enabled it for those systems and fixed the resulting errors that were previously unsurfaced.",
         )
     }
@@ -183,7 +180,7 @@ mod tests {
     fn gone_make() {
         assert_suggestion_result(
             "Hi - I've gone ahead and make a conda package for UMICollapse",
-            WentAheadAndAgreement::new(FstDictionary::curated()),
+            WentAheadAndAgreement::new(crate::lang::en::dictionary::dictionary()),
             "Hi - I've gone ahead and made a conda package for UMICollapse",
         )
     }
@@ -192,7 +189,7 @@ mod tests {
     fn gone_open() {
         assert_suggestion_result(
             "I would've gone ahead and open a PR in this project for the style guide",
-            WentAheadAndAgreement::new(FstDictionary::curated()),
+            WentAheadAndAgreement::new(crate::lang::en::dictionary::dictionary()),
             "I would've gone ahead and opened a PR in this project for the style guide",
         )
     }
@@ -202,7 +199,7 @@ mod tests {
     fn dont_flag_have_gone_ahead_and_have_added() {
         assert_no_lints(
             "I have gone ahead and have added a +1 and have added your case to the request in support of it.",
-            WentAheadAndAgreement::new(FstDictionary::curated()),
+            WentAheadAndAgreement::new(crate::lang::en::dictionary::dictionary()),
         )
     }
 }

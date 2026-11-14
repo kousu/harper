@@ -73,13 +73,12 @@ mod tests {
     use crate::linting::tests::assert_suggestion_result;
 
     use super::BarelyUn;
-    use crate::spell::FstDictionary;
 
     #[test]
     fn fix_unafraid() {
         assert_suggestion_result(
             "drone footage capturing me barely unafraid of rattlesnakes",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "drone footage capturing me barely afraid of rattlesnakes",
         );
     }
@@ -88,7 +87,7 @@ mod tests {
     fn fix_unaware() {
         assert_suggestion_result(
             "Many Christians claim to be followers of Jesus Christ but wander in the darkness barely unaware of the dangerous ramifications",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "Many Christians claim to be followers of Jesus Christ but wander in the darkness barely aware of the dangerous ramifications",
         );
     }
@@ -97,7 +96,7 @@ mod tests {
     fn fix_unbelievable() {
         assert_suggestion_result(
             "with the locals then taking a barely unbelievable lead when Romarinho netted five minutes before half-time",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "with the locals then taking a barely believable lead when Romarinho netted five minutes before half-time",
         );
     }
@@ -106,7 +105,7 @@ mod tests {
     fn fix_uncommon() {
         assert_suggestion_result(
             "I'm not seeing how this is an artifact. It's barely uncommon.",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "I'm not seeing how this is an artifact. It's barely common.",
         );
     }
@@ -115,7 +114,7 @@ mod tests {
     fn fix_unconscious() {
         assert_suggestion_result(
             "That night, the only dreams that troubled his barely unconscious sleeping mind, were of The Ravens Gate Bridge, all dark and foreboding.",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "That night, the only dreams that troubled his barely conscious sleeping mind, were of The Ravens Gate Bridge, all dark and foreboding.",
         );
     }
@@ -124,7 +123,7 @@ mod tests {
     fn fix_unconscious_capitalized() {
         assert_suggestion_result(
             "I remember sessions of my youth when I was dropped barely unconscious and sat out the rest of the battle",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "I remember sessions of my youth when I was dropped barely conscious and sat out the rest of the battle",
         );
     }
@@ -133,7 +132,7 @@ mod tests {
     fn fix_unhealthy() {
         assert_suggestion_result(
             "This could be explained by the fact that the administration of a large number of cells in a barely unhealthy animal might trigger an immune response",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "This could be explained by the fact that the administration of a large number of cells in a barely healthy animal might trigger an immune response",
         );
     }
@@ -141,7 +140,7 @@ mod tests {
     fn fix_unhealthy_range() {
         assert_suggestion_result(
             "a score of 50 and below is very unhealthy,50 to 59 is unhealthy, to 69 is barely unhealthy",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "a score of 50 and below is very healthy,50 to 59 is healthy, to 69 is barely healthy",
         );
     }
@@ -150,7 +149,7 @@ mod tests {
     fn fix_unknown() {
         assert_suggestion_result(
             "the electrocatalytic activity in CNFs is barely unknown",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "the electrocatalytic activity in CNFs is barely known",
         );
     }
@@ -159,7 +158,7 @@ mod tests {
     fn fix_unlikable() {
         assert_suggestion_result(
             "It's confusing, weird with barely unlikable characters.",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "It's confusing, weird with barely likable characters.",
         );
     }
@@ -168,7 +167,7 @@ mod tests {
     fn fix_unlivable() {
         assert_suggestion_result(
             "So yes the hotel isnt 5* but its barely unlivable!",
-            BarelyUn::new(FstDictionary::curated()),
+            BarelyUn::new(crate::lang::en::dictionary::dictionary()),
             "So yes the hotel isnt 5* but its barely livable!",
         );
     }

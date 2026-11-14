@@ -217,7 +217,7 @@ mod tests {
 
     use crate::linting::{Lint, create_test_pool};
     use crate::remove_overlaps_map;
-    use crate::spell::FstDictionary;
+
     use crate::{
         Document, EnglishDialect, Span,
         expr::{AnchorStart, SequenceExpr},
@@ -228,7 +228,10 @@ mod tests {
     create_test_pool!(
         LintGroup,
         LintGroup,
-        LintGroup::new_curated(FstDictionary::curated(), EnglishDialect::American)
+        crate::lang::en::linting::new_curated(
+            crate::lang::en::dictionary::dictionary(),
+            EnglishDialect::American
+        )
     );
 
     #[test]

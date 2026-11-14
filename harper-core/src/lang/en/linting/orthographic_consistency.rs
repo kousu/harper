@@ -184,12 +184,14 @@ mod tests {
         assert_good_and_bad_suggestions, assert_lint_count, assert_no_lints,
         assert_suggestion_result,
     };
-    use crate::spell::FstDictionary;
 
     use super::OrthographicConsistency;
 
     fn curated_linter() -> LintGroup {
-        LintGroup::new_curated(FstDictionary::curated(), EnglishDialect::American)
+        crate::lang::en::linting::new_curated(
+            crate::lang::en::dictionary::dictionary(),
+            EnglishDialect::American,
+        )
     }
 
     #[test]

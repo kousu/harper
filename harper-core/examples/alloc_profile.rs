@@ -89,7 +89,7 @@ fn profile_word_list(name: &str, words: &[Vec<char>], dict: &FstDictionary) {
 
 fn main() {
     // Initialize dictionary before resetting counters so startup allocs are excluded.
-    let dict = FstDictionary::curated();
+    let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
     // Warm the AUTOMATON_BUILDERS thread_local so its init allocs aren't counted
     // against the first measured case.
     let _ = black_box(dict.fuzzy_match(&['w', 'a', 'r', 'm'], MAX_EDIT_DISTANCE, MAX_RESULTS));
