@@ -5,6 +5,9 @@ mod ast;
 mod error;
 mod optimize;
 mod parsing;
+mod rule_list;
+
+pub(crate) use rule_list::weir_rule_list;
 
 use std::collections::VecDeque;
 use std::str::FromStr;
