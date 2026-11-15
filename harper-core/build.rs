@@ -69,13 +69,9 @@ fn rust_string_literal(value: &str) -> String {
     format!("{value:?}")
 }
 
-fn main() {
-    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let weir_rule_dir = manifest_dir.join("./src/lang/en/linting/weir_rules");
-    let out_dir = Path::new(&env::var("OUT_DIR").unwrap()).to_path_buf();
-    let dest = out_dir.join("weir_rules_generated_list.rs");
-
-    let mut entries = fs::read_dir(&weir_rule_dir)
+/// Write `dest`: a call to `weir_rule_list!` listing the Weir rules in `weir_rule_dir`.
+fn generate_weir_rule_list(weir_rule_dir: &Path, dest: &Path) {
+    let mut entries = fs::read_dir(weir_rule_dir)
         .unwrap()
         .filter_map(Result::ok)
         .collect::<Vec<_>>();
@@ -94,7 +90,7 @@ fn main() {
 
         if file_type.is_dir() {
             let public_name = entry.file_name().to_string_lossy().to_string();
-            let children = collect_weir_files(&path, &path, &weir_rule_dir);
+            let children = collect_weir_files(&path, &path, weir_rule_dir);
 
             if !children.is_empty() {
                 grouped_rules.push(GroupedRule {
@@ -107,14 +103,18 @@ fn main() {
 
             standalone_rules.push(StandaloneRule {
                 name: rule_name_from_path(&path),
-                relative_path: path_as_weir_relative(&path, &weir_rule_dir),
+                relative_path: path_as_weir_relative(&path, weir_rule_dir),
             });
         }
     }
 
     let mut code = String::new();
 
-    code.push_str("generate_boilerplate! {\n");
+    code.push_str("weir_rule_list! {\n");
+    code.push_str(&format!(
+        "    dir: {},\n",
+        rust_string_literal(&weir_rule_dir.to_string_lossy())
+    ));
     code.push_str("    standalone: [\n");
     for rule in standalone_rules {
         code.push_str(&format!(
@@ -145,9 +145,29 @@ fn main() {
     code.push_str("    ],\n");
     code.push_str("}\n");
 
-    fs::write(&dest, code).unwrap();
+    fs::write(dest, code).unwrap();
+}
+
+/// Each language with built-in Weir rules keeps them in `src/lang/<code>/linting/weir_rules`;
+/// its list is written to `$OUT_DIR/weir_rules_<code>.rs`.
+fn main() {
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let lang_dir = manifest_dir.join("src/lang");
+    let out_dir = Path::new(&env::var("OUT_DIR").unwrap()).to_path_buf();
+
+    // Watch for languages being added.
+    println!("cargo:rerun-if-changed={}", lang_dir.display());
+
+    for entry in fs::read_dir(&lang_dir).unwrap().filter_map(Result::ok) {
+        let weir_rule_dir = entry.path().join("linting/weir_rules");
+        if weir_rule_dir.is_dir() {
+            let code = entry.file_name().to_string_lossy().to_string();
+            generate_weir_rule_list(
+                &weir_rule_dir,
+                &out_dir.join(format!("weir_rules_{code}.rs")),
+            );
+        }
+    }
 
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rustc-env=WEIR_RULE_DIR={}", weir_rule_dir.display());
-    println!("cargo:rustc-env=WEIR_RULE_LIST={}", dest.display());
 }
