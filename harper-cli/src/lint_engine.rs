@@ -3,7 +3,7 @@ use std::{collections::BTreeMap, path::Path, sync::Arc};
 use hashbrown::HashMap;
 
 use harper_core::{
-    Language,
+    Language, LanguageFamily,
     linting::{Lint, LintGroup, LintKind},
     parsers::MarkdownOptions,
     remove_overlaps_map,
@@ -72,7 +72,7 @@ pub fn lint_one_input(
             }
         }
 
-        match single_input.load(markdown_options, &merged_dictionary) {
+        match single_input.load(markdown_options, LanguageFamily::English) {
             Err(err) => {
                 eprintln!("{}", err);
                 if matches!(report_mode, ReportStyle::Json) {

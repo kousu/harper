@@ -178,7 +178,11 @@ mod tests {
         let source = "/** This should _not_cause an infinite loop: {@ */";
         let parser =
             CommentParser::new_from_language_id("javascript", MarkdownOptions::default()).unwrap();
-        Document::new_curated(source, &parser);
+        Document::new_with_parser_and_language(
+            source,
+            &parser,
+            harper_core::LanguageFamily::English,
+        );
     }
 
     #[test]
@@ -186,7 +190,11 @@ mod tests {
         let source = "/** See {@link MyClass} and [MyClass's foo property]{@link MyClass#foo}. */";
         let parser =
             CommentParser::new_from_language_id("javascript", MarkdownOptions::default()).unwrap();
-        let document = Document::new_curated(source, &parser);
+        let document = Document::new_with_parser_and_language(
+            source,
+            &parser,
+            harper_core::LanguageFamily::English,
+        );
 
         assert!(matches!(
             document
@@ -231,7 +239,11 @@ mod tests {
         let source = "/** @class Circle representing a circle. */";
         let parser =
             CommentParser::new_from_language_id("javascript", MarkdownOptions::default()).unwrap();
-        let document = Document::new_curated(source, &parser);
+        let document = Document::new_with_parser_and_language(
+            source,
+            &parser,
+            harper_core::LanguageFamily::English,
+        );
 
         assert!(
             document.tokens().all(|t| t.kind.is_unlintable()

@@ -418,7 +418,7 @@ mod tests {
             EnglishSpelling::new(),
         );
         for (source, priority) in [("coresponding", 32), ("worthchecking", 63)] {
-            let document = Document::new_plain_english_curated(source);
+            let document = Document::new_with_language(source, crate::LanguageFamily::English);
             let lints = linter.lint(&document);
             assert_eq!(lints.len(), 1);
             assert_eq!(lints[0].priority, priority, "{source}");
@@ -877,8 +877,9 @@ mod tests {
                 Language::English(user_dialect),
                 EnglishSpelling::new()
             )
-            .lint(&Document::new_markdown_default_curated(
-                "I like to use the software Calibre."
+            .lint(&Document::new_with_language(
+                "I like to use the software Calibre.",
+                crate::LanguageFamily::English
             ))
             .len(),
             0,
@@ -891,8 +892,9 @@ mod tests {
                 Language::English(user_dialect),
                 EnglishSpelling::new()
             )
-            .lint(&Document::new_markdown_default_curated(
-                "I like to use the spelling colour."
+            .lint(&Document::new_with_language(
+                "I like to use the spelling colour.",
+                crate::LanguageFamily::English
             ))
             .len(),
             1
@@ -1560,7 +1562,10 @@ mod test_context_ranking {
             Language::English(EnglishDialect::American),
             EnglishSpelling::new(),
         )
-        .lint(&Document::new_plain_english_curated(text))
+        .lint(&Document::new_with_language(
+            text,
+            crate::LanguageFamily::English,
+        ))
         .into_iter()
         .next()
         .map(|lint| {

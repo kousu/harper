@@ -63,7 +63,11 @@ pub fn make_title_case_chars(
     parser: &impl Parser,
     dict: &impl Dictionary,
 ) -> Vec<char> {
-    let document = Document::new_from_chars(source.clone(), parser, dict);
+    let document = Document::new_with_parser_and_language(
+        source.clone(),
+        parser,
+        crate::LanguageFamily::English,
+    );
 
     make_title_case(document.get_tokens(), &source, dict)
 }

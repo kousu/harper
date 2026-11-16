@@ -46,7 +46,10 @@ mod tests {
 
     #[test]
     fn number_implies() {
-        let doc = Document::new_plain_english_curated("There are 60 minutes in an hour.");
+        let doc = Document::new_with_language(
+            "There are 60 minutes in an hour.",
+            crate::LanguageFamily::English,
+        );
 
         assert_eq!(
             ImpliesQuantity.find_all_matches_in_doc(&doc),

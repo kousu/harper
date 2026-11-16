@@ -12,7 +12,7 @@ macro_rules! allows {
         #[test]
         fn $name() {
             assert_no_lints($text, MissingIndefiniteArticle::new(EnglishDialect::American));
-            let document = Document::new_markdown_default_curated($text);
+            let document = Document::new_with_parser_and_language($text, &crate::parsers::Markdown::with_language(crate::parsers::MarkdownOptions::default(), crate::LanguageFamily::English), crate::LanguageFamily::English);
             assert!(MissingIndefiniteArticle::new(EnglishDialect::American).lint(&document).is_empty(), "Markdown: {}", $text);
         }
     )*};

@@ -108,7 +108,14 @@ mod tests {
     fn fruit() {
         let set = WordSet::new(&["banana", "apple", "orange"]);
 
-        let doc = Document::new_markdown_default_curated("I ate a banana and an apple today.");
+        let doc = Document::new_with_parser_and_language(
+            "I ate a banana and an apple today.",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
 
         let matches = set.find_all_matches_in_doc(&doc);
 
@@ -119,7 +126,14 @@ mod tests {
     fn fruit_whack_capitalization() {
         let set = WordSet::new(&["banana", "apple", "orange"]);
 
-        let doc = Document::new_markdown_default_curated("I Ate A bAnaNa And aN apPlE today.");
+        let doc = Document::new_with_parser_and_language(
+            "I Ate A bAnaNa And aN apPlE today.",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
 
         let matches = set.find_all_matches_in_doc(&doc);
 
@@ -130,7 +144,14 @@ mod tests {
     fn supports_typographic_apostrophes() {
         let set = WordSet::new(&["They're"]);
 
-        let doc = Document::new_markdown_default_curated("They’re");
+        let doc = Document::new_with_parser_and_language(
+            "They’re",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
 
         let matches = set.find_all_matches_in_doc(&doc);
 

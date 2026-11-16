@@ -44,10 +44,10 @@ mod tests {
     fn assert_no_english(text: &str) {
         let dict = crate::lang::en::dictionary::dictionary();
 
-        let document = Document::new(
+        let document = Document::new_with_parser_and_language(
             text,
             &IsolateEnglish::new(Box::new(PlainEnglish), dict.clone()),
-            &dict,
+            crate::LanguageFamily::English,
         );
 
         assert_eq!(document.iter_words().count(), 0);
@@ -59,10 +59,10 @@ mod tests {
     fn assert_stripped_english(source: &str, target: &str) {
         let dict = crate::lang::en::dictionary::dictionary();
 
-        let document = Document::new(
+        let document = Document::new_with_parser_and_language(
             source,
             &IsolateEnglish::new(Box::new(PlainEnglish), dict.clone()),
-            &dict,
+            crate::LanguageFamily::English,
         );
 
         assert_eq!(document.to_string(), target);
