@@ -40,7 +40,14 @@ mod tests {
 
     #[test]
     fn matches_period() {
-        let document = Document::new_markdown_default_curated("This is a test.");
+        let document = Document::new_with_parser_and_language(
+            "This is a test.",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches: Vec<_> = AnchorEnd.iter_matches_in_doc(&document).collect();
 
         assert_eq!(matches, vec![Span::new(7, 7)])
@@ -48,7 +55,14 @@ mod tests {
 
     #[test]
     fn does_not_match_empty() {
-        let document = Document::new_markdown_default_curated("");
+        let document = Document::new_with_parser_and_language(
+            "",
+            &crate::parsers::Markdown::with_language(
+                crate::parsers::MarkdownOptions::default(),
+                crate::LanguageFamily::English,
+            ),
+            crate::LanguageFamily::English,
+        );
         let matches: Vec<_> = AnchorEnd.iter_matches_in_doc(&document).collect();
 
         assert_eq!(matches, vec![])
@@ -57,7 +71,8 @@ mod tests {
     #[test]
     fn test_word_at_end_of_document() {
         // Test matching a specific word at the end of a document
-        let document = Document::new_plain_english_curated("This is the end");
+        let document =
+            Document::new_with_language("This is the end", crate::LanguageFamily::English);
         let expr = SequenceExpr::default()
             .then_any_capitalization_of("end")
             .then(AnchorEnd);
@@ -71,7 +86,8 @@ mod tests {
     #[test]
     fn test_word_not_at_end_of_doc() {
         // Test that it doesn't match when word has trailing content
-        let document = Document::new_plain_english_curated("This is the end, really");
+        let document =
+            Document::new_with_language("This is the end, really", crate::LanguageFamily::English);
         let expr = SequenceExpr::default()
             .then_any_capitalization_of("end")
             .then(AnchorEnd);
@@ -85,7 +101,7 @@ mod tests {
     fn test_word_at_end_of_chunk() {
         // Chunks are split by commas, so "hello, world" becomes two chunks
         // Test that AnchorEnd works at the end of a chunk
-        let document = Document::new_plain_english_curated("hello, world");
+        let document = Document::new_with_language("hello, world", crate::LanguageFamily::English);
         let expr = SequenceExpr::default()
             .then_any_capitalization_of("hello")
             .then(AnchorEnd);
@@ -102,7 +118,7 @@ mod tests {
     #[test]
     fn test_compare_with_anchor_start() {
         // AnchorStart works as expected
-        let document = Document::new_plain_english_curated("Start here");
+        let document = Document::new_with_language("Start here", crate::LanguageFamily::English);
         let expr = SequenceExpr::default()
             .then(AnchorStart)
             .then_any_capitalization_of("start");
@@ -115,7 +131,7 @@ mod tests {
     #[test]
     fn test_word_with_trailing_whitespace_at_end_of_doc() {
         // Test AnchorEnd after matching whitespace
-        let document = Document::new_plain_english_curated("foo ");
+        let document = Document::new_with_language("foo ", crate::LanguageFamily::English);
         let expr = SequenceExpr::default()
             .then_any_capitalization_of("foo")
             .then_whitespace()

@@ -783,7 +783,8 @@ mod tests {
     fn test_kind_both() {
         let noun_and_verb =
             SequenceExpr::default().then_kind_both(TokenKind::is_noun, TokenKind::is_verb);
-        let doc = Document::new_plain_english_curated("Use a good example.");
+        let doc =
+            Document::new_with_language("Use a good example.", crate::LanguageFamily::English);
         let matches = noun_and_verb.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["Use", "good", "example"]);
     }
@@ -792,7 +793,8 @@ mod tests {
     fn test_adjective_or_determiner() {
         let expr = SequenceExpr::default()
             .then_kind_either(TokenKind::is_adjective, TokenKind::is_determiner);
-        let doc = Document::new_plain_english_curated("Use a good example.");
+        let doc =
+            Document::new_with_language("Use a good example.", crate::LanguageFamily::English);
         let matches = expr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["a", "good"]);
     }
@@ -801,14 +803,15 @@ mod tests {
     fn test_noun_but_not_adjective() {
         let expr = SequenceExpr::default()
             .then_kind_is_but_is_not(TokenKind::is_noun, TokenKind::is_adjective);
-        let doc = Document::new_plain_english_curated("Use a good example.");
+        let doc =
+            Document::new_with_language("Use a good example.", crate::LanguageFamily::English);
         let matches = expr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["Use", "example"]);
     }
 
     #[track_caller]
     fn assert_no_matches_for(s: &str, expr: &SequenceExpr) {
-        let doc = Document::new_plain_english_curated(s);
+        let doc = Document::new_with_language(s, crate::LanguageFamily::English);
         let mut matches = expr.iter_matches_in_doc(&doc);
         assert!(matches.next().is_none());
     }
@@ -821,7 +824,7 @@ mod tests {
             .start_capture()
             .then_exact_word("world");
 
-        let doc = Document::new_plain_english_curated("hello world");
+        let doc = Document::new_with_language("hello world", crate::LanguageFamily::English);
         let matches = expr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["world"]);
 
@@ -837,7 +840,7 @@ mod tests {
             .t_ws()
             .then_exact_word("world");
 
-        let doc = Document::new_plain_english_curated("hello world");
+        let doc = Document::new_with_language("hello world", crate::LanguageFamily::English);
         let matches = expr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["hello"]);
 
@@ -856,7 +859,8 @@ mod tests {
             .t_ws()
             .then_exact_word("testing");
 
-        let doc = Document::new_plain_english_curated("hello world testing");
+        let doc =
+            Document::new_with_language("hello world testing", crate::LanguageFamily::English);
         let matches = expr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["world"]);
 
@@ -878,7 +882,10 @@ mod tests {
             .t_ws()
             .then_any_word();
 
-        let doc = Document::new_plain_english_curated("hello world testing something else");
+        let doc = Document::new_with_language(
+            "hello world testing something else",
+            crate::LanguageFamily::English,
+        );
         let matches = expr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["world testing"]);
     }
@@ -896,8 +903,9 @@ mod tests {
             .t_ws()
             .then_exact_word("testing");
 
-        let doc = Document::new_plain_english_curated(
+        let doc = Document::new_with_language(
             "hello one world testing hello two world testing hello three world something else",
+            crate::LanguageFamily::English,
         );
         let matches = expr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["one world", "two world"]);
@@ -916,7 +924,10 @@ mod tests {
             .end_capture()
             .then_exact_word("testing");
 
-        let doc = Document::new_plain_english_curated("hello world world world testing");
+        let doc = Document::new_with_language(
+            "hello world world world testing",
+            crate::LanguageFamily::English,
+        );
         let matches = expr.iter_matches_in_doc(&doc).collect::<Vec<_>>();
         assert_eq!(matches.to_strings(&doc), vec!["world world world "]);
 
@@ -932,7 +943,7 @@ mod tests {
             Box::new(AnchorEnd),
         ]);
 
-        let doc_with_bar = Document::new_plain_english_curated("foo bar");
+        let doc_with_bar = Document::new_with_language("foo bar", crate::LanguageFamily::English);
 
         let matches_with_bar = expr.iter_matches_in_doc(&doc_with_bar).collect::<Vec<_>>();
 
@@ -952,7 +963,7 @@ mod tests {
             Box::new(AnchorEnd),
         ]);
 
-        let doc_with_end = Document::new_plain_english_curated("foo");
+        let doc_with_end = Document::new_with_language("foo", crate::LanguageFamily::English);
 
         let matches_with_end = expr.iter_matches_in_doc(&doc_with_end).collect::<Vec<_>>();
 
@@ -972,7 +983,8 @@ mod tests {
             Box::new(AnchorEnd),
         ]);
 
-        let doc_with_foo_bar_baz = Document::new_plain_english_curated("foo bar baz");
+        let doc_with_foo_bar_baz =
+            Document::new_with_language("foo bar baz", crate::LanguageFamily::English);
 
         let matches_with_foo_bar_baz = expr
             .iter_matches_in_doc(&doc_with_foo_bar_baz)

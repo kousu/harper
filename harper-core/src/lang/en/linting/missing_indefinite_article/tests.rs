@@ -281,8 +281,13 @@ mod mass_senses {
 
 #[test]
 fn private_children_are_enabled_and_handle_distinct_contexts() {
-    let document = Document::new_markdown_default_curated(
+    let document = Document::new_with_parser_and_language(
         "She needs umbrella. They waited beside old tower. Careful editor can spot this error. They need such unusual vehicle. Nearly thousand visitors attended.",
+        &crate::parsers::Markdown::with_language(
+            crate::parsers::MarkdownOptions::default(),
+            crate::LanguageFamily::English,
+        ),
+        crate::LanguageFamily::English,
     );
     let mut rule = MissingIndefiniteArticle::new(EnglishDialect::American);
     let results = rule.group.organized_lints(&document);
@@ -338,7 +343,14 @@ fn overlapping_subject_and_verb_candidates_insert_only_once() {
     use crate::linting::tests::assert_first_suggestion_result;
     let input = "Wanted poster can identify the suspect.";
     let mut rule = MissingIndefiniteArticle::new(EnglishDialect::American);
-    let document = Document::new_markdown_default_curated(input);
+    let document = Document::new_with_parser_and_language(
+        input,
+        &crate::parsers::Markdown::with_language(
+            crate::parsers::MarkdownOptions::default(),
+            crate::LanguageFamily::English,
+        ),
+        crate::LanguageFamily::English,
+    );
     assert_eq!(rule.lint(&document).len(), 1);
     assert_first_suggestion_result(input, rule, "A wanted poster can identify the suspect.");
 }
@@ -346,7 +358,14 @@ fn overlapping_subject_and_verb_candidates_insert_only_once() {
 #[test]
 fn public_setting_controls_all_private_children() {
     use crate::spell::FstDictionary;
-    let document = Document::new_markdown_default_curated("She needs umbrella.");
+    let document = Document::new_with_parser_and_language(
+        "She needs umbrella.",
+        &crate::parsers::Markdown::with_language(
+            crate::parsers::MarkdownOptions::default(),
+            crate::LanguageFamily::English,
+        ),
+        crate::LanguageFamily::English,
+    );
     let mut group = LintGroup::new_curated_for_language(
         FstDictionary::curated_for(crate::LanguageFamily::English),
         crate::Language::English(EnglishDialect::American),
@@ -364,8 +383,13 @@ fn public_setting_controls_all_private_children() {
 #[test]
 fn merged_group_preserves_source_order_without_duplicate_insertions() {
     let mut rule = MissingIndefiniteArticle::new(EnglishDialect::American);
-    let document = Document::new_markdown_default_curated(
+    let document = Document::new_with_parser_and_language(
         "They waited beside fallen tree. She needs umbrella. Nearly thousand visitors attended.",
+        &crate::parsers::Markdown::with_language(
+            crate::parsers::MarkdownOptions::default(),
+            crate::LanguageFamily::English,
+        ),
+        crate::LanguageFamily::English,
     );
     let lints = rule.lint(&document);
     assert_eq!(lints.len(), 3);

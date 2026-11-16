@@ -45,7 +45,7 @@ pub use dict_word_metadata::{
     VerbData, VerbForm, VerbFormFlags, WordDialects,
 };
 pub use dict_word_metadata_orthography::{OrthFlags, Orthography};
-pub use document::Document;
+pub use document::{Document, DocumentText};
 pub use fat_token::{FatStringToken, FatToken};
 pub use ignored_lints::{IgnoredLints, LintContext};
 #[cfg(feature = "en")]
@@ -242,7 +242,7 @@ mod tests {
 
     #[test]
     fn keeps_space_lint() {
-        let doc = Document::new_plain_english_curated("Ths  tet");
+        let doc = Document::new_with_language("Ths  tet", crate::LanguageFamily::English);
 
         let mut linter = test_linter();
 
@@ -257,7 +257,7 @@ mod tests {
 
     #[test]
     fn remove_lints_overlapping_expr_removes_overlapping_lints() {
-        let doc = Document::new_plain_english_curated("keep bad keep");
+        let doc = Document::new_with_language("keep bad keep", crate::LanguageFamily::English);
         let mut lints = vec![Lint {
             span: Span::new(5, 8),
             ..Default::default()
@@ -270,7 +270,7 @@ mod tests {
 
     #[test]
     fn remove_lints_overlapping_expr_keeps_non_overlapping_lints() {
-        let doc = Document::new_plain_english_curated("keep bad keep");
+        let doc = Document::new_with_language("keep bad keep", crate::LanguageFamily::English);
         let mut lints = vec![Lint {
             span: Span::new(0, 4),
             ..Default::default()
@@ -283,7 +283,7 @@ mod tests {
 
     #[test]
     fn remove_lints_overlapping_expr_ignores_zero_width_matches() {
-        let doc = Document::new_plain_english_curated("bad");
+        let doc = Document::new_with_language("bad", crate::LanguageFamily::English);
         let mut lints = vec![Lint {
             span: Span::new(0, 3),
             ..Default::default()
@@ -296,7 +296,7 @@ mod tests {
 
     #[quickcheck]
     fn overlap_removals_have_equivalent_behavior(s: String) {
-        let doc = Document::new_plain_english_curated(&s);
+        let doc = Document::new_with_language(&s, crate::LanguageFamily::English);
         let linter = test_linter();
 
         let mut lint_map = linter.run_with_inner(|l| l.organized_lints(&doc));

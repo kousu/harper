@@ -42,7 +42,10 @@ mod tests {
     fn assert_count(text: &str, expected_count: usize) {
         assert_eq!(
             PronounBe::default()
-                .iter_matches_in_doc(&Document::new_plain_english_curated(text))
+                .iter_matches_in_doc(&Document::new_with_language(
+                    text,
+                    crate::LanguageFamily::English
+                ))
                 .count(),
             expected_count
         );

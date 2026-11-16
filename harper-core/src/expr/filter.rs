@@ -16,13 +16,13 @@ use super::{AsBoxedExpr, Expr};
 /// # #[cfg(feature = "en")] {
 /// use harper_core::patterns::WhitespacePattern;
 /// use harper_core::expr::{AsBoxedExpr, Expr, SequenceExpr, Filter, ExprExt};
-/// use harper_core::{Span, Document};
+/// use harper_core::{Document, LanguageFamily, Span};
 ///
 /// let a = SequenceExpr::word_seq(&["chock", "full"]);
 /// let b = WhitespacePattern;
 ///
 /// let filter = Filter::new([Box::new(a) as Box<dyn Expr>, Box::new(b)]);
-/// let doc = Document::new_markdown_default_curated("This test is chock full of insights.");
+/// let doc = Document::new_with_language("This test is chock full of insights.", LanguageFamily::English);
 ///
 /// let matches: Vec<_> = filter.iter_matches_in_doc(&doc).collect();
 /// assert_eq!(vec![Span::new(7, 8)], matches)

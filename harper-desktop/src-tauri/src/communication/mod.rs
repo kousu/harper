@@ -96,7 +96,14 @@ mod tests {
     async fn client_receives_ignored_lints_from_server() {
         let (client_request_writer, server_request_reader) = duplex(16_384);
         let (server_response_writer, client_response_reader) = duplex(16_384);
-        let document = Document::new_markdown_default_curated("A test document.");
+        let document = Document::new_with_parser_and_language(
+            "A test document.",
+            &harper_core::parsers::Markdown::with_language(
+                harper_core::parsers::MarkdownOptions::default(),
+                harper_core::LanguageFamily::English,
+            ),
+            harper_core::LanguageFamily::English,
+        );
         let lint = Lint::default();
         let mut config = Config::new();
         config.ignored_lints.ignore_lint(&lint, &document);
@@ -141,7 +148,14 @@ mod tests {
     async fn client_can_merge_ignored_lints_on_server() {
         let (client_request_writer, server_request_reader) = duplex(16_384);
         let (server_response_writer, client_response_reader) = duplex(16_384);
-        let document = Document::new_markdown_default_curated("A test document.");
+        let document = Document::new_with_parser_and_language(
+            "A test document.",
+            &harper_core::parsers::Markdown::with_language(
+                harper_core::parsers::MarkdownOptions::default(),
+                harper_core::LanguageFamily::English,
+            ),
+            harper_core::LanguageFamily::English,
+        );
         let lint = Lint::default();
         let mut ignored_lints = IgnoredLints::new();
         ignored_lints.ignore_lint(&lint, &document);

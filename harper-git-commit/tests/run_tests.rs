@@ -18,7 +18,7 @@ macro_rules! create_test {
                 );
 
                 let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
-                let document = Document::new(source, &GitCommitParser::default(), &dict);
+                let document = Document::new_with_parser_and_language(source, &GitCommitParser::default(), harper_core::LanguageFamily::English);
 
                 let mut linter = LintGroup::new_curated_for_language(dict, harper_core::Language::English(EnglishDialect::American));
                 let lints = linter.lint(&document);
@@ -41,8 +41,6 @@ create_test!(markdown_body_commit.txt, 3);
 
 #[test]
 fn conventional_commit_prefixes_are_not_parsed() {
-    let dict = FstDictionary::curated_for(harper_core::LanguageFamily::English);
-
     for prefix in [
         "feat(harper): ",
         "fix(git-commit): ",
@@ -51,7 +49,11 @@ fn conventional_commit_prefixes_are_not_parsed() {
         "feat(caf\u{e9}): ",
     ] {
         let source = format!("{prefix}add missing files\n");
-        let document = Document::new(&source, &GitCommitParser::default(), &dict);
+        let document = Document::new_with_parser_and_language(
+            &source,
+            &GitCommitParser::default(),
+            harper_core::LanguageFamily::English,
+        );
         let description_start = prefix.chars().count();
 
         assert!(
@@ -83,7 +85,11 @@ fn conventional_commit_descriptions_are_still_spellchecked() {
         "chore: add mising files\n",
         "feat(caf\u{e9}): add mising files\n",
     ] {
-        let document = Document::new(source, &GitCommitParser::default(), &dict);
+        let document = Document::new_with_parser_and_language(
+            source,
+            &GitCommitParser::default(),
+            harper_core::LanguageFamily::English,
+        );
         let misspellings: Vec<_> = linter
             .lint(&document)
             .into_iter()
@@ -108,7 +114,11 @@ fn ordinary_subjects_and_commit_bodies_are_still_spellchecked() {
         "feat(harper): add files\n\nmising files\n",
         "# ignored comment\nfeat(harper): add mising files\n",
     ] {
-        let document = Document::new(source, &GitCommitParser::default(), &dict);
+        let document = Document::new_with_parser_and_language(
+            source,
+            &GitCommitParser::default(),
+            harper_core::LanguageFamily::English,
+        );
         let misspellings: Vec<_> = linter
             .lint(&document)
             .into_iter()
@@ -134,7 +144,11 @@ fn hash_prefixed_descriptions_are_not_treated_as_comments() {
         "feat(caf\u{e9}): #123 add mising files\n",
         "feat(harper): #123 add files\n\nmising files\n",
     ] {
-        let document = Document::new(source, &GitCommitParser::default(), &dict);
+        let document = Document::new_with_parser_and_language(
+            source,
+            &GitCommitParser::default(),
+            harper_core::LanguageFamily::English,
+        );
         let misspellings: Vec<_> = linter
             .lint(&document)
             .into_iter()
